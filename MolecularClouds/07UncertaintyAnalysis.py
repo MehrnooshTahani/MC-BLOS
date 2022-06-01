@@ -3,8 +3,8 @@ This is the seventh stage of the BLOSMapping method where the uncertainties in t
 """
 import os
 import pandas as pd
-from Classes.RegionOfInterest import Region
-
+from LocalLibraries.RegionOfInterest import Region
+import LocalLibraries.config as config
 
 # -------- FUNCTION DEFINITION --------
 def extinctionChemUncertainties(B, BHigher, BLower):
@@ -26,24 +26,17 @@ def extinctionChemUncertainties(B, BHigher, BLower):
 
 
 # -------- CHOOSE THE REGION OF INTEREST --------
-cloudName = input("Enter the name of the region of interest: ")
-cloudName = cloudName.capitalize()  # Ensure only the first letter is capitalized
+cloudName = config.cloud
 regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-currentDir = os.path.abspath(os.getcwd())
-
-BFilePath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/BLOSPoints' + cloudName + '.txt')
-BData_Density50IncreasePath = os.path.join(currentDir,
-                                           'FileOutput/' + cloudName + '/DensitySensitivity/B_Av_T0_n+50.txt')
-BData_Density50DecreasePath = os.path.join(currentDir,
-                                           'FileOutput/' + cloudName + '/DensitySensitivity/B_Av_T0_n-50.txt')
-BData_Temp20IncreasePath = os.path.join(currentDir,
-                                        'FileOutput/' + cloudName + '/TemperatureSensitivity/B_Av_T+20_n0.txt')
-BData_Temp20DecreasePath = os.path.join(currentDir,
-                                        'FileOutput/' + cloudName + '/TemperatureSensitivity/B_Av_T-20_n0.txt')
-saveFilePath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/FinalBLOSResults' + cloudName + '.txt')
+BFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
+BData_Density50IncreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity, 'B_Av_T0_n+50.txt')
+BData_Density50DecreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity, 'B_Av_T0_n-50.txt')
+BData_Temp20IncreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity, 'B_Av_T+20_n0.txt')
+BData_Temp20DecreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity, 'B_Av_T-20_n0.txt')
+saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSUncertainty + cloudName + '.txt')
 # -------- DEFINE FILES AND PATHS --------
 
 # -------- READ BLOS DATA--------

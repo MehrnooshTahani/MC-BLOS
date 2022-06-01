@@ -8,10 +8,10 @@ import numpy as np
 from astropy.wcs import WCS
 from astropy.io import fits
 import matplotlib.pyplot as plt
-from Classes.RegionOfInterest import Region
-from CalculateB import CalculateB
-
-
+from LocalLibraries.RegionOfInterest import Region
+from LocalLibraries.CalculateB import CalculateB
+import LocalLibraries.config as config
+import math
 # -------- FUNCTION DEFINITION --------
 def B2RGB(b):
     """
@@ -26,7 +26,7 @@ def B2RGB(b):
     for item in b:
         if abs(item) < 1000:
             s.append(abs(item) / 2)
-        if abs(item) >= 1000:
+        elif abs(item) >= 1000:
             s.append(1000 / 2)
 
         alpha = 1  # Optional: set the transparency
@@ -43,19 +43,15 @@ def B2RGB(b):
 
 
 # -------- CHOOSE THE REGION OF INTEREST --------
-cloudName = input("Enter the name of the region of interest: ")
-cloudName = cloudName.capitalize()  # Ensure only the first letter is capitalized
+cloudName = config.cloud
 regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-currentDir = os.path.abspath(os.getcwd())
-FilePath_ReferencePoints = os.path.join(currentDir, 'FileOutput/' + cloudName + '/RefPoints' + cloudName + '.txt')
-FilePath_MatchedRMExtinc = os.path.join(currentDir, 'FileOutput/' + cloudName + '/MatchedRMExtinction' + cloudName +
-                                        '.txt')
-saveFilePath_BLOSPoints = os.path.join(currentDir, 'FileOutput/' + cloudName + '/BLOSPoints' + cloudName + '.txt')
-saveFigurePath_BLOSPointMap = os.path.join(currentDir,
-                                           'FileOutput/' + cloudName + '/Plots/BLOSPointMap' + cloudName + '.png')
+FilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
+FilePath_MatchedRMExtinc = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + cloudName + '.txt')
+saveFilePath_BLOSPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
+saveFigurePath_BLOSPointMap = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_BLOSPointFig + config.cloud + '.png')
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- LOAD REFERENCE POINT DATA --------
@@ -69,15 +65,22 @@ wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
 # -------- CALCULATE BLOS --------
-BLOS = CalculateB(regionOfInterest.AvFilePath, FilePath_MatchedRMExtinc, refData, saveFilePath=saveFilePath_BLOSPoints)
+#BLOS = CalculateB(regionOfInterest.AvFilePath, FilePath_MatchedRMExtinc, refData, saveFilePath=saveFilePath_BLOSPoints)
+BLOSData = CalculateB(regionOfInterest.AvFilePath, FilePath_MatchedRMExtinc, refData, saveFilePath=saveFilePath_BLOSPoints)
 print('Saving calculated magnetic field values to '+saveFilePath_BLOSPoints)
 # -------- CALCULATE BLOS. --------
 
 # -------- PREPARE TO PLOT BLOS POINTS --------
-n = list(BLOS.BLOSData['ID#'])
-Ra = list(BLOS.BLOSData['Ra(deg)'])
-Dec = list(BLOS.BLOSData['Dec(deg)'])
-BLOS = list(BLOS.BLOSData['Magnetic_Field(uG)'])
+#n = list(BLOS.BLOSData['ID#'])
+#Ra = list(BLOS.BLOSData['Ra(deg)'])
+#Dec = list(BLOS.BLOSData['Dec(deg)'])
+#BLOS = list(BLOS.BLOSData['Magnetic_Field(uG)'])
+
+n = list(BLOSData['ID#'])
+Ra = list(BLOSData['Ra(deg)'])
+Dec = list(BLOSData['Dec(deg)'])
+BLOS = list(BLOSData['Magnetic_Field(uG)'])
+
 # ---- Convert Ra and Dec of points into pixel values of the fits file
 x = []  # x pixel coordinate
 y = []  # y pixel coordinate
@@ -104,9 +107,9 @@ for i, txt in enumerate(n):
 # ---- Annotate the BLOS Points.
 
 # ---- Style the main axes and their grid
-if regionOfInterest.xmax and regionOfInterest.xmin != 'none':
+if not math.isnan(regionOfInterest.xmax) and not math.isnan(regionOfInterest.xmin):
     ax.set_xlim(regionOfInterest.xmin, regionOfInterest.xmax)
-if regionOfInterest.ymax and regionOfInterest.ymin != 'none':
+if not math.isnan(regionOfInterest.ymax) and not math.isnan(regionOfInterest.ymin):
     ax.set_ylim(regionOfInterest.ymin, regionOfInterest.ymax)
 
 ra = ax.coords[0]

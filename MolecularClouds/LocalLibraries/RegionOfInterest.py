@@ -19,8 +19,8 @@ TEMPLATE (with defaults)
             self.T0 = ''
             self.G0 = ''
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude =   # [deg]
             # Boundaries of the region of interest:
@@ -35,18 +35,61 @@ TEMPLATE (with defaults)
 """
 import os
 from sys import exit
-currentDir = os.path.abspath(os.getcwd())
-
+from configparser import ConfigParser
+import MolecularClouds.LocalLibraries.config as config
 
 class Region:
     def __init__(self, regionName):
 
+        cloudParams = ConfigParser()
+        regionDataFileLoc = os.path.join(config.dir_root, config.dir_data, config.dir_cloudParameters, regionName.lower() + '.ini')
+
+        if not os.path.exists(regionDataFileLoc):
+            print("The region file has not been found! Replace this with a better error message eventually.")
+            #Error out or read dummy data?
+
+        cloudParams.read(regionDataFileLoc)
+        """ Load Region Data """
+        # Distance to the region of interest:
+        self.distance = cloudParams['Cloud Info'].getfloat('distance')  # CHECK THIS [pc]
+        self.jeanslength = cloudParams['Cloud Info'].getfloat('cloudJeansLength')
+        # Path to the fits file containing to the region of interest:
+        self.fitsFilePath = os.path.join(config.dir_root, config.dir_data, cloudParams['Cloud Info'].get('fitsFileName'))
+        self.fitsDataType = cloudParams['Cloud Info'].get('fitsDataType')
+        # Pixel limits of the region of interest in the fits file:
+        self.xmin = cloudParams['Cloud Info'].getfloat('xmin')
+        self.xmax = cloudParams['Cloud Info'].getfloat('xmax')
+        self.ymin = cloudParams['Cloud Info'].getfloat('ymin')
+        self.ymax = cloudParams['Cloud Info'].getfloat('ymax')
+        # Path to the fiducial extinction and electron abundance for the region of interest:
+        self.n0 = cloudParams['Cloud Info'].get('n0')
+        self.T0 = cloudParams['Cloud Info'].get('T0')
+        self.G0 = cloudParams['Cloud Info'].get('G0')  # can be 1 for most clouds unless clouds with many type o and b stars
+        Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
+        self.AvFileDir = os.path.join(config.dir_root, config.dir_data, config.dir_chemAbundance, Parameters)
+        self.AvFilePath = os.path.join(config.dir_root, config.dir_data, config.dir_chemAbundance, Parameters, 'Av_T0_n0.out')
+        # Galactic Latitude of the region of interest:
+        self.cloudLatitude = cloudParams['Cloud Info'].getfloat('cloudLatitude')
+        # Boundaries of the region of interest:
+        self.raHoursMax = cloudParams['Cloud Info'].getfloat('raHoursmax')
+        self.raMinsMax = cloudParams['Cloud Info'].getfloat('raMinsMax')
+        self.raSecMax = cloudParams['Cloud Info'].getfloat('raSecMax')
+        self.raHoursMin = cloudParams['Cloud Info'].getfloat('raHoursMin')
+        self.raMinsMin = cloudParams['Cloud Info'].getfloat('raMinsMin')
+        self.raSecMin = cloudParams['Cloud Info'].getfloat('raSecMin')
+        self.decDegMax = cloudParams['Cloud Info'].getfloat('decDegMax')
+        self.decDegMin = cloudParams['Cloud Info'].getfloat('decDegMin')
+
+
+
+        #Old information below
+        '''
         if regionName.lower() == 'aquila':
             """Parameters corresponding to the region containing the Aquila molecular cloud """
             # Distance to the region of interest:
             self.distance = 400  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_aquilaM2_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_aquilaM2_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -58,8 +101,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1' # can be 1 for most clouds unless clouds with many type o and b stars
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = 4  # [deg]
             # Boundaries of the region of interest:
@@ -77,7 +120,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 450.  # CHECK THIS [pc] 470 +/- 2 pc (Zucker et al. 2019)
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/2015_02_CalTauPer_toBernsteinCooper.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/2015_02_CalTauPer_toBernsteinCooper.fits'.replace('/', os.sep))
             self.fitsDataType = 'VisualExtinction'
             # Pixel limits of the region of interest in the file:
             self.xmin = 330
@@ -89,8 +132,8 @@ class Region:
             self.T0 = '10.0'
             self.G0 = '1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -8.5  # [deg]
             # Boundaries of the region of interest:
@@ -108,7 +151,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 350  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_cep1251_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_cep1251_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -120,8 +163,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = 14.5  # [deg]
             # Boundaries of the region of interest:
@@ -139,7 +182,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 131  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_craNS_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_craNS_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -151,8 +194,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -18.5  # [deg]
             # Boundaries of the region of interest:
@@ -170,7 +213,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 760  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_ic5146_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_ic5146_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -182,8 +225,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -4.5  # [deg]
             # Boundaries of the region of interest:
@@ -201,7 +244,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 150  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_musca_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_musca_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -213,8 +256,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -9  # [deg]
             # Boundaries of the region of interest:
@@ -232,7 +275,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 131  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_oph_l1688_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_oph_l1688_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -244,8 +287,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = 16.5  # [deg]
             # Boundaries of the region of interest:
@@ -263,7 +306,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 400.  # CHECK THIS [pc] 432 +/- 2 pc (Zucker et al. 2019).
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/2016_07_Orion_Plume.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/2016_07_Orion_Plume.fits'.replace('/', os.sep))
             self.fitsDataType = 'VisualExtinction'
             # Pixel limits of the region of interest in the file:
             self.xmin = 'none'
@@ -275,8 +318,8 @@ class Region:
             self.T0 = '25.0'
             self.G0 = '10000'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'+Parameters+'/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -19.5  # [deg]
             # Boundaries of the region of interest:
@@ -294,7 +337,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 400.  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/2016_07_Orion_Plume.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/2016_07_Orion_Plume.fits'.replace('/', os.sep))
             self.fitsDataType = 'VisualExtinction'
             # Pixel limits of the region of interest in the file:
             self.xmin = 'none'
@@ -306,8 +349,8 @@ class Region:
             self.T0 = '25.0'
             self.G0 = '10000'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -15.5  # [deg]
             # Boundaries of the region of interest:
@@ -325,7 +368,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 250.  # CHECK THIS [pc] 294+/- 10 pc (Zucker et al. 2019).
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/2015_02_CalTauPer_toBernsteinCooper.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/2015_02_CalTauPer_toBernsteinCooper.fits'.replace('/', os.sep))
             self.fitsDataType = 'VisualExtinction'
             # Pixel limits of the region of interest in the file:
             self.xmin = 720
@@ -337,8 +380,8 @@ class Region:
             self.T0 = '12.0'
             self.G0 = '1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = -19.5  # [deg]
             # Boundaries of the region of interest:
@@ -356,7 +399,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 200  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_pipe_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_pipe_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -368,8 +411,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = 5  # [deg]
             # Boundaries of the region of interest:
@@ -387,7 +430,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 500  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_polaris_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_polaris_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 0
@@ -399,8 +442,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = 25  # [deg]
             # Boundaries of the region of interest:
@@ -418,7 +461,7 @@ class Region:
             # Distance to the region of interest:
             self.distance = 400  # CHECK THIS [pc]
             # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_serpens_column_density_map.fits')
+            self.fitsFilePath = os.path.join(currentDir, 'Data/HGBS_serpens_column_density_map.fits'.replace('/', os.sep))
             self.fitsDataType = 'HydrogenColumnDensity'
             # Pixel limits of the region of interest in the fits file:
             self.xmin = 'none'
@@ -430,8 +473,8 @@ class Region:
             self.T0 = '-1'
             self.G0 = '-1'
             Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/')
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/' + Parameters + '/Av_T0_n0.out')
+            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
+            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
             # Galactic Latitude of the region of interest:
             self.cloudLatitude = 4  # [deg]
             # Boundaries of the region of interest:
@@ -448,3 +491,4 @@ class Region:
             print('There is no region of interest with this name.  Check spelling or create a new region of interest'
                   ' then try again.')
             exit()
+        '''

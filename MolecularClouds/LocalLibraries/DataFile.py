@@ -138,7 +138,7 @@ class DataFile:
             radeg = ra_hms2deg(raHours[index], raMins[index], raMins[index])  # <- If converting manually
             decdeg = dec_dms2deg(decDegs[index], decArcmins[index], decArcsecs[index])  # <- If converting manually
 
-            # If using SkyCoord: # More time consuming than manually
+            # If using SkyCoord:
             # ---- Make given coordinate into a SkyCoord object and convert to degrees
             # ra_hms = str(int(raHours[index])) + 'h' + str(int(raMins[index])) + 'm' + str(raSecs[index]) + 's'
             # dec_dms = str(int(decDegs[index])) + 'd' + str(int(decArcmins[index])) + 'm' + str(decArcsecs[index]) + 's'

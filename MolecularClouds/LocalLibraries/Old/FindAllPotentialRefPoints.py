@@ -7,7 +7,9 @@ It is used in the third stage of the BLOS Mapping Method.
 import pandas as pd
 import numpy as np
 import os
+import MolecularClouds.LocalLibraries.config as config
 
+#Todo: This is actually a function which is only ever needed once by script 3.
 
 # -------- CLASS DEFINITION --------
 class FindAllPotentialReferencePoints:
@@ -24,9 +26,7 @@ class FindAllPotentialReferencePoints:
         """
 
         # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA --------
-        currentDir = os.path.abspath(os.getcwd())
-        MatchedRMExtincPath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/MatchedRMExtinction'
-                                           + cloudName + '.txt')
+        MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
         matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
         # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA. --------
 
@@ -41,7 +41,7 @@ class FindAllPotentialReferencePoints:
         # Indices where the extinction is less than the threshold:
         ind_extinction = np.where(matchedRMExtinctionData['Extinction_Value'] <= threshold)[0]
 
-        # All potential reference points are all reference points with extinction less than one:
+        # All potential reference points are all reference points with extinction less than the threshold:
         self.AllRefPoints = matchedRMExtinctionData.loc[ind_extinction].sort_values('Extinction_Value',
                                                                                     ignore_index=True)
         # ---- Criterion: Av < threshold.
@@ -50,7 +50,7 @@ class FindAllPotentialReferencePoints:
         # -------- FIND ALL POTENTIAL REFERENCE POINTS.  --------
 
         # -------- SAVE REFERENCE POINT DATA AS A TABLE --------
-        if saveFilePath != 'none':
+        if saveFilePath != None:
             self.AllRefPoints.to_csv(saveFilePath, index=False)
         # -------- SAVE REFERENCE POINT DATA AS A TABLE. --------
 

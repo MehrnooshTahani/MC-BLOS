@@ -2,25 +2,24 @@
 This file maps the RMs on the extinction files as a first step to get an understanding of the rotation measure coverage
 of the region of interest.
 """
-from Classes.DataFile import DataFile
+from LocalLibraries.DataFile import DataFile
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from astropy.wcs import WCS
 from astropy.io import fits
 import os
-from Classes.RegionOfInterest import Region
+from LocalLibraries.RegionOfInterest import Region
+import LocalLibraries.config as config
+import LocalLibraries.PlotTemplates as pt
 
 # -------- CHOOSE THE REGION OF INTEREST --------
-cloudName = input("Enter the name of the region of interest: ")
-cloudName = cloudName.capitalize()  # Ensure only the first letter is capitalized
+cloudName = config.cloud
 regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-currentDir = os.path.abspath(os.getcwd())
-RMCatalogPath = os.path.join(currentDir, 'Data/RMCatalogue.txt')
-saveFigurePath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/Plots/RMMapping' + cloudName + '.png')
+RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCatalogue)
+saveFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_rmMapping + config.cloud + '.png')
 # -------- DEFINE FILES AND PATHS. --------
 
 
@@ -41,9 +40,9 @@ def rm2RGB(rm):
         alpha = 1  # Optional: set the transparency
         if int(np.sign(item)) == -1:
             c.append((1, 0, 0, alpha))  # Negative rotation measures assigned red
-        if int(np.sign(item)) == 1:
+        elif int(np.sign(item)) == 1:
             c.append((0, 0, 1, alpha))  # Positive rotation measures assigned blue
-        if np.sign(item) == 0:
+        elif np.sign(item) == 0:
             c.append((0, 1, 0, alpha))  # Zero-value rotation measures assigned green
 
     # return the list of RGBA tuples and sizes
@@ -78,60 +77,10 @@ color, size = rm2RGB(rmData.targetRotationMeasures)
 # -------- PREPARE TO PLOT ROTATION MEASURES. --------
 
 # -------- CREATE A FIGURE --------
-fig = plt.figure(figsize=(8, 8), dpi=120, facecolor='w', edgecolor='k')
-ax = fig.add_subplot(111, projection=wcs)
-
-
-colourMap = cm.get_cmap("BrBG")
-ax.patch.set_facecolor(colourMap(-1))
+fig, ax = pt.extinctionPlot(hdu, regionOfInterest)
 
 plt.title('Rotation Measure Data' + ' in the '+cloudName+' region\n', fontsize=12, y=1.08)
-im = plt.imshow(hdu.data, origin='lower', cmap=colourMap, interpolation='nearest')
 plt.scatter(x, y, marker='o', s=size, facecolor=color, linewidth=.5, edgecolors='black')
-
-# ---- Style the main axes and their grid
-if regionOfInterest.xmax and regionOfInterest.xmin != 'none':
-    ax.set_xlim(regionOfInterest.xmin, regionOfInterest.xmax)
-if regionOfInterest.ymax and regionOfInterest.ymin != 'none':
-    ax.set_ylim(regionOfInterest.ymin, regionOfInterest.ymax)
-
-ra = ax.coords[0]
-dec = ax.coords[1]
-ra.set_major_formatter('d')
-dec.set_major_formatter('d')
-ra.set_axislabel('RA (degree)')
-dec.set_axislabel('Dec (degree)')
-
-dec.set_ticks(number=10)
-ra.set_ticks(number=20)
-ra.display_minor_ticks(True)
-dec.display_minor_ticks(True)
-ra.set_minor_frequency(10)
-
-ra.grid(color='black', alpha=0.5, linestyle='solid')
-dec.grid(color='black', alpha=0.5, linestyle='solid')
-# ---- Style the main axes and their grid.
-
-# ---- Style the overlay and its grid
-overlay = ax.get_coords_overlay('galactic')
-
-overlay[0].set_axislabel('Longitude')
-overlay[1].set_axislabel('Latitude')
-
-overlay[0].set_ticks(color='grey', number=20)
-overlay[1].set_ticks(color='grey', number=20)
-
-overlay.grid(color='grey', linestyle='solid', alpha=0.7)
-# ---- Style the overlay and its grid.
-
-# ---- Style the colour bar
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    cb = plt.colorbar(im, ticklocation='right', fraction=0.02, pad=0.145, format='%.0e')
-    cb.ax.set_title('Hydrogen Column Density', linespacing=0.5, fontsize=12)
-elif regionOfInterest.fitsDataType == 'VisualExtinction':
-    cb = plt.colorbar(im, ticklocation='right', fraction=0.02, pad=0.145)
-    cb.ax.set_title(' A' + r'$_V$', linespacing=0.5, fontsize=12)
-# ---- Style the colour bar.
 
 # ---- Style the legend
 marker1 = plt.scatter([], [], s=10, facecolor=(1, 1, 1, 0.7), edgecolor='black')
@@ -159,5 +108,5 @@ frame.set_alpha(0.4)
 
 plt.savefig(saveFigurePath, bbox_inches='tight')
 print('Saving figure to '+saveFigurePath)
-# plt.show()
+plt.show()
 # -------- CREATE A FIGURE. --------

@@ -8,29 +8,31 @@ from astropy.wcs import WCS
 from astropy.io import fits
 import math
 import matplotlib.pyplot as plt
-from Classes.RegionOfInterest import Region
-from Classes.FindAllPotentialRefPoints import FindAllPotentialReferencePoints
-from Classes.FindOptimalRefPoints import FindOptimalRefPoints
+from LocalLibraries.RegionOfInterest import Region
+from MolecularClouds.LocalLibraries.Old.FindAllPotentialRefPoints import FindAllPotentialReferencePoints
+from LocalLibraries.FindOptimalRefPoints import FindOptimalRefPoints
 import adjustText
-from CalculateB import CalculateB
+from LocalLibraries.CalculateB import CalculateB
+import LocalLibraries.config as config
 
 # -------- CHOOSE THE REGION OF INTEREST --------
-cloudName = input("Enter the name of the region of interest: ")
-cloudName = cloudName.capitalize()  # Ensure only the first letter is capitalized
+cloudName = config.cloud
 regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-currentDir = os.path.abspath(os.getcwd())
-saveFilePath_ALlPotentialRefPoints = os.path.join(currentDir, 'FileOutput/' + cloudName + '/AllPotentialRefPoints'
-                                                  + cloudName + '.txt')
-saveFilePath_ReferencePoints = os.path.join(currentDir, 'FileOutput/' + cloudName + '/RefPoints' + cloudName + '.txt')
-saveFilePath_ReferenceData = os.path.join(currentDir, 'FileOutput/' + cloudName + '/ReferenceData' + cloudName + '.txt')
-saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(currentDir, 'FileOutput/' + cloudName +
-                                                               '/Plots/BLOS_vs_NRef_AllPotentialRefPoints.png')
-saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(currentDir, 'FileOutput/' + cloudName +
-                                                                  '/Plots/BLOS_vs_NRef_ChosenRefPoints.png')
-saveFigureDir_RefPointMap = os.path.join(currentDir, 'FileOutput/' + cloudName + '/Plots/')
+saveFilePath_ALlPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_allPotRefPoints + config.cloud + '.txt')
+saveFilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
+saveFilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_refData + config.cloud + '.txt')
+
+saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
+saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
+saveFigureDir_RefPointMap = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots)
+
+# -------- Load matched rm and extinction data
+MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
+# -------- Load matched rm and extinction data.
+
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- READ FITS FILE --------
@@ -44,37 +46,32 @@ print('\n---------------------')
 
 print('All potential reference points will be taken to be all points with a visual extinction value less than the '
       'extinction threshold.')
-if abs(regionOfInterest.cloudLatitude) < 15:
-    Av_threshold = 2
+if abs(regionOfInterest.cloudLatitude) < config.offDiskLatitude:
+    Av_threshold = config.onDiskAvThresh
     print('\t-For clouds that appear near the disk, such as {}, an appropriate threshold value is {}.'
           .format(cloudName, Av_threshold))
 else:
-    Av_threshold = 1
+    Av_threshold = config.offDiskAvThresh
     print('\t-For clouds that appear off the disk, such as {}, an appropriate threshold value is {}.'
           .format(cloudName, Av_threshold))
 
-chooseAvThreshold = input("Given this information, would you like to set the threshold extinction to the suggested {}? "
-                          "(y/n)".format(Av_threshold))
-if chooseAvThreshold == 'n':
-    Av_threshold = float(input('Please enter the threshold extinction you would like to use instead: '))
+print("Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold))
 # -------- CHOOSE THE THRESHOLD EXTINCTION. --------
 
 # -------- FIND ALL POTENTIAL REFERENCE POINTS --------
-AllPotenitalRefPoints = FindAllPotentialReferencePoints(cloudName, Av_threshold,
-                                                        saveFilePath=saveFilePath_ALlPotentialRefPoints)
-print('Based on this threshold extinction, a total of {} potential reference points were found.'
-      .format(AllPotenitalRefPoints.numAllRefPoints))
+AllPotentialRefPoints = FindAllPotentialReferencePoints(cloudName, Av_threshold, saveFilePath=saveFilePath_ALlPotentialRefPoints)
+print('Based on this threshold extinction, a total of {} potential reference points were found.'.format(AllPotentialRefPoints.numAllRefPoints))
 
-print(AllPotenitalRefPoints.AllRefPoints)
+print(AllPotentialRefPoints.AllRefPoints)
 print('---------------------\n')
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
 
 # -------- PREPARE TO PLOT ALL POTENTIAL REFERENCE POINTS --------
-n_AllRef = list(AllPotenitalRefPoints.AllRefPoints['ID#'])
-Ra_AllRef = list(AllPotenitalRefPoints.AllRefPoints['Ra(deg)'])
-Dec_AllRef = list(AllPotenitalRefPoints.AllRefPoints['Dec(deg)'])
-RM_AllRef = list(AllPotenitalRefPoints.AllRefPoints['Rotation_Measure(rad/m2)'])
-Av_AllRef = list(AllPotenitalRefPoints.AllRefPoints['Extinction_Value'])
+n_AllRef = list(AllPotentialRefPoints.AllRefPoints['ID#'])
+Ra_AllRef = list(AllPotentialRefPoints.AllRefPoints['Ra(deg)'])
+Dec_AllRef = list(AllPotentialRefPoints.AllRefPoints['Dec(deg)'])
+RM_AllRef = list(AllPotentialRefPoints.AllRefPoints['Rotation_Measure(rad/m2)'])
+Av_AllRef = list(AllPotentialRefPoints.AllRefPoints['Extinction_Value'])
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file
 x_AllRef = []  # x pixel coordinate of reference
 y_AllRef = []  # y pixel coordinate of reference
@@ -104,9 +101,9 @@ adjustText.adjust_text(text)
 # ---- Annotate the chosen reference points
 
 # ---- Style the main axes and their grid
-if regionOfInterest.xmax and regionOfInterest.xmin != 'none':
+if not math.isnan(regionOfInterest.xmax) and not math.isnan(regionOfInterest.xmin):
     ax.set_xlim(regionOfInterest.xmin, regionOfInterest.xmax)
-if regionOfInterest.ymax and regionOfInterest.ymin != 'none':
+if not math.isnan(regionOfInterest.ymax) and not math.isnan(regionOfInterest.ymin):
     ax.set_ylim(regionOfInterest.ymin, regionOfInterest.ymax)
 
 ra = ax.coords[0]
@@ -148,7 +145,7 @@ elif regionOfInterest.fitsDataType == 'VisualExtinction':
 # ---- Style the colour bar.
 
 # ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + 'RefPointMap_AllPotentialRefPoints.png'
+saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_AllPotentialRefPoints.png'
 plt.savefig(saveFigurePath_RefPointMap)
 plt.show()
 plt.close()
@@ -159,8 +156,8 @@ print('Saving the map of all potential reference points to '+saveFigurePath_RefP
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
 print('---------------------')
 print('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
-      'total number of reference points ({}):'.format(AllPotenitalRefPoints.numAllRefPoints))
-OptimalRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(cloudName, AllPotenitalRefPoints.AllRefPoints,
+      'total number of reference points ({}):'.format(AllPotentialRefPoints.numAllRefPoints))
+OptimalRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, AllPotentialRefPoints.AllRefPoints,
                                                                    saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
 
 OptimalNumRefPoints_from_AllPotentialRefPoints = OptimalRefPoints_from_AllPotentialRefPoints. \
@@ -179,9 +176,9 @@ if chooseOptimalNumRefPoints == 'n':
     print('The recommended reference points, numbered in order of increasing extinction, are: {}'.format(
         list([i + 1 for i in range(0, OptimalNumRefPoints_from_AllPotentialRefPoints)])))
 
-    if OptimalNumRefPoints_from_AllPotentialRefPoints > AllPotenitalRefPoints.numAllRefPoints:
+    if OptimalNumRefPoints_from_AllPotentialRefPoints > AllPotentialRefPoints.numAllRefPoints:
         print('The number of reference points chosen exceeds the total number of potential reference points.  '
-              'Using the total number of potential reference points ({})'.format(AllPotenitalRefPoints.numAllRefPoints))
+              'Using the total number of potential reference points ({})'.format(AllPotentialRefPoints.numAllRefPoints))
         print('The recommended reference points, numbered in order of increasing extinction, are: {}'.format(
             list([i + 1 for i in range(0, OptimalNumRefPoints_from_AllPotentialRefPoints)])))
 
@@ -196,31 +193,25 @@ print('We will now check if any of the potential reference points are near a reg
 # -------- Define the range
 # The distance the point can be from a region of high extinction and still be thought to sample the background
 cloudDistance = regionOfInterest.distance  # [pc]
-cloudJeansLength = 1.  # [pc] CHECK THIS
-minDiff = cloudJeansLength / cloudDistance  # [deg]
+cloudJeansLength = regionOfInterest.jeanslength  # [pc]
+minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
 
 minDiff_pix = minDiff / abs(hdu.header['CDELT1'])
-NDelt = 5 * math.ceil(minDiff_pix)  # Round up
-chooseNDelt = input("\t-Would you like the define a region around the given point to the suggested {} pixels? (y/n)".
-                    format(NDelt))
-if chooseNDelt == 'n':
-    NDelt = int(float(input('\tPlease enter the value you would like to use instead: ')))
+NDelt = config.nearExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
+print("\t-A region around the point has been defined to the suggested {} pixels".format(NDelt))
 
 # Choose the minimum extinction value which you want to correspond to an "on" position
-highExtinctionThreshold = 5 * Av_threshold
+highExtinctionThreshold = config.highExtinctionThreshMultiplier * Av_threshold
+print("\t-A region of high extinction has been defined to the suggested suggested Av={}? (y/n)".format(highExtinctionThreshold))
 
-chooseHighAvThreshold = input("\t-Would you like to define a region of high extinction to the suggested Av={}? (y/n)".
-                              format(highExtinctionThreshold))
-if chooseHighAvThreshold == 'n':
-    highExtinctionThreshold = float(input('\tPlease enter the value you would like to use instead: '))
 # -------- Define the range.
 
 # -------- For each potential reference point
 nearHighExtinctionRegion = []
-for i in range(len(AllPotenitalRefPoints.AllRefPoints)):
-    idNum = AllPotenitalRefPoints.AllRefPoints['ID#'][i]
-    px = AllPotenitalRefPoints.AllRefPoints['Extinction_Index_x'][i]
-    py = AllPotenitalRefPoints.AllRefPoints['Extinction_Index_y'][i]
+for i in range(len(AllPotentialRefPoints.AllRefPoints)):
+    idNum = AllPotentialRefPoints.AllRefPoints['ID#'][i]
+    px = AllPotentialRefPoints.AllRefPoints['Extinction_Index_x'][i]
+    py = AllPotentialRefPoints.AllRefPoints['Extinction_Index_y'][i]
 
     # ---- Find the extinction range for the given point
     ind_xmax = px + NDelt + 1  # add 1 to be inclusive of the upper bound
@@ -231,14 +222,14 @@ for i in range(len(AllPotenitalRefPoints.AllRefPoints)):
 
     # ---- Cycle through extinction values within the range
     # If an extinction value within this range is too high, then it cannot be considered as a reference point
-    highExtinction = 0
+    highExtinction = False
     for pxx in range(ind_xmin, ind_xmax):
         for pyy in range(ind_ymin, ind_ymax):
             if 0 <= pxx < hdu.data.shape[1] and 0 <= pyy < hdu.data.shape[0]:
                 extinction_val = hdu.data[pyy, pxx]
                 if extinction_val > highExtinctionThreshold:
-                    highExtinction = 1
-    if highExtinction == 1:
+                    highExtinction = True
+    if highExtinction == True:
         nearHighExtinctionRegion.append(i + 1)  # To identify points numbered in order of increasing extinction
     # ---- Cycle through extinction values within the range.
 # -------- For each potential reference point.
@@ -246,7 +237,7 @@ if len(nearHighExtinctionRegion) != 0:
     print('The potential reference point(s) {} are near a region of high extinction'.format(nearHighExtinctionRegion))
 
 else:
-    print('Based on the specified range and definition of high extinction, the none of the potential reference points'
+    print('Based on the specified range and definition of high extinction, none of the potential reference points'
           ' are near a region of high extinction')
 print('---------------------\n')
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION. --------
@@ -258,31 +249,27 @@ print('We will now check if any of the potential reference points have anomalous
 
 # -------- Define "anomalous"
 # Load and unpack all the rotation measure data for the region of interest
-currentDir = os.path.abspath(os.getcwd())
-MatchedRMExtincPath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/MatchedRMExtinction'
-                                   + cloudName + '.txt')
+##
 matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
 
 # Choose a rotation measure corresponding to anomalous
 rm_avg = np.mean(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])
 rm_std = np.std(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])
 
-coeff = 3
-rm_upperLimit = rm_avg + coeff * rm_std
-rm_lowerLimit = rm_avg - coeff * rm_std
-chooseAnomalousRMThreshold = input("\t-Would you like to define anomalous rotation measure values to be greater or less"
+coeffSTD = config.anomalousSTDNum
+rm_upperLimit = rm_avg + coeffSTD * rm_std
+rm_lowerLimit = rm_avg - coeffSTD * rm_std
+print("\t-Anomalous rotation measure values have been defined to be greater or less"
                                    " than the the suggested {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
-                                   " rm > {:.2f}rad/m^2)? (y/n)".format(coeff, rm_lowerLimit, rm_upperLimit))
-if chooseAnomalousRMThreshold == 'n':
-    anomalousRMThreshold = float(input('\tPlease enter the value you would like to use instead: '))
+                                   " rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit))
 # -------- Define "anomalous".
 
 # -------- For each potential reference point
 anomalousRMIndex = []
-for i in range(len(AllPotenitalRefPoints.AllRefPoints)):
-    idNum = AllPotenitalRefPoints.AllRefPoints['ID#'][i]
-    if AllPotenitalRefPoints.AllRefPoints['Rotation_Measure(rad/m2)'][i] < rm_lowerLimit or \
-            AllPotenitalRefPoints.AllRefPoints['Rotation_Measure(rad/m2)'][i] > rm_upperLimit:
+for i in range(len(AllPotentialRefPoints.AllRefPoints)):
+    idNum = AllPotentialRefPoints.AllRefPoints['ID#'][i]
+    if AllPotentialRefPoints.AllRefPoints['Rotation_Measure(rad/m2)'][i] < rm_lowerLimit or \
+            AllPotentialRefPoints.AllRefPoints['Rotation_Measure(rad/m2)'][i] > rm_upperLimit:
         anomalousRMIndex.append(i + 1)  # To identify points numbered in order of increasing extinction
 # -------- For each potential reference point.
 
@@ -299,16 +286,12 @@ print('---------------------\n')
 # -------- ASK THE USER WHICH POINTS THEY WANT TO USE AS REFERENCE POINTS --------
 chosenRefPoints_Num = [int(item) - 1 for item in input('Please enter the numbers of the reference points you would '
                                                        'like to use as comma separated values').split(',')]
-chosenRefPoints = AllPotenitalRefPoints.AllRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
+chosenRefPoints = AllPotentialRefPoints.AllRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 
 print(chosenRefPoints)
 # -------- ASK THE USER WHICH POINTS THEY WANT TO USE AS REFERENCE POINTS. --------
 
 # -------- REASSESS STABILITY --------
-# -------- Load matched rm and extinction data
-MatchedRMExtincPath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/MatchedRMExtinction'
-                                   + cloudName + '.txt')
-# -------- Load matched rm and extinction data.
 '''
 We are going to start the plot off with all of the chosen reference points
  - which are in order of increasing extinction.  They may have jumps but this is okay
@@ -316,7 +299,7 @@ However, we also want to include points which come after the chosen reference po
 The following selects all of the chosen reference points and then adds any of the potential reference points with
 extinction greater than the extinction of the last chosen reference point/
 '''
-RefPoints = chosenRefPoints[:-1].append(AllPotenitalRefPoints.AllRefPoints.set_index('ID#').
+RefPoints = chosenRefPoints[:-1].append(AllPotentialRefPoints.AllRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
 # -------- Read the reference point data
@@ -337,7 +320,7 @@ for num in range(numRefPoints):
     # -------- Extract {num} points from the table of potential reference points.
 
     # -------- Use the candidate reference points to calculate BLOS
-    B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath='none')
+    B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
     BLOSData = B.BLOSData.set_index('ID#', drop=True)
     # -------- Use the candidate reference points to calculate BLOS
 
@@ -390,17 +373,13 @@ cols = ['Number of Reference Points', 'Reference Extinction', 'Reference RM', 'R
 referenceData = pd.DataFrame(columns=cols)
 
 referenceData['Number of Reference Points'] = [len(chosenRefPoints)]
-
 referenceData['Reference RM'] = [np.mean(chosenRefPoints['Rotation_Measure(rad/m2)'])]
-
 referenceData['Reference RM AvgErr'] = [np.mean(chosenRefPoints['RM_Err(rad/m2)'])]
 
 # Standard error of the sampled mean:
 referenceData['Reference RM Std'] = [np.std(chosenRefPoints['Rotation_Measure(rad/m2)'], ddof=1) /
                                      np.sqrt(len(chosenRefPoints['Rotation_Measure(rad/m2)']))]
-
 referenceData['Reference Extinction'] = [np.mean(chosenRefPoints['Extinction_Value'])]
-
 referenceData.to_csv(saveFilePath_ReferenceData, index=False)
 print('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------

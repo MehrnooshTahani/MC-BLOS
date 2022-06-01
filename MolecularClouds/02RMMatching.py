@@ -6,26 +6,24 @@ The matched rotation measure data and extinction information are saved in a file
 """
 import csv
 from itertools import zip_longest
-from Classes.DataFile import DataFile
+from LocalLibraries.DataFile import DataFile
 import os
 from astropy.io import fits
 from astropy.wcs import WCS
 import numpy as np
 import math
-from Classes.RegionOfInterest import Region
-import Classes.config as config
+from LocalLibraries.RegionOfInterest import Region
+import LocalLibraries.config as config
+import LocalLibraries.RefJudgeLib as rjl
 
 # -------- CHOOSE THE REGION OF INTEREST --------
-cloudName = input("Enter the name of the region of interest: ")
-cloudName = cloudName.capitalize()  # Ensure only the first letter is capitalized
+cloudName = config.cloud
 regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-currentDir = os.path.abspath(os.getcwd())
-RMCatalogPath = os.path.join(currentDir, 'Data/RMCatalogue.txt')
-saveFilePath = os.path.join(currentDir, 'FileOutput/' + cloudName + '/MatchedRMExtinction'
-                            + cloudName + '.txt')
+RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCatalogue)
+saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- READ FITS FILE --------
@@ -33,6 +31,21 @@ hdulist = fits.open(regionOfInterest.fitsFilePath)
 hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
+
+# -------- PREPROCESS FITS DATA TYPE. --------
+data = rjl.deepCopy(hdu.data)
+
+# If fitsDataType is column density, then convert to visual extinction
+if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
+    data = data / config.VExtinct_2_Hcol
+
+#Handle bad data by interpolation.
+'''
+data[data < 0] = np.nan
+baddata = np.isnan(data)
+data = rjl.interpMask(data, baddata, 'linear') #Todo: This is an extremely costly step...
+'''
+# -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
 # Get all the rm points within the region of interest
@@ -43,12 +56,21 @@ rmData = DataFile(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.r
 
 # -------- DEFINE THE ERROR RANGE --------
 # The physical limit on how far an extinction value can be from the rm and still be considered valid/applicable
+# Todo: We want to redo this with pixel resolution instead. NOT DONE
+'''
 cloudDistance = regionOfInterest.distance  # [pc]
-cloudJeansLength = 1.  # [pc]
+cloudJeansLength = regionOfInterest.jeanslength  # [pc]
 minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
 
 minDiff_pix = minDiff / abs(hdu.header['CDELT1'])
 NDelt = math.ceil(minDiff_pix)  # Round up
+'''
+RMResolution = 10
+ExtinctionResolution = 100
+if (ExtinctionResolution > RMResolution):
+    NDelt = 1
+else:
+    NDelt = np.ceil(RMResolution/ExtinctionResolution)
 # -------- DEFINE THE ERROR RANGE. --------
 
 # -------- DEFINE PARAMETERS --------
@@ -87,40 +109,17 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Location of the rotation measure.
 
     # If the rm lies within the given fits file:
-    if 0 <= px < hdu.data.shape[1] and 0 <= py < hdu.data.shape[0]:
+    if 0 <= px < data.shape[1] and 0 <= py < data.shape[0]:
 
         # If the rm lies on a point with data:
-        if hdu.data[py, px] != -1 and math.isnan(hdu.data[py, px]) is False:
-
-            # If fitsDataType is column density, then convert to visual extinction
-            if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-                extinction = hdu.data[py, px] / config.VExtinct_2_Hcol
-            else:
-                extinction = hdu.data[py, px]
-
+        if data[py, px] != -1 and math.isnan(data[py, px]) is False:
+            extinction = data[py, px]
             # ---- Negative extinction (the rm value landed on a negative pixel)
             # Negative extinction is not physical; take the extinction value to be an average of surrounding pixels
+            # Todo: What if the negative pixel is surrounded by other negative pixels?
+            # Todo: It does matter; issue warning and either exclude the point or ask the user to use a new file. Don't average from an even larger region.
             if extinction < 0:
-                surrondingExtinction = []
-                # Cycle through extinction values within a 1 pixel range
-                ind_xmax = px + 2  # add 1 to be inclusive of the upper bound
-                ind_ymax = py + 2  # add 1 to be inclusive of the upper bound
-                ind_xmin = px - 1
-                ind_ymin = py - 1
-
-                extinction_temp = []
-                ra_temp = []
-                dec_temp = []
-                for pxx in range(ind_xmin, ind_xmax):
-                    for pyy in range(ind_ymin, ind_ymax):
-                        if 0 <= pxx < hdu.data.shape[1] and 0 <= pyy < hdu.data.shape[0]:
-                            # If fitsDataType is column density, then convert to visual extinction
-                            if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-                                extinctionPixel = hdu.data[pyy, pxx] / config.VExtinct_2_Hcol
-                            else:
-                                extinctionPixel = hdu.data[pyy, pxx]
-                            surrondingExtinction.append(extinctionPixel)
-                extinction = np.avg(surrondingExtinction)
+                extinction = rjl.averageBox(px, py, data, 1)
             # ---- Negative extinction.
 
             Identifier.append(cntr)
@@ -139,29 +138,26 @@ for index in range(len(rmData.targetRotationMeasures)):
 
             # ---- Find the extinction error range for the given rm
             ErrRangePix.append(NDelt)
-            ind_xmax = px + NDelt + 1  # add 1 to be inclusive of the upper bound
-            ind_ymax = py + NDelt + 1  # add 1 to be inclusive of the upper bound
-            ind_xmin = px - NDelt
-            ind_ymin = py - NDelt
+            ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getBoxRange(px, py, data, NDelt)
             # ---- Find the extinction error range for the given rm.
 
+            #Todo: This can be made more efficient with numpy vectorized operations.
             # ---- Cycle through extinction values within the error range
             extinction_temp = []
             ra_temp = []
             dec_temp = []
+
+            # Todo: The below doesn't account for negative extinction range values which nonetheless have been selected and averaged above.
+            #  Should it? (Via the average) (or do we just ignore it)
+            #  Work with a copy of the data and fill in data with interpolation, also give a warning that the value in question is interpolated.* Perhaps masking.
             for pxx in range(ind_xmin, ind_xmax):
                 for pyy in range(ind_ymin, ind_ymax):
-                    if 0 <= pxx < hdu.data.shape[1] and 0 <= pyy < hdu.data.shape[0]:
-                        # If fitsDataType is column density, then convert to visual extinction
-                        if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-                            extinction = hdu.data[pyy, pxx] / config.VExtinct_2_Hcol
-                        else:
-                            extinction = hdu.data[pyy, pxx]
-                        if extinction >= 0:  # Negative extinction is not physical (or Nan in other fits files)
-                            extinction_temp.append(extinction)
-                            xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
-                            ra_temp.append(wcs.wcs_pix2world(pxx, pyy, 0)[0])
-                            dec_temp.append(wcs.wcs_pix2world(pxx, pyy, 0)[1])
+                    extinction = data[pyy, pxx]
+                    if extinction >= 0:  # Negative extinction is not physical
+                        extinction_temp.append(extinction)
+                        xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
+                        ra_temp.append(xx)
+                        dec_temp.append(yy)
             # ---- Cycle through extinction values within the error range.
 
             # Find minimum extinction value
