@@ -27,6 +27,7 @@ configDirectoryAndNames['Output File Locations'] = {
     'Root': os.path.abspath(os.getcwd()),
     'File Output': 'FileOutput',
     'Plots': 'Plots',
+    'Logs': 'Logs',
     'Density Sensitivity': 'DensitySensitivity',
     'Temperature Sensitivity': 'TemperatureSensitivity'
     }

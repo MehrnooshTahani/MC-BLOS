@@ -21,6 +21,8 @@ import LocalLibraries.config as config
 import LocalLibraries.RefJudgeLib as rjl
 import LocalLibraries.PlotTemplates as pt
 
+import logging
+
 # -------- LOAD THE REGION OF INTEREST --------
 cloudName = config.cloud
 regionOfInterest = Region(cloudName)
@@ -37,11 +39,17 @@ saveFigureDir_RefPointMap = os.path.join(config.dir_root, config.dir_fileOutput,
 
 saveQuadrantFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, cloudName + "QuadrantDivision.png")
 
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script3Log.txt")
+
 # -------- Load matched rm and extinction data
 MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionMatch + cloudName + '.txt')
 # -------- Load matched rm and extinction data.
 
 # -------- DEFINE FILES AND PATHS. --------
+
+# -------- CONFIGURE LOGGING --------
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
 hdulist = fits.open(regionOfInterest.fitsFilePath)
@@ -56,20 +64,20 @@ matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
 #============================================================================================================
 
 # -------- LOAD THE THRESHOLD EXTINCTION --------
-print('\n---------------------')
+logging.info('\n---------------------')
 
-print('All potential reference points will be taken to be all points with a visual extinction value less than the '
+logging.info('All potential reference points will be taken to be all points with a visual extinction value less than the '
       'extinction threshold.')
 if abs(regionOfInterest.cloudLatitude) < config.offDiskLatitude:
     Av_threshold = config.onDiskAvThresh
-    print('\t-For clouds that appear near the disk, such as {}, an appropriate threshold value is {}.'
+    logging.info('\t-For clouds that appear near the disk, such as {}, an appropriate threshold value is {}.'
           .format(cloudName, Av_threshold))
 else:
     Av_threshold = config.offDiskAvThresh
-    print('\t-For clouds that appear off the disk, such as {}, an appropriate threshold value is {}.'
+    logging.info('\t-For clouds that appear off the disk, such as {}, an appropriate threshold value is {}.'
           .format(cloudName, Av_threshold))
 
-print("Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold))
+logging.info("Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold))
 # -------- LOAD THE THRESHOLD EXTINCTION. --------
 
 #============================================================================================================
@@ -90,9 +98,9 @@ AllPotentialRefPoints, numAllRefPoints = rjl.maskRows(matchedRMExtinctionData, A
 if saveFilePath_ALlPotentialRefPoints is not None:
     AllPotentialRefPoints.to_csv(saveFilePath_ALlPotentialRefPoints, index=False)
 # ---- SAVE REFERENCE POINT DATA AS A TABLE.
-print('Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints))
-print(AllPotentialRefPoints)
-print('---------------------\n')
+logging.info('Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints))
+logging.info(AllPotentialRefPoints)
+logging.info('---------------------\n')
 
 PotRefPoints = [i+1 for i in range(numAllRefPoints)]
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
@@ -100,8 +108,8 @@ PotRefPoints = [i+1 for i in range(numAllRefPoints)]
 #============================================================================================================
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION --------
-print('---------------------')
-print('We will now check if any of the potential reference points are near a region of high extinction.')
+logging.info('---------------------')
+logging.info('We will now check if any of the potential reference points are near a region of high extinction.')
 # -------- Define the range
 # The distance the point can be from a region of high extinction and still be thought to sample the background
 cloudDistance = regionOfInterest.distance  # [pc]
@@ -111,12 +119,12 @@ minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
 minDiff_pix = minDiff / abs(hdu.header['CDELT1'])
 NDeltNear = config.nearExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
 NDeltFar = config.farExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
-print("\t-A close region around the point has been defined to the suggested {} pixels".format(NDeltNear))
-print("\t-A far region around the point has been defined to the suggested {} pixels".format(NDeltFar))
+logging.info("\t-A close region around the point has been defined to the suggested {} pixels".format(NDeltNear))
+logging.info("\t-A far region around the point has been defined to the suggested {} pixels".format(NDeltFar))
 
 # Choose the minimum extinction value which you want to correspond to an "on" position
 highExtinctionThreshold = config.highExtinctionThreshMultiplier * Av_threshold
-print("\t-A region of high extinction has been defined to the suggested suggested Av={}".format(highExtinctionThreshold))
+logging.info("\t-A region of high extinction has been defined to the suggested suggested Av={}".format(highExtinctionThreshold))
 
 # -------- Define the range.
 
@@ -135,8 +143,8 @@ for i in list(AllPotentialRefPoints.index):
         farHighExtinctionRegion.append(i + 1)
     # ---- Find the extinction range for the given point.
 # -------- For each potential reference point.
-print('The potential reference point(s) {} are near a region of high extinction'.format(nearHighExtinctionRegion))
-print('The potential reference point(s) {} are far from a region of high extinction'.format(farHighExtinctionRegion))
+logging.info('The potential reference point(s) {} are near a region of high extinction'.format(nearHighExtinctionRegion))
+logging.info('The potential reference point(s) {} are far from a region of high extinction'.format(farHighExtinctionRegion))
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION. --------
 
 PotRefPoints = [item for item in PotRefPoints if item not in nearHighExtinctionRegion]
@@ -145,8 +153,8 @@ PotRefPoints = [item for item in PotRefPoints if item not in farHighExtinctionRe
 #============================================================================================================
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES --------
-print('---------------------')
-print('We will now check if any of the potential reference points have anomalous rotation measure values.')
+logging.info('---------------------')
+logging.info('We will now check if any of the potential reference points have anomalous rotation measure values.')
 
 # -------- Define "anomalous"
 
@@ -157,7 +165,7 @@ rm_std = np.std(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])
 coeffSTD = config.anomalousSTDNum
 rm_upperLimit = rm_avg + coeffSTD * rm_std
 rm_lowerLimit = rm_avg - coeffSTD * rm_std
-print("\t-Anomalous rotation measure values have been defined to be greater or less"
+logging.info("\t-Anomalous rotation measure values have been defined to be greater or less"
                                    " than the config-selected {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
                                    " rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit))
 # -------- Define "anomalous".
@@ -170,7 +178,7 @@ for i in list(AllPotentialRefPoints.index):
             AllPotentialRefPoints['Rotation_Measure(rad/m2)'][i] > rm_upperLimit:
         anomalousRMIndex.append(i + 1)  # To identify points numbered in order of increasing extinction
 # -------- For each potential reference point.
-print('The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex))
+logging.info('The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex))
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES. --------
 
 PotRefPoints = [item for item in PotRefPoints if item not in anomalousRMIndex]
@@ -208,15 +216,15 @@ plt.savefig(saveFigurePath_RefPointMap)
 #plt.show()
 plt.close()
 # ---- Display or save the figure.
-print('Saving the map of all potential reference points to '+saveFigurePath_RefPointMap)
+logging.info('Saving the map of all potential reference points to '+saveFigurePath_RefPointMap)
 # -------- CREATE A FIGURE - ALL POTENTIAL REF POINTS MAP. --------
 
 #============================================================================================================
 
 chosenRefPoints = [int(i) - 1 for i in PotRefPoints]
 AllPotentialRefPoints = AllPotentialRefPoints.loc[chosenRefPoints].sort_values('Extinction_Value').reset_index()
-print(chosenRefPoints)
-print(AllPotentialRefPoints)
+logging.info(chosenRefPoints)
+logging.info(AllPotentialRefPoints)
 
 #============================================================================================================
 
@@ -248,30 +256,30 @@ quadrantsUndersampled = quadrantsUndersampled + 1 if len(Q4) < minSamples else q
 # -------- Calculate Results. --------
 
 # -------- OUTPUT RESULTS. --------
-print("The chosen reference points, sorted by quadrant, are:")
-print("Q1: {}".format(Q1))
-print("Q2: {}".format(Q2))
-print("Q3: {}".format(Q3))
-print("Q4: {}".format(Q4))
+logging.info("The chosen reference points, sorted by quadrant, are:")
+logging.info("Q1: {}".format(Q1))
+logging.info("Q2: {}".format(Q2))
+logging.info("Q3: {}".format(Q3))
+logging.info("Q4: {}".format(Q4))
 
-print("Warning: {} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples))
+logging.info("Warning: {} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples))
 # -------- OUTPUT RESULTS. --------
 
 #============================================================================================================
 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
-print('---------------------')
-print('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
+logging.info('---------------------')
+logging.info('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
       'total number of reference points ({}):'.format(len(AllPotentialRefPoints)))
 
 OptimalNumRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, AllPotentialRefPoints,
                                                                    saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
 
-print("Given this information, the suggested reference points are {}.".format([i + 1 for i in range(0, OptimalNumRefPoints_from_AllPotentialRefPoints)]))
+logging.info("Given this information, the suggested reference points are {}.".format([i + 1 for i in range(0, OptimalNumRefPoints_from_AllPotentialRefPoints)]))
 
-print('Please review the BLOS trend stability plot at {} before confirming the number of reference points you would '
+logging.info('Please review the BLOS trend stability plot at {} before confirming the number of reference points you would '
       'like to use.'.format(saveFigurePath_BLOSvsNRef_AllPotentialRefPoints))
-print('---------------------\n')
+logging.info('---------------------\n')
 
 # -------- Solidify reference points. --------
 
@@ -280,7 +288,7 @@ chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRef
 #chosenRefPoints = AllPotentialRefPoints #If we ignore the algorithm.
 chosenRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 
-print(chosenRefPoints)
+logging.info(chosenRefPoints)
 # -------- Solidify reference points. --------
 
 #======================================================================================================================
@@ -379,11 +387,13 @@ referenceData['Reference RM Std'] = [np.std(chosenRefPoints['Rotation_Measure(ra
                                      np.sqrt(len(chosenRefPoints['Rotation_Measure(rad/m2)']))]
 referenceData['Reference Extinction'] = [np.mean(chosenRefPoints['Extinction_Value'])]
 referenceData.to_csv(saveFilePath_ReferenceData, index=False)
+logging.info('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
 print('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------
 
 # -------- SAVE REFERENCE POINTS  --------
 chosenRefPoints.to_csv(saveFilePath_ReferencePoints, index=False)
+logging.info('Chosen reference points were saved to {}'.format(saveFilePath_ReferencePoints))
 print('Chosen reference points were saved to {}'.format(saveFilePath_ReferencePoints))
 # -------- SAVE REFERENCE POINTS. --------
 

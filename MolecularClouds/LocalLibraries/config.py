@@ -25,6 +25,7 @@ configDirectoryAndNames.read('configDirectoryAndNames.ini')
 dir_root = configDirectoryAndNames['Output File Locations'].get('Root')
 dir_fileOutput = configDirectoryAndNames['Output File Locations'].get('File Output')
 dir_plots = configDirectoryAndNames['Output File Locations'].get('Plots')
+dir_logs = configDirectoryAndNames['Output File Locations'].get('Logs')
 dir_densitySensitivity = configDirectoryAndNames['Output File Locations'].get('Density Sensitivity')
 dir_temperatureSensitivity = configDirectoryAndNames['Output File Locations'].get('Temperature Sensitivity')
 #Output Name Prefixes

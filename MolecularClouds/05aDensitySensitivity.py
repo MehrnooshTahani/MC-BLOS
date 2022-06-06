@@ -9,6 +9,8 @@ from MolecularClouds.LocalLibraries.RegionOfInterest import Region
 import pandas as pd
 import LocalLibraries.config as config
 
+import logging
+
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
 regionOfInterest = Region(cloudName)
@@ -19,6 +21,11 @@ MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, confi
 RefPointPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
 saveFileDir = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity)
 # -------- DEFINE FILES AND PATHS. --------
+
+# -------- CONFIGURE LOGGING --------
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script5aLog.txt")
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
 refPointTable = pd.read_csv(RefPointPath)

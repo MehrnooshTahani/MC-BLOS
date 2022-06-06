@@ -17,6 +17,8 @@ from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 import LocalLibraries.RefJudgeLib as rjl
 
+import logging
+
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
 regionOfInterest = Region(cloudName)
@@ -25,7 +27,13 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCatalogue)
 saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
+
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2Log.txt")
 # -------- DEFINE FILES AND PATHS. --------
+
+# -------- CONFIGURE LOGGING --------
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
 hdulist = fits.open(regionOfInterest.fitsFilePath)
@@ -55,9 +63,9 @@ if not math.isnan(regionOfInterest.ymin) and not math.isnan(regionOfInterest.yma
 
 data[ymin:ymax, xmin:xmax][data[ymin:ymax, xmin:xmax] < 0] = np.nan
 baddata = np.isnan(data)
-#print("Here")
+#logging.info("Here")
 data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], 'linear') #This step is computationally costly. It may be omitted if it is taking too long.
-#print("There")
+#logging.info("There")
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -72,12 +80,12 @@ rmData = DataFile(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.r
 ''' Uncertainty based.'''
 raErrsSec = np.array(rmData.targetRAErrSecs)
 raErrSec = max(abs(raErrsSec)) #s
-#print(raErrSec)
+#logging.info(raErrSec)
 raErr = rjl.ra_hms2deg(0, 0, raErrSec) #deg
 
 decErrs = np.array(rmData.targetDecErrArcSecs)
 decErrSec = max(abs(decErrs)) #s
-#print(decErrSec)
+#logging.info(decErrSec)
 decErr = rjl.dec_dms2deg(0, 0, decErrSec) #deg
 
 RMResolutionDegs = max(raErr, decErr)

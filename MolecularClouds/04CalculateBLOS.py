@@ -12,6 +12,9 @@ from LocalLibraries.RegionOfInterest import Region
 from LocalLibraries.CalculateB import CalculateB
 import LocalLibraries.config as config
 import math
+
+import logging
+
 # -------- FUNCTION DEFINITION --------
 def B2RGB(b):
     """
@@ -52,7 +55,13 @@ FilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, 
 FilePath_MatchedRMExtinc = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + cloudName + '.txt')
 saveFilePath_BLOSPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
 saveFigurePath_BLOSPointMap = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_BLOSPointFig + config.cloud + '.png')
+
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script4Log.txt")
 # -------- DEFINE FILES AND PATHS. --------
+
+# -------- CONFIGURE LOGGING --------
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# -------- CONFIGURE LOGGING --------
 
 # -------- LOAD REFERENCE POINT DATA --------
 refData = pd.read_csv(FilePath_ReferencePoints)

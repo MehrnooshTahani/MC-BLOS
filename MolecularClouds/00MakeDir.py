@@ -7,6 +7,7 @@ This is the zeroth stage of the BLOSMapping method where the necessary directori
 import os
 import LocalLibraries.config as config
 
+
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
 # -------- CHOOSE THE REGION OF INTEREST. --------
@@ -30,9 +31,10 @@ if cloudName.lower() not in InFileOutput:
     # Move into the directory for the region of interest and make subsequent directories to house its results
     os.chdir(cloudName)
     os.mkdir(config.dir_plots)
+    os.mkdir(config.dir_logs)
     os.mkdir(config.dir_densitySensitivity)
     os.mkdir(config.dir_temperatureSensitivity)
 
-print('Folder \'' + cloudName + '\' with sub-folders: \'' + config.dir_plots + '\', \'' + config.dir_densitySensitivity + '\', and \'' + config.dir_temperatureSensitivity + '\''
+print('Folder \'' + cloudName + '\' with sub-folders: \'' + config.dir_plots + '\', \'' + config.dir_logs + '\', \'' + config.dir_densitySensitivity + '\', and \'' + config.dir_temperatureSensitivity + '\''
                             ' created in {}'.format(os.path.join(config.dir_root, config.dir_fileOutput)))
 # -------- MAKE DIRECTORIES FOR THE REGION OF INTEREST. --------

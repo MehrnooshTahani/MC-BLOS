@@ -6,6 +6,8 @@ import pandas as pd
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 
+import logging
+
 # -------- FUNCTION DEFINITION --------
 def extinctionChemUncertainties(B, BHigher, BLower):
     if max(B, BHigher, BLower) == B:
@@ -38,6 +40,11 @@ BData_Temp20IncreasePath = os.path.join(config.dir_root, config.dir_fileOutput, 
 BData_Temp20DecreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity, 'B_Av_T-20_n0.txt')
 saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSUncertainty + cloudName + '.txt')
 # -------- DEFINE FILES AND PATHS --------
+
+# -------- CONFIGURE LOGGING --------
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script7Log.txt")
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# -------- CONFIGURE LOGGING --------
 
 # -------- READ BLOS DATA--------
 BData = pd.read_csv(BFilePath)
