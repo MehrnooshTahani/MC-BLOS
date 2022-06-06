@@ -6,6 +6,7 @@ The matched rotation measure data and extinction information are saved in a file
 """
 import csv
 from itertools import zip_longest
+
 from LocalLibraries.DataFile import DataFile
 import os
 from astropy.io import fits
@@ -39,12 +40,24 @@ data = rjl.deepCopy(hdu.data)
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
     data = data / config.VExtinct_2_Hcol
 
-#Handle bad data by interpolation.
-'''
-data[data < 0] = np.nan
+#Handle bad data (negative/no values) by interpolation.
+xmin = 0
+xmax = data.shape[1]
+ymin = 0
+ymax = data.shape[0]
+if not math.isnan(regionOfInterest.xmin) and not math.isnan(regionOfInterest.xmax):
+    xmin = int(regionOfInterest.xmin)
+    xmax = int(regionOfInterest.xmax)
+
+if not math.isnan(regionOfInterest.ymin) and not math.isnan(regionOfInterest.ymax):
+    ymin = int(regionOfInterest.ymin)
+    ymax = int(regionOfInterest.ymax)
+
+data[ymin:ymax, xmin:xmax][data[ymin:ymax, xmin:xmax] < 0] = np.nan
 baddata = np.isnan(data)
-data = rjl.interpMask(data, baddata, 'linear') #Todo: This is an extremely costly step...
-'''
+#print("Here")
+data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], 'linear') #This step is computationally costly. It may be omitted if it is taking too long.
+#print("There")
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -56,21 +69,28 @@ rmData = DataFile(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.r
 
 # -------- DEFINE THE ERROR RANGE --------
 # The physical limit on how far an extinction value can be from the rm and still be considered valid/applicable
-# Todo: We want to redo this with pixel resolution instead. NOT DONE
-'''
-cloudDistance = regionOfInterest.distance  # [pc]
-cloudJeansLength = regionOfInterest.jeanslength  # [pc]
-minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
+''' Uncertainty based.'''
+raErrsSec = np.array(rmData.targetRAErrSecs)
+raErrSec = max(abs(raErrsSec)) #s
+#print(raErrSec)
+raErr = rjl.ra_hms2deg(0, 0, raErrSec) #deg
 
-minDiff_pix = minDiff / abs(hdu.header['CDELT1'])
-NDelt = math.ceil(minDiff_pix)  # Round up
+decErrs = np.array(rmData.targetDecErrArcSecs)
+decErrSec = max(abs(decErrs)) #s
+#print(decErrSec)
+decErr = rjl.dec_dms2deg(0, 0, decErrSec) #deg
+
+RMResolutionDegs = max(raErr, decErr)
+
+''' Configuration based
+RMResolutionDegs = config.resolution_RMCatalogue
 '''
-RMResolution = 10
-ExtinctionResolution = 100
-if (ExtinctionResolution > RMResolution):
+ExtinctionResolutionDegs = min(abs(hdu.header['CDELT1']), abs(hdu.header['CDELT2'])) #deg
+# -------- It is 1 pixel at most if the extinction map has a lower resolution than the RM map. The maximum number of pixels which fit within the RM's resolution otherwise.
+if (ExtinctionResolutionDegs > RMResolutionDegs):
     NDelt = 1
 else:
-    NDelt = np.ceil(RMResolution/ExtinctionResolution)
+    NDelt = np.ceil(RMResolutionDegs/ExtinctionResolutionDegs)
 # -------- DEFINE THE ERROR RANGE. --------
 
 # -------- DEFINE PARAMETERS --------
@@ -95,6 +115,8 @@ Extinction_MinInRange = []
 Extinction_MaxInRangeRa = []
 Extinction_MaxInRangeDec = []
 Extinction_MaxInRange = []
+
+IsExtinctionInterpolated = []
 # -------- DEFINE PARAMETERS. --------
 
 # -------- MATCH ROTATION MEASURES AND EXTINCTION VALUES --------
@@ -115,11 +137,11 @@ for index in range(len(rmData.targetRotationMeasures)):
         if data[py, px] != -1 and math.isnan(data[py, px]) is False:
             extinction = data[py, px]
             # ---- Negative extinction (the rm value landed on a negative pixel)
-            # Negative extinction is not physical; take the extinction value to be an average of surrounding pixels
-            # Todo: What if the negative pixel is surrounded by other negative pixels?
-            # Todo: It does matter; issue warning and either exclude the point or ask the user to use a new file. Don't average from an even larger region.
-            if extinction < 0:
-                extinction = rjl.averageBox(px, py, data, 1)
+            # Negative extinction is not physical; in prior step it was interpolated. Mark these points.
+            if baddata[py, px]:
+                IsExtinctionInterpolated.append(True)
+            else:
+                IsExtinctionInterpolated.append(False)
             # ---- Negative extinction.
 
             Identifier.append(cntr)
@@ -141,23 +163,18 @@ for index in range(len(rmData.targetRotationMeasures)):
             ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getBoxRange(px, py, data, NDelt)
             # ---- Find the extinction error range for the given rm.
 
-            #Todo: This can be made more efficient with numpy vectorized operations.
             # ---- Cycle through extinction values within the error range
             extinction_temp = []
             ra_temp = []
             dec_temp = []
 
-            # Todo: The below doesn't account for negative extinction range values which nonetheless have been selected and averaged above.
-            #  Should it? (Via the average) (or do we just ignore it)
-            #  Work with a copy of the data and fill in data with interpolation, also give a warning that the value in question is interpolated.* Perhaps masking.
             for pxx in range(ind_xmin, ind_xmax):
                 for pyy in range(ind_ymin, ind_ymax):
                     extinction = data[pyy, pxx]
-                    if extinction >= 0:  # Negative extinction is not physical
-                        extinction_temp.append(extinction)
-                        xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
-                        ra_temp.append(xx)
-                        dec_temp.append(yy)
+                    extinction_temp.append(extinction)
+                    xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
+                    ra_temp.append(xx)
+                    dec_temp.append(yy)
             # ---- Cycle through extinction values within the error range.
 
             # Find minimum extinction value
@@ -181,12 +198,14 @@ with open(saveFilePath, 'w') as f:
             'RA_inExtincFile(degree)' + '\t' +
             'Dec_inExtincFile(degree)' + '\t' + 'Extinction_Value' + '\t' + 'Error_Range(pix)' + '\t' +
             'Min_Extinction_Value' + '\t' + 'Min_Extinction_Ra' + '\t' + 'Min_Extinction_Dec' + '\t' +
-            'Max_Extinction_Value' + '\t' + 'Max_Extinction_RA' + '\t' + 'Max_Extinction_dec' + '\n')
+            'Max_Extinction_Value' + '\t' + 'Max_Extinction_RA' + '\t' + 'Max_Extinction_dec' + '\t' +
+            'Extinction_Interpolated' '\n')
     writer = csv.writer(f, delimiter='\t')
     writer.writerows(zip_longest(Identifier, ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMValue, RMErr,
                                  ExtinctionRa, ExtinctionDec, ExtinctionValue, ErrRangePix,
                                  Extinction_MinInRange, Extinction_MinInRangeRa, Extinction_MinInRangeDec,
                                  Extinction_MaxInRange, Extinction_MaxInRangeRa, Extinction_MaxInRangeDec,
+                                 IsExtinctionInterpolated,
                                  fillvalue=''))
 # -------- WRITE TO A FILE. --------
 

@@ -42,7 +42,8 @@ dir_data = configDirectoryAndNames['Input File Locations'].get('Input Data')
 dir_cloudParameters = configDirectoryAndNames['Input File Locations'].get('Cloud Parameter Data')
 dir_chemAbundance = configDirectoryAndNames['Input File Locations'].get('Chemical Abundance Data')
 #Input File Names
-file_RMCatalogue = configDirectoryAndNames['Input File Names'].get('RM Catalogue')
+#resolution_RMCatalogue = configDirectoryAndNames['Input Files'].getfloat('RM Catalogue Resolution (Degrees)')
+file_RMCatalogue = configDirectoryAndNames['Input Files'].get('RM Catalogue')
 # -------- DEFINE DIRECTORIES AND NAMES. --------
 
 # -------- DEFINE CONSTANTS. --------

@@ -19,12 +19,12 @@ saveFilePath_ALlPotentialRefPoints = os.path.join(config.dir_root, config.dir_fi
 MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
 # -------- DEFINE FILES AND PATHS. --------
 
-# -------- CHOOSE THE THRESHOLD EXTINCTION --------
+# -------- LOAD THE THRESHOLD EXTINCTION --------
 if abs(regionOfInterest.cloudLatitude) < config.offDiskLatitude:
     Av_threshold = config.onDiskAvThresh
 else:
     Av_threshold = config.offDiskAvThresh
-# -------- CHOOSE THE THRESHOLD EXTINCTION. --------
+# -------- LOAD THE THRESHOLD EXTINCTION. --------
 
 # -------- FIND ALL POTENTIAL REFERENCE POINTS --------
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA

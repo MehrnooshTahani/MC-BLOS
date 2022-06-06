@@ -49,7 +49,8 @@ configDirectoryAndNames['Input File Locations'] = {
     'Chemical Abundance Data': 'ChemicalAbundance'
     }
 
-configDirectoryAndNames['Input File Names'] = {
+configDirectoryAndNames['Input Files'] = {
+    #'RM Catalogue Resolution (Degrees)': 0.0125,
     'RM Catalogue': 'RMCatalogue.txt'
     }
 

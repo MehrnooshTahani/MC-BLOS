@@ -65,7 +65,7 @@ adjustText.adjust_text(text)
 # ---- Display or save the figure
 saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_AllPotentialRefPoints.png'
 plt.savefig(saveFigurePath_RefPointMap)
-plt.show()
+#plt.show()
 plt.close()
 # ---- Display or save the figure.
 print('Saving the map of all potential reference points to '+saveFigurePath_RefPointMap)

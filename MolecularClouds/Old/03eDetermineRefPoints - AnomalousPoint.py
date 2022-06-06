@@ -43,7 +43,7 @@ coeffSTD = config.anomalousSTDNum
 rm_upperLimit = rm_avg + coeffSTD * rm_std
 rm_lowerLimit = rm_avg - coeffSTD * rm_std
 print("\t-Anomalous rotation measure values have been defined to be greater or less"
-                                   " than the the suggested {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
+                                   " than the config-selected {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
                                    " rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit))
 # -------- Define "anomalous".
 

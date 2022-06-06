@@ -98,7 +98,8 @@ adjustText.adjust_text(text)
 
 # ---- Display or save the figure
 plt.savefig(saveFigurePath)
-plt.show()
+#plt.show()
 plt.close()
 # ---- Display or save the figure.
+print('Saving the map of all potential reference points to ' + saveFigurePath)
 # -------- CREATE A FIGURE - ALL POTENTIAL REF POINTS MAP. --------

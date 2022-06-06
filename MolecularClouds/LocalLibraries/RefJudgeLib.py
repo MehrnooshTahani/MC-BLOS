@@ -146,10 +146,10 @@ def getBoxRange(px, py, data, NDelt):
     ind_xmin = px - NDelt
     ind_ymin = py - NDelt
 
-    ind_xmin = max(ind_xmin, 0)
-    ind_xmax = min(ind_xmax, data.shape[1])
-    ind_ymin = max(ind_ymin, 0)
-    ind_ymax = min(ind_ymax, data.shape[0])
+    ind_xmin = int(max(ind_xmin, 0))
+    ind_xmax = int(min(ind_xmax, data.shape[1]))
+    ind_ymin = int(max(ind_ymin, 0))
+    ind_ymax = int(min(ind_ymax, data.shape[0]))
 
     return ind_xmin, ind_xmax, ind_ymin, ind_ymax
 # -------- FUNCTION DEFINITION --------
@@ -248,7 +248,8 @@ def deepCopy(data):
 
 # -------- FUNCTION DEFINITION --------
 def interpMask(data, mask, method='cubic', fill_value=0):
-    height, width = data.shape[:2]
+    width = data.shape[1]
+    height = data.shape[0]
     x, y = np.meshgrid(np.arange(width), np.arange(height))
 
     goodX = x[~mask]
@@ -276,7 +277,7 @@ def ra_hms2deg(ra_h, ra_m, ra_s):
     :param ra_s: second component of right ascension
     :return: Right ascension in degrees
     """
-    if (ra_h < 0 or ra_h > 24) or (ra_m < 0 or ra_m >= 60) or (ra_s < 0 or ra_s >= 60):
+    if (ra_h < 0 or ra_h > 24) or (ra_m < 0 or ra_m > 60) or (ra_s < 0 or ra_s > 60):
         print('Invalid RA')
         return None
     else:

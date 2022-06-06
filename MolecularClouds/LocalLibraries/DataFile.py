@@ -18,7 +18,7 @@ def ra_hms2deg(ra_h, ra_m, ra_s):
     :param ra_s: second component of right ascension
     :return: Right ascension in degrees
     """
-    if (ra_h < 0 or ra_h > 24) or (ra_m < 0 or ra_m >= 60) or (ra_s < 0 or ra_s >= 60):
+    if (ra_h < 0 or ra_h > 24) or (ra_m < 0 or ra_m > 60) or (ra_s < 0 or ra_s > 60):
         print('Invalid RA')
         return None
     else:
@@ -92,8 +92,9 @@ class DataFile:
 
         raHours, raMins, raSecs, raErrSecs, decDegs, decArcmins, decArcsecs, decErrArcsecs, longitudeDegs, \
             latitudeDegs, nvssStokesIs, stokesIErrs, AvePeakPIs, PIErrs, polarizationPercets, mErrPercents, \
-            rotationMeasures, RMErrs = np.loadtxt(filename, usecols=(0, 1, 2, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 17,
-                                                                     18, 20, 21, 23), unpack=True)
+            rotationMeasures, RMErrs = np.loadtxt(filename, usecols=(0, 1, 2, 4, 5, 6, 7, 9, 10,
+                                                                     11, 12, 14, 15, 17, 18, 20,
+                                                                     21, 23), unpack=True)
 
         self.targetRAHours = []  # Hour component of right ascension in hr:min:sec
         self.targetRAMins = []  # Minute component of right ascension in hr:min:sec

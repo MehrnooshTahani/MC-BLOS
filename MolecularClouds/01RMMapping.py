@@ -108,5 +108,5 @@ frame.set_alpha(0.4)
 
 plt.savefig(saveFigurePath, bbox_inches='tight')
 print('Saving figure to '+saveFigurePath)
-plt.show()
+#plt.show()
 # -------- CREATE A FIGURE. --------
