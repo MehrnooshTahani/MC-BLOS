@@ -25,7 +25,7 @@ saveFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, config.clo
 
 # -------- CONFIGURE LOGGING --------
 saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script6bLog.txt")
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- EXTRACT ORIGINAL BLOS VALUES --------
@@ -84,5 +84,6 @@ plt.legend(loc='upper center', ncol=2)
 # plt.show()
 plt.savefig(saveFigurePath)
 # ---- Display or save the figure.
-print('Saving figure to '+saveFigurePath)
+logging.info('Saving temp sensitivity figure to '+saveFigurePath)
+print('Saving temp sensitivity figure to '+saveFigurePath)
 # -------- CREATE A FIGURE. --------

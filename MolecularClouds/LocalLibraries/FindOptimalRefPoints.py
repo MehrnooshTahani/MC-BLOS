@@ -33,7 +33,7 @@ def stabilityCheckAlg2(DataNoRef):
 
     We repeat this algorithm over all potential threshold values
     :param DataNoRef:
-    :return:
+    :return: Optimal_NumRefPoints: The minimal number of reference points needed before the longest stable run.
     '''
     #UpperLimit = max([max(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
     #LowerLimit = min([min(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
@@ -104,7 +104,7 @@ def stabilityCheckAlg(DataNoRef):
 
     We repeat this algorithm over all potential threshold values
     :param DataNoRef:
-    :return:
+    :return: Optimal_NumRefPoints: The minimal number of reference points needed before the longest stable run.
     '''
     UpperLimit = max([max(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
     LowerLimit = min([min(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])

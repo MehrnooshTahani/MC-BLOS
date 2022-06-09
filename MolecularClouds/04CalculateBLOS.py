@@ -60,7 +60,7 @@ saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudNa
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- LOAD REFERENCE POINT DATA --------
@@ -188,5 +188,6 @@ frame.set_alpha(0.4)
 plt.savefig(saveFigurePath_BLOSPointMap)
 plt.close()
 # ---- Display or save the figure.
-print('Saving figure to '+saveFigurePath_BLOSPointMap)
+logging.info('Saving BLOS figure to '+saveFigurePath_BLOSPointMap)
+print('Saving BLOS figure to '+saveFigurePath_BLOSPointMap)
 # -------- CREATE A FIGURE - BLOS POINT MAP. --------

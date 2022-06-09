@@ -6,9 +6,7 @@ import pandas as pd
 import numpy as np
 from . import config
 
-#Todo: This class should be looked at again.
-
-# -------- CLASS DEFINITION --------
+# -------- FUNCTION DEFINITION --------
 def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable, saveFilePath):
         """
         Takes files containing extinction, rotation measure data, and reference point data for the region of interest
@@ -61,8 +59,7 @@ def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable, saveFilePath):
         # -------- ADD TO BLOS TABLE --------
         BLOSData['Ra(deg)'] = RMExtinctionData['Ra(deg)']
         BLOSData['Dec(deg)'] = RMExtinctionData['Dec(deg)']
-        BLOSData['ID#'] = RMExtinctionData[
-            'ID#']  # Want to keep track of the 'original' index as well
+        BLOSData['ID#'] = RMExtinctionData['ID#']  # Want to keep track of the 'original' index as well
         BLOSData['RM_Raw_Value'] = RMExtinctionData['Rotation_Measure(rad/m2)']
         BLOSData['RM_Raw_Err'] = RMExtinctionData['RM_Err(rad/m2)']
         BLOSData['Extinction'] = RMExtinctionData['Extinction_Value']
@@ -80,7 +77,7 @@ def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable, saveFilePath):
         BLOSData['TotalRMScaledErrWithStDev'] = RMExtinctionData['RM_Err(rad/m2)'] + fiducialRMStd
         BLOSData['TotalRMScaledErrWithAvgErr'] = RMExtinctionData['RM_Err(rad/m2)'] + fiducialRMAvgErr
         # -------- CALCULATE THE RM ERROR. --------
-        #Todo: It is perhaps possible to break up this function into two functions - one for the fiducial/RMExtinction/RefPointTable stuff above which returns the BLOSData dataframe, and one for the electron abundance calculations below.
+
         # -------- FIND THE LAYER OF INTEREST --------
         eAbundanceMatched = []
         indLayerOfInterest = []

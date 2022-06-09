@@ -32,7 +32,7 @@ saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudNa
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
@@ -63,9 +63,8 @@ if not math.isnan(regionOfInterest.ymin) and not math.isnan(regionOfInterest.yma
 
 data[ymin:ymax, xmin:xmax][data[ymin:ymax, xmin:xmax] < 0] = np.nan
 baddata = np.isnan(data)
-#logging.info("Here")
+#data[baddata] = 0
 data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], 'linear') #This step is computationally costly. It may be omitted if it is taking too long.
-#logging.info("There")
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -80,12 +79,10 @@ rmData = DataFile(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.r
 ''' Uncertainty based.'''
 raErrsSec = np.array(rmData.targetRAErrSecs)
 raErrSec = max(abs(raErrsSec)) #s
-#logging.info(raErrSec)
 raErr = rjl.ra_hms2deg(0, 0, raErrSec) #deg
 
 decErrs = np.array(rmData.targetDecErrArcSecs)
 decErrSec = max(abs(decErrs)) #s
-#logging.info(decErrSec)
 decErr = rjl.dec_dms2deg(0, 0, decErrSec) #deg
 
 RMResolutionDegs = max(raErr, decErr)
@@ -124,7 +121,7 @@ Extinction_MaxInRangeRa = []
 Extinction_MaxInRangeDec = []
 Extinction_MaxInRange = []
 
-IsExtinctionInterpolated = []
+IsExtinctionObserved = []
 # -------- DEFINE PARAMETERS. --------
 
 # -------- MATCH ROTATION MEASURES AND EXTINCTION VALUES --------
@@ -147,9 +144,9 @@ for index in range(len(rmData.targetRotationMeasures)):
             # ---- Negative extinction (the rm value landed on a negative pixel)
             # Negative extinction is not physical; in prior step it was interpolated. Mark these points.
             if baddata[py, px]:
-                IsExtinctionInterpolated.append(True)
+                IsExtinctionObserved.append(False)
             else:
-                IsExtinctionInterpolated.append(False)
+                IsExtinctionObserved.append(True)
             # ---- Negative extinction.
 
             Identifier.append(cntr)
@@ -207,15 +204,19 @@ with open(saveFilePath, 'w') as f:
             'Dec_inExtincFile(degree)' + '\t' + 'Extinction_Value' + '\t' + 'Error_Range(pix)' + '\t' +
             'Min_Extinction_Value' + '\t' + 'Min_Extinction_Ra' + '\t' + 'Min_Extinction_Dec' + '\t' +
             'Max_Extinction_Value' + '\t' + 'Max_Extinction_RA' + '\t' + 'Max_Extinction_dec' + '\t' +
-            'Extinction_Interpolated' '\n')
+            'Extinction_Observed' '\n')
     writer = csv.writer(f, delimiter='\t')
     writer.writerows(zip_longest(Identifier, ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMValue, RMErr,
                                  ExtinctionRa, ExtinctionDec, ExtinctionValue, ErrRangePix,
                                  Extinction_MinInRange, Extinction_MinInRangeRa, Extinction_MinInRangeDec,
                                  Extinction_MaxInRange, Extinction_MaxInRangeRa, Extinction_MaxInRangeDec,
-                                 IsExtinctionInterpolated,
+                                 IsExtinctionObserved,
                                  fillvalue=''))
 # -------- WRITE TO A FILE. --------
+
+logging.info('\nWithin the specified region of interest, a total of {} rotation measure points were matched '
+      'to visual extinction values.\n'.format(len(Identifier)))
+logging.info('Matched visual extinction and rotation measure data were saved to {}'.format(saveFilePath))
 
 print('\nWithin the specified region of interest, a total of {} rotation measure points were matched '
       'to visual extinction values.\n'.format(len(Identifier)))

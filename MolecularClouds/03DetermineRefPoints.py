@@ -48,7 +48,8 @@ MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloud
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+loggingDivider = "===================================================================================================="
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
@@ -64,20 +65,20 @@ matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
 #============================================================================================================
 
 # -------- LOAD THE THRESHOLD EXTINCTION --------
-logging.info('\n---------------------')
-
-logging.info('All potential reference points will be taken to be all points with a visual extinction value less than the '
-      'extinction threshold.')
+Av_threshold = None
 if abs(regionOfInterest.cloudLatitude) < config.offDiskLatitude:
     Av_threshold = config.onDiskAvThresh
-    logging.info('\t-For clouds that appear near the disk, such as {}, an appropriate threshold value is {}.'
-          .format(cloudName, Av_threshold))
 else:
     Av_threshold = config.offDiskAvThresh
-    logging.info('\t-For clouds that appear off the disk, such as {}, an appropriate threshold value is {}.'
-          .format(cloudName, Av_threshold))
-
+# ---- Log info
+logging.info(loggingDivider)
+logging.info('Potential reference points with a matched extinction value less than the extinction threshold set in the starting settings configuration are considered candidates.')
+logging.info('\t-For clouds that appear near the disk, an appropriate threshold value is {}.'.format(config.onDiskAvThresh))
+logging.info('\t-For clouds that appear off the disk, an appropriate threshold value is {}.'.format(config.offDiskAvThresh))
+logging.info("{}'s absolute latitude is: {}".format(cloudName, abs(regionOfInterest.cloudLatitude)))
+logging.info("The selected threshold latitude (from the starting settings config) is: {}".format(config.offDiskLatitude))
 logging.info("Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold))
+# ---- Log info
 # -------- LOAD THE THRESHOLD EXTINCTION. --------
 
 #============================================================================================================
@@ -89,7 +90,6 @@ We will only consider points with visual extinction less than the specified thre
 reference points
 - Here we extract these points and sort the resulting dataframe from smallest to greatest extinction 
 '''
-
 # All potential reference points are all reference points with extinction less than the threshold:
 AllPotentialRefPoints, numAllRefPoints = rjl.maskRows(matchedRMExtinctionData, Av_threshold, 'Extinction_Value')
 # -------- Criterion: Av < threshold.
@@ -98,18 +98,17 @@ AllPotentialRefPoints, numAllRefPoints = rjl.maskRows(matchedRMExtinctionData, A
 if saveFilePath_ALlPotentialRefPoints is not None:
     AllPotentialRefPoints.to_csv(saveFilePath_ALlPotentialRefPoints, index=False)
 # ---- SAVE REFERENCE POINT DATA AS A TABLE.
-logging.info('Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints))
-logging.info(AllPotentialRefPoints)
-logging.info('---------------------\n')
-
-PotRefPoints = [i+1 for i in range(numAllRefPoints)]
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
-
+PotRefPoints = [i+1 for i in range(numAllRefPoints)]
+# ---- Log info
+logging.info(loggingDivider)
+logging.info('Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints))
+logging.info("The IDs of the selected points are: {}".format(PotRefPoints))
+logging.info("The following are all the potential reference points: \n {}".format(AllPotentialRefPoints))
+# ---- Log info
 #============================================================================================================
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION --------
-logging.info('---------------------')
-logging.info('We will now check if any of the potential reference points are near a region of high extinction.')
 # -------- Define the range
 # The distance the point can be from a region of high extinction and still be thought to sample the background
 cloudDistance = regionOfInterest.distance  # [pc]
@@ -119,13 +118,9 @@ minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
 minDiff_pix = minDiff / abs(hdu.header['CDELT1'])
 NDeltNear = config.nearExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
 NDeltFar = config.farExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
-logging.info("\t-A close region around the point has been defined to the suggested {} pixels".format(NDeltNear))
-logging.info("\t-A far region around the point has been defined to the suggested {} pixels".format(NDeltFar))
 
 # Choose the minimum extinction value which you want to correspond to an "on" position
 highExtinctionThreshold = config.highExtinctionThreshMultiplier * Av_threshold
-logging.info("\t-A region of high extinction has been defined to the suggested suggested Av={}".format(highExtinctionThreshold))
-
 # -------- Define the range.
 
 # -------- For each potential reference point
@@ -143,19 +138,25 @@ for i in list(AllPotentialRefPoints.index):
         farHighExtinctionRegion.append(i + 1)
     # ---- Find the extinction range for the given point.
 # -------- For each potential reference point.
+PotRefPoints = [item for item in PotRefPoints if item not in nearHighExtinctionRegion or not config.useNearExtinctionRemove]
+PotRefPoints = [item for item in PotRefPoints if item not in farHighExtinctionRegion or not config.useFarExtinctionRemove]
+# ---- Log info
+logging.info(loggingDivider)
+logging.info('We will now check if any of the potential reference points are near a region of high extinction.')
+logging.info("\t-A close region around the point has been defined to the configuration-selected {} pixels".format(NDeltNear))
+logging.info("\t-A far region around the point has been defined to the configuration-selected {} pixels".format(NDeltFar))
+logging.info("\t-A region of high extinction has been defined to the configuration-selected Av={}".format(highExtinctionThreshold))
 logging.info('The potential reference point(s) {} are near a region of high extinction'.format(nearHighExtinctionRegion))
 logging.info('The potential reference point(s) {} are far from a region of high extinction'.format(farHighExtinctionRegion))
+logging.info('As per configuration settings, near points will be removed: {}'.format(config.useNearExtinctionRemove))
+logging.info('As per configuration settings, far points will be removed: {}'.format(config.useFarExtinctionRemove))
+logging.info('As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints))
+# ---- Log info
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION. --------
-
-PotRefPoints = [item for item in PotRefPoints if item not in nearHighExtinctionRegion]
-PotRefPoints = [item for item in PotRefPoints if item not in farHighExtinctionRegion]
 
 #============================================================================================================
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES --------
-logging.info('---------------------')
-logging.info('We will now check if any of the potential reference points have anomalous rotation measure values.')
-
 # -------- Define "anomalous"
 
 # Choose a rotation measure corresponding to anomalous
@@ -165,9 +166,6 @@ rm_std = np.std(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])
 coeffSTD = config.anomalousSTDNum
 rm_upperLimit = rm_avg + coeffSTD * rm_std
 rm_lowerLimit = rm_avg - coeffSTD * rm_std
-logging.info("\t-Anomalous rotation measure values have been defined to be greater or less"
-                                   " than the config-selected {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
-                                   " rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit))
 # -------- Define "anomalous".
 
 # -------- For each potential reference point
@@ -178,13 +176,19 @@ for i in list(AllPotentialRefPoints.index):
             AllPotentialRefPoints['Rotation_Measure(rad/m2)'][i] > rm_upperLimit:
         anomalousRMIndex.append(i + 1)  # To identify points numbered in order of increasing extinction
 # -------- For each potential reference point.
+PotRefPoints = [item for item in PotRefPoints if item not in anomalousRMIndex or not config.useAnomalousSTDNumRemove]
+# ---- Log info
+logging.info(loggingDivider)
+logging.info('We will now check if any of the potential reference points have anomalous rotation measure values.')
+logging.info("\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
+                                   " rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit))
+logging.info('As per configuration settings, anomalous points will be removed: {}'.format(config.useAnomalousSTDNumRemove))
 logging.info('The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex))
+logging.info('As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints))
+# ---- Log info
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES. --------
 
-PotRefPoints = [item for item in PotRefPoints if item not in anomalousRMIndex]
-
 #============================================================================================================
-
 # -------- PREPARE TO PLOT ALL POTENTIAL REFERENCE POINTS --------
 n_AllRef = list(AllPotentialRefPoints['ID#'])
 Ra_AllRef = list(AllPotentialRefPoints['Ra(deg)'])
@@ -216,18 +220,26 @@ plt.savefig(saveFigurePath_RefPointMap)
 #plt.show()
 plt.close()
 # ---- Display or save the figure.
+# ---- Log info
+logging.info(loggingDivider)
 logging.info('Saving the map of all potential reference points to '+saveFigurePath_RefPointMap)
+logging.info('This map contains all points before removing unsuitable points!')
+# ---- Log info
 # -------- CREATE A FIGURE - ALL POTENTIAL REF POINTS MAP. --------
 
 #============================================================================================================
 
-chosenRefPoints = [int(i) - 1 for i in PotRefPoints]
-AllPotentialRefPoints = AllPotentialRefPoints.loc[chosenRefPoints].sort_values('Extinction_Value').reset_index()
-logging.info(chosenRefPoints)
+# -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------
+chosenRefPoints_Num = [int(i) - 1 for i in PotRefPoints]
+AllPotentialRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value').reset_index()
+
+logging.info(loggingDivider)
+logging.info("The Remaining Reference Points will be:")
+logging.info(PotRefPoints)
 logging.info(AllPotentialRefPoints)
+# -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------
 
 #============================================================================================================
-
 # -------- FIND REGIONS TO SPLIT THE CLOUD INTO. --------
 cloudCenterX, cloudCenterY = rjl.findWeightedCenter(hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
 m, b = rjl.getDividingLine(hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
@@ -240,14 +252,19 @@ Q1, Q2, Q3, Q4 = rjl.sortQuadrants(list(AllPotentialRefPoints.index), AllPotenti
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
 
 # -------- Calculate Results. --------
-minSamples = 1
-quadrantsUndersampled = 0
-quadrantsUndersampled = quadrantsUndersampled + 1 if len(Q1) < minSamples else quadrantsUndersampled
-quadrantsUndersampled = quadrantsUndersampled + 1 if len(Q2) < minSamples else quadrantsUndersampled
-quadrantsUndersampled = quadrantsUndersampled + 1 if len(Q3) < minSamples else quadrantsUndersampled
-quadrantsUndersampled = quadrantsUndersampled + 1 if len(Q4) < minSamples else quadrantsUndersampled
+minSamples = config.minPointsPerQuadrant
+Q1Less = len(Q1) < minSamples
+Q2Less = len(Q2) < minSamples
+Q3Less = len(Q3) < minSamples
+Q4Less = len(Q4) < minSamples
 
-#Todo
+quadrantsUndersampled = 0
+quadrantsUndersampled = quadrantsUndersampled + 1 if Q1Less else quadrantsUndersampled
+quadrantsUndersampled = quadrantsUndersampled + 1 if Q2Less else quadrantsUndersampled
+quadrantsUndersampled = quadrantsUndersampled + 1 if Q3Less else quadrantsUndersampled
+quadrantsUndersampled = quadrantsUndersampled + 1 if Q4Less else quadrantsUndersampled
+
+#Future possible methods
 #Method 1: Balanced representation.
 #chosenRefPoints_Num = #Concatenate list from all 4 quadrants, taking at most X elements from each.
 
@@ -256,39 +273,75 @@ quadrantsUndersampled = quadrantsUndersampled + 1 if len(Q4) < minSamples else q
 # -------- Calculate Results. --------
 
 # -------- OUTPUT RESULTS. --------
+logging.info(loggingDivider)
 logging.info("The chosen reference points, sorted by quadrant, are:")
 logging.info("Q1: {}".format(Q1))
 logging.info("Q2: {}".format(Q2))
 logging.info("Q3: {}".format(Q3))
 logging.info("Q4: {}".format(Q4))
-
+logging.info("As defined in the starting configuration, a quadrant does not have enough points sampled if there are less than {} points in the quadrant chosen.".format(minSamples))
 logging.info("Warning: {} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples))
+logging.info("If 1 or more quadrants have insufficient points sampled at this stage,")
+logging.info("consider raising your extinction threshold in your start settings configuration and trying again!")
 # -------- OUTPUT RESULTS. --------
 
 #============================================================================================================
 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
-logging.info('---------------------')
-logging.info('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
-      'total number of reference points ({}):'.format(len(AllPotentialRefPoints)))
-
 OptimalNumRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, AllPotentialRefPoints,
                                                                    saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
-
-logging.info("Given this information, the suggested reference points are {}.".format([i + 1 for i in range(0, OptimalNumRefPoints_from_AllPotentialRefPoints)]))
-
-logging.info('Please review the BLOS trend stability plot at {} before confirming the number of reference points you would '
-      'like to use.'.format(saveFigurePath_BLOSvsNRef_AllPotentialRefPoints))
-logging.info('---------------------\n')
-
 # -------- Solidify reference points. --------
-
-# -------- ASK THE USER WHICH POINTS THEY WANT TO USE AS REFERENCE POINTS --------
 chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)]
 #chosenRefPoints = AllPotentialRefPoints #If we ignore the algorithm.
 chosenRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 
-logging.info(chosenRefPoints)
+# -------- SORT REF POINTS INTO THESE REGIONS. --------
+Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'], chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
+# -------- SORT REF POINTS INTO THESE REGIONS. --------
+
+Q1Undersampled = len(Q1c) < minSamples and not Q1Less
+Q2Undersampled = len(Q2c) < minSamples and not Q2Less
+Q3Undersampled = len(Q3c) < minSamples and not Q3Less
+Q4Undersampled = len(Q4c) < minSamples and not Q4Less
+
+minSamples = []
+if Q1Undersampled:
+    for i in range(min(len(Q1)-len(Q1c), config.minPointsPerQuadrant-len(Q1c))):
+        minSamples.append(Q1[i])
+if Q2Undersampled:
+    for i in range(min(len(Q2) - len(Q2c), config.minPointsPerQuadrant - len(Q2c))):
+        minSamples.append(Q2[i])
+if Q3Undersampled:
+    for i in range(min(len(Q3) - len(Q2c), config.minPointsPerQuadrant - len(Q3c))):
+        minSamples.append(Q3[i])
+if Q4Undersampled:
+    for i in range(min(len(Q4) - len(Q4c), config.minPointsPerQuadrant - len(Q4c))):
+        minSamples.append(Q4[i])
+minSamples = max(minSamples) if len(minSamples) > 0 else OptimalNumRefPoints_from_AllPotentialRefPoints
+minSamples = minSamples #Account for the index shift.
+
+chosenRefPoints_After_Quadrants_Num = [i for i in range(minSamples)]
+#chosenRefPoints = AllPotentialRefPoints #If we ignore the algorithm.
+chosenRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_After_Quadrants_Num].sort_values('Extinction_Value')
+
+# ---- Log info
+logging.info(loggingDivider)
+logging.info('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
+      'total number of reference points ({}):'.format(len(AllPotentialRefPoints)))
+logging.info("Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_Num]))
+logging.info("Next, minimum quadrant sampling is accounted for.")
+logging.info("The chosen reference points, sorted by quadrant, are:")
+logging.info("Q1: {}".format(Q1c))
+logging.info("Q2: {}".format(Q2c))
+logging.info("Q3: {}".format(Q3c))
+logging.info("Q4: {}".format(Q4c))
+logging.info("Additional points are taken until quadrants which could meet the minimum sampling criteria set in the configuration start settings,")
+logging.info("but do not from the stability-recommended points, meet the minimum sampling criteria.")
+logging.info("Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_After_Quadrants_Num]))
+logging.info("Given this information, the remaining table is \n {}.".format(chosenRefPoints))
+logging.info('Please review the BLOS trend stability plot at {}.'.format(saveFigurePath_BLOSvsNRef_AllPotentialRefPoints))
+# ---- Log info
+
 # -------- Solidify reference points. --------
 
 #======================================================================================================================
@@ -368,11 +421,14 @@ plt.legend(loc='center right', bbox_to_anchor=(1.1, 0.5), ncol=2, framealpha=1)
 plt.savefig(saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints)
 #plt.show()
 plt.close()
+
+logging.info(loggingDivider)
+logging.info('Saving the BLOS stability reassessment figure to '+saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints)
+
 # -------- CREATE A FIGURE. --------
 # -------- REASSESS STABILITY. --------
 
 #======================================================================================================================
-
 # -------- CALCULATE AND SAVE REFERENCE VALUES --------
 cols = ['Number of Reference Points', 'Reference Extinction', 'Reference RM', 'Reference RM AvgErr',
         'Reference RM Std']
@@ -387,12 +443,16 @@ referenceData['Reference RM Std'] = [np.std(chosenRefPoints['Rotation_Measure(ra
                                      np.sqrt(len(chosenRefPoints['Rotation_Measure(rad/m2)']))]
 referenceData['Reference Extinction'] = [np.mean(chosenRefPoints['Extinction_Value'])]
 referenceData.to_csv(saveFilePath_ReferenceData, index=False)
+
+logging.info(loggingDivider)
 logging.info('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
 print('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------
 
 # -------- SAVE REFERENCE POINTS  --------
 chosenRefPoints.to_csv(saveFilePath_ReferencePoints, index=False)
+
+logging.info(loggingDivider)
 logging.info('Chosen reference points were saved to {}'.format(saveFilePath_ReferencePoints))
 print('Chosen reference points were saved to {}'.format(saveFilePath_ReferencePoints))
 # -------- SAVE REFERENCE POINTS. --------

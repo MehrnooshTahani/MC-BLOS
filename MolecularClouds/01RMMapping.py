@@ -11,6 +11,7 @@ import os
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 import LocalLibraries.PlotTemplates as pt
+import logging
 
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
@@ -22,6 +23,10 @@ RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCat
 saveFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_rmMapping + config.cloud + '.png')
 # -------- DEFINE FILES AND PATHS. --------
 
+# -------- CONFIGURE LOGGING --------
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1Log.txt")
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+# -------- CONFIGURE LOGGING --------
 
 # -------- FUNCTION DEFINITION --------
 def rm2RGB(rm):
@@ -107,6 +112,7 @@ frame.set_alpha(0.4)
 # ---- Style the legend.
 
 plt.savefig(saveFigurePath, bbox_inches='tight')
-print('Saving figure to '+saveFigurePath)
+print('Saving RM Matching figure to '+saveFigurePath)
+logging.info('Saving RM Matching figure to '+saveFigurePath)
 #plt.show()
 # -------- CREATE A FIGURE. --------

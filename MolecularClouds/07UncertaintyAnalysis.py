@@ -43,7 +43,7 @@ saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud
 
 # -------- CONFIGURE LOGGING --------
 saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script7Log.txt")
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ BLOS DATA--------
@@ -103,5 +103,6 @@ FinalBLOSResults['TotalLowerBUncertainty'] = BTotalLowerUncertainty
 
 # -------- SAVE FINAL BLOS RESULTS --------
 FinalBLOSResults.to_csv(saveFilePath, index=False)
+logging.info('Saving calculated magnetic field values and associated uncertainties to '+saveFilePath)
 print('Saving calculated magnetic field values and associated uncertainties to '+saveFilePath)
 # -------- SAVE FINAL BLOS RESULTS --------

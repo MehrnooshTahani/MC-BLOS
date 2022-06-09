@@ -14,8 +14,15 @@ configStartSettings['Judgement'] = {
     'Near High Extinction Multiplier': 2,
     'Far High Extinction Multiplier': 14,
     'High Extinction Threshold Multiplier': 5,
-    'Anomalous Values Standard Deviation': 3.
+    'Use Near High Extinction Exclusion': True,
+    'Use Far High Extinction Exclusion': True,
+    'Anomalous Values Standard Deviation': 3.,
+    'Use Anomalous Values Exclusion': True,
+    'Minimum Points Per Quadrant': 1
     }
+configStartSettings['Logging'] = {
+    'Format': '%%(name)s - %%(levelname)s - %%(asctime)s - %%(message)s'
+}
 with open('configStartSettings.ini', 'w') as output_file:
     configStartSettings.write(output_file)
 # -------- DEFINE STARTING VARIABLES. --------

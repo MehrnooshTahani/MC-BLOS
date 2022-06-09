@@ -14,7 +14,13 @@ offDiskAvThresh = configStartSettings['Judgement'].getfloat('Off Disk Extinction
 nearExtinctionMultiplier = configStartSettings['Judgement'].getint('Near High Extinction Multiplier')
 farExtinctionMultiplier = configStartSettings['Judgement'].getint('Far High Extinction Multiplier')
 highExtinctionThreshMultiplier = configStartSettings['Judgement'].getfloat('High Extinction Threshold Multiplier')
+useNearExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Near High Extinction Exclusion')
+useFarExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Far High Extinction Exclusion')
 anomalousSTDNum = configStartSettings['Judgement'].getfloat('Anomalous Values Standard Deviation')
+useAnomalousSTDNumRemove = configStartSettings['Judgement'].getboolean('Use Anomalous Values Exclusion')
+minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points Per Quadrant')
+
+logFormat = configStartSettings['Logging'].get('Format')
 # -------- DEFINE STARTING VARIABLES. --------
 
 # -------- DEFINE DIRECTORIES AND NAMES. --------

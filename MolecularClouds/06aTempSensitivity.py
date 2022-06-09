@@ -24,7 +24,7 @@ saveFileDir = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud,
 
 # -------- CONFIGURE LOGGING --------
 saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script6aLog.txt")
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
@@ -44,5 +44,6 @@ for value in percent:
     saveFilePath = saveFileDir + os.sep + 'B_' + AvAbundanceName + '.txt'
     B = CalculateB(AvAbundancePath, MatchedRMExtincPath, refPointTable, saveFilePath)
 
+logging.info('Saving calculated magnetic field values in the folder: '+saveFileDir)
 print('Saving calculated magnetic field values in the folder: '+saveFileDir)
 # -------- CALCULATE BLOS AS A FUNCTION OF PERCENT OF THE INPUT TEMPERATURE. --------
