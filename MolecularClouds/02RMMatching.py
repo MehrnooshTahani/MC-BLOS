@@ -12,12 +12,28 @@ import os
 from astropy.io import fits
 from astropy.wcs import WCS
 import numpy as np
+import pandas as pd
 import math
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 import LocalLibraries.RefJudgeLib as rjl
 
 import logging
+
+def getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax):
+    xmin = 0
+    xmax = data.shape[1]
+    ymin = 0
+    ymax = data.shape[0]
+    if not math.isnan(boxXMin):
+        xmin = int(boxXMin)
+    if not math.isnan(boxXMax):
+        xmax = int(boxXMax)
+    if not math.isnan(boxYMin):
+        ymin = int(boxYMin)
+    if not math.isnan(boxYMax):
+        ymax = int(boxYMax)
+    return xmin, xmax, ymin, ymax
 
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
@@ -49,22 +65,21 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
     data = data / config.VExtinct_2_Hcol
 
 #Handle bad data (negative/no values) by interpolation.
-xmin = 0
-xmax = data.shape[1]
-ymin = 0
-ymax = data.shape[0]
-if not math.isnan(regionOfInterest.xmin) and not math.isnan(regionOfInterest.xmax):
-    xmin = int(regionOfInterest.xmin)
-    xmax = int(regionOfInterest.xmax)
+boxXMin = regionOfInterest.xmin
+boxXMax = regionOfInterest.xmax
+boxYMin = regionOfInterest.ymin
+boxYMax = regionOfInterest.ymax
 
-if not math.isnan(regionOfInterest.ymin) and not math.isnan(regionOfInterest.ymax):
-    ymin = int(regionOfInterest.ymin)
-    ymax = int(regionOfInterest.ymax)
+xmin, xmax, ymin, ymax = getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax)
+
+#data[np.isnan(data)] = 0
+#data[np.isnan(data)] = config.defaultExtinction
+#data[np.isnan(data)] = np.average(data[np.isfinite(data)])
 
 data[ymin:ymax, xmin:xmax][data[ymin:ymax, xmin:xmax] < 0] = np.nan
 baddata = np.isnan(data)
-#data[baddata] = 0
-data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], 'linear') #This step is computationally costly. It may be omitted if it is taking too long.
+if config.doInterpExtinct:
+    data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], 'linear') #This step is computationally costly. It may be omitted if it is taking too long.
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -76,12 +91,12 @@ rmData = DataFile(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.r
 
 # -------- DEFINE THE ERROR RANGE --------
 # The physical limit on how far an extinction value can be from the rm and still be considered valid/applicable
-''' Uncertainty based.'''
+# Uncertainty based.
 raErrsSec = np.array(rmData.targetRAErrSecs)
+decErrs = np.array(rmData.targetDecErrArcSecs)
+
 raErrSec = max(abs(raErrsSec)) #s
 raErr = rjl.ra_hms2deg(0, 0, raErrSec) #deg
-
-decErrs = np.array(rmData.targetDecErrArcSecs)
 decErrSec = max(abs(decErrs)) #s
 decErr = rjl.dec_dms2deg(0, 0, decErrSec) #deg
 
@@ -141,13 +156,6 @@ for index in range(len(rmData.targetRotationMeasures)):
         # If the rm lies on a point with data:
         if data[py, px] != -1 and math.isnan(data[py, px]) is False:
             extinction = data[py, px]
-            # ---- Negative extinction (the rm value landed on a negative pixel)
-            # Negative extinction is not physical; in prior step it was interpolated. Mark these points.
-            if baddata[py, px]:
-                IsExtinctionObserved.append(False)
-            else:
-                IsExtinctionObserved.append(True)
-            # ---- Negative extinction.
 
             Identifier.append(cntr)
             RMRa.append(rmRA)
@@ -194,24 +202,29 @@ for index in range(len(rmData.targetRotationMeasures)):
             Extinction_MaxInRangeDec.append(dec_temp[ind_max])
             Extinction_MaxInRange.append(extinction_temp[ind_max])
             cntr += 1
+
+            # ---- Negative extinction (the rm value landed on a negative pixel)
+            # Negative extinction is not physical; in prior step it was interpolated away. Mark these points.
+            if baddata[py, px]:
+                IsExtinctionObserved.append(False)
+            else:
+                IsExtinctionObserved.append(True)
+            # ---- Negative extinction.
 # -------- MATCH ROTATION MEASURES AND EXTINCTION VALUES. --------
 
 # -------- WRITE TO A FILE --------
-with open(saveFilePath, 'w') as f:
-    f.write('ID#' + '\t' + 'Extinction_Index_x' + '\t' + 'Extinction_Index_y' + '\t' + 'Ra(deg)' + '\t' +
-            'Dec(deg)' + '\t' + 'Rotation_Measure(rad/m2)' + '\t' + 'RM_Err(rad/m2)' + '\t' +
-            'RA_inExtincFile(degree)' + '\t' +
-            'Dec_inExtincFile(degree)' + '\t' + 'Extinction_Value' + '\t' + 'Error_Range(pix)' + '\t' +
-            'Min_Extinction_Value' + '\t' + 'Min_Extinction_Ra' + '\t' + 'Min_Extinction_Dec' + '\t' +
-            'Max_Extinction_Value' + '\t' + 'Max_Extinction_RA' + '\t' + 'Max_Extinction_dec' + '\t' +
-            'Extinction_Observed' '\n')
-    writer = csv.writer(f, delimiter='\t')
-    writer.writerows(zip_longest(Identifier, ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMValue, RMErr,
-                                 ExtinctionRa, ExtinctionDec, ExtinctionValue, ErrRangePix,
-                                 Extinction_MinInRange, Extinction_MinInRangeRa, Extinction_MinInRangeDec,
-                                 Extinction_MaxInRange, Extinction_MaxInRangeRa, Extinction_MaxInRangeDec,
-                                 IsExtinctionObserved,
-                                 fillvalue=''))
+columns = ['Extinction_Index_x','Extinction_Index_y','Ra(deg)','Dec(deg)','Rotation_Measure(rad/m2)',
+           'RM_Err(rad/m2)','RA_inExtincFile(degree)','Dec_inExtincFile(degree)','Extinction_Value','Error_Range(pix)','Min_Extinction_Value',
+           'Min_Extinction_Ra','Min_Extinction_Dec','Max_Extinction_Value','Max_Extinction_RA','Max_Extinction_dec','Extinction_Observed']
+data = list(zip_longest(ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMValue, RMErr,
+                        ExtinctionRa, ExtinctionDec, ExtinctionValue, ErrRangePix,
+                        Extinction_MinInRange, Extinction_MinInRangeRa, Extinction_MinInRangeDec,
+                        Extinction_MaxInRange, Extinction_MaxInRangeRa, Extinction_MaxInRangeDec,
+                        IsExtinctionObserved,
+                        fillvalue=''))
+df = pd.DataFrame(data, columns=columns)
+df.index.name = 'ID#'
+df.to_csv(saveFilePath, '\t')
 # -------- WRITE TO A FILE. --------
 
 logging.info('\nWithin the specified region of interest, a total of {} rotation measure points were matched '

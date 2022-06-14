@@ -8,6 +8,7 @@ configStartSettings['Cloud'] = {
     'Cloud': 'Oriona',
     }
 configStartSettings['Judgement'] = {
+    'Interpolate Bad Extinction Values': True,
     'Off Disk Latitude': 15.,
     'On Disk Extinction Threshold': 2.,
     'Off Disk Extinction Threshold': 1.,
@@ -20,6 +21,14 @@ configStartSettings['Judgement'] = {
     'Use Anomalous Values Exclusion': True,
     'Minimum Points Per Quadrant': 1
     }
+configStartSettings['Plotting Options'] = {
+    'Density Plot Number of Points': 100,
+    'Density Plot Minimum Extinction': 0.5,
+    'Density Plot Maximum Extinction': 1.5,
+    'Temperature Plot Number of Points': 100,
+    'Temperature Plot Minimum Extinction': 0.5,
+    'Temperature Plot Maximum Extinction': 1.5,
+}
 configStartSettings['Logging'] = {
     'Format': '%%(name)s - %%(levelname)s - %%(asctime)s - %%(message)s'
 }

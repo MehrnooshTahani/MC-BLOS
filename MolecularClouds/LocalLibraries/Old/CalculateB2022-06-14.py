@@ -7,22 +7,36 @@ import numpy as np
 from . import config
 
 # -------- FUNCTION DEFINITION --------
-def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction):
+def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable):
         """
         Takes files containing extinction, rotation measure data, and reference point data for the region of interest
         and calculates BLOS, returning a PANDAS accordingly.
 
         :param AvAbundancePath:  Path to extinction data produced by chemical evolution code
-        :param ExtincRNPoints: Table (pandas dataframe) of non-reference points.
-        :param fiducialRM
-        :param fiducialRMAvgErr
-        :param fiducialRMStd
-        :param fiducialExtinction
+        :param ExtincRMPath: Path to matched extinction and rotation measure data (produced in stage 02)
+        :param RefPointTable: Table (pandas dataframe) of potential reference points
         """
+        # -------- LOAD REFERENCE POINTS --------
+        refData = RefPointTable
+        # -------- LOAD REFERENCE POINTS. --------
 
-        # -------- SELECT EXTINCTION RM POINT DATA --------
-        RMExtinctionData = ExtincRMPoints.copy().reset_index(drop=True)
-        # -------- SELECT EXTINCTION RM POINT DATA --------
+        # -------- FIND FIDUCIAL REFERENCE VALUES --------
+        fiducialRM = np.mean(refData['Rotation_Measure(rad/m2)'])
+        fiducialRMAvgErr = np.mean(refData['RM_Err(rad/m2)'])
+        # Standard error of the sampled mean:
+        fiducialRMStd = np.std(refData['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(len(refData['Rotation_Measure(rad/m2)']))
+        fiducialExtinction = np.mean(refData['Extinction_Value'])
+        # -------- FIND FIDUCIAL REFERENCE VALUES. --------
+
+        # -------- LOAD MATCHED RM AND EXTINCTION DATA
+        AllMatchedRMExtinctionData = pd.read_csv(ExtincRMPath, sep='\t')
+        # -------- LOAD MATCHED RM AND EXTINCTION DATA.
+
+        # -------- REMOVE REFERENCE POINTS FROM THE MATCHED RM AND EXTINCTION DATA --------
+        # The rm points used as reference points should not be used to calculate BLOS
+        ind = refData['ID#']  # Indices of the reference points
+        RMExtinctionData = AllMatchedRMExtinctionData.copy().drop(ind).reset_index(drop=True)
+        # -------- REMOVE REFERENCE POINTS FROM THE MATCHED RM AND EXTINCTION DATA. --------
 
         # -------- CREATE BLOS TABLE --------
         cols = ['ID#', 'Ra(deg)', 'Dec(deg)', 'RM_Raw_Value', 'RM_Raw_Err', 'Scaled_RM', 'TotalRMScaledErrWithStDev',

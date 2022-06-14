@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 import adjustText
 
 from LocalLibraries.RegionOfInterest import Region
+from LocalLibraries.FindOptimalRefPoints import findTrendData
 from LocalLibraries.FindOptimalRefPoints import FindOptimalRefPoints
-from LocalLibraries.CalculateB import CalculateB
 
 import LocalLibraries.config as config
 import LocalLibraries.RefJudgeLib as rjl
@@ -91,7 +91,14 @@ reference points
 - Here we extract these points and sort the resulting dataframe from smallest to greatest extinction 
 '''
 # All potential reference points are all reference points with extinction less than the threshold:
-AllPotentialRefPoints, numAllRefPoints = rjl.maskRows(matchedRMExtinctionData, Av_threshold, 'Extinction_Value')
+dataframe = matchedRMExtinctionData
+columnName = 'Extinction_Value'
+threshold = Av_threshold
+# Indices where the threshold is met in the given column
+ind = np.where(dataframe[columnName] <= threshold)[0]
+# All rows which exceed the threshold value in the given column
+AllPotentialRefPoints = dataframe.loc[ind].sort_values(columnName, ignore_index=True)
+numAllRefPoints = len(AllPotentialRefPoints)
 # -------- Criterion: Av < threshold.
 
 # ---- SAVE REFERENCE POINT DATA AS A TABLE
@@ -357,6 +364,7 @@ extinction greater than the extinction of the last chosen reference point/
 RefPoints = chosenRefPoints[:-1].append(AllPotentialRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
+'''
 # -------- Read the reference point data
 numRefPoints = len(RefPoints)
 # -------- Read the reference point data.
@@ -375,9 +383,7 @@ for num in range(numRefPoints):
     # -------- Extract {num} points from the table of potential reference points.
 
     # -------- Use the candidate reference points to calculate BLOS
-    #B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
-    #BLOSData = B.BLOSData.set_index('ID#', drop=True)
-    BLOSData = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
+    BLOSData = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints)
     BLOSData = BLOSData.set_index('ID#', drop=True)
     # -------- Use the candidate reference points to calculate BLOS
 
@@ -392,7 +398,8 @@ for num in range(numRefPoints):
 # optimal number of reference points
 DataNoRef = AllData.copy().drop(list(RefPoints['ID#']), errors='ignore')
 Identifiers = list(DataNoRef.index)
-DataNoRef = DataNoRef.reset_index(drop=True)
+'''
+DataNoRef = findTrendData(RefPoints, matchedRMExtinctionData, regionOfInterest)
 
 # -------- CREATE A FIGURE --------
 plt.figure(figsize=(6, 4), dpi=120, facecolor='w', edgecolor='k')
@@ -430,6 +437,7 @@ logging.info('Saving the BLOS stability reassessment figure to '+saveFigurePath_
 
 #======================================================================================================================
 # -------- CALCULATE AND SAVE REFERENCE VALUES --------
+#Todo: Restructure most calculateB to utilize this?
 cols = ['Number of Reference Points', 'Reference Extinction', 'Reference RM', 'Reference RM AvgErr',
         'Reference RM Std']
 referenceData = pd.DataFrame(columns=cols)

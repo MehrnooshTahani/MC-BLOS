@@ -8,6 +8,7 @@ configStartSettings = ConfigParser()
 configStartSettings.read('configStartSettings.ini')
 cloud = configStartSettings['Cloud'].get('Cloud')
 
+doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Bad Extinction Values')
 offDiskLatitude = configStartSettings['Judgement'].getfloat('Off Disk Latitude')
 onDiskAvThresh = configStartSettings['Judgement'].getfloat('On Disk Extinction Threshold')
 offDiskAvThresh = configStartSettings['Judgement'].getfloat('Off Disk Extinction Threshold')
@@ -19,6 +20,14 @@ useFarExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Far Hi
 anomalousSTDNum = configStartSettings['Judgement'].getfloat('Anomalous Values Standard Deviation')
 useAnomalousSTDNumRemove = configStartSettings['Judgement'].getboolean('Use Anomalous Values Exclusion')
 minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points Per Quadrant')
+
+densityPlotNumPoints = configStartSettings['Plotting Options'].getint('Density Plot Number of Points')
+densityPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Minimum Extinction')
+densityPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Maximum Extinction')
+
+tempPlotNumPoints = configStartSettings['Plotting Options'].getint('Temperature Plot Number of Points')
+tempPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Minimum Extinction')
+tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Maximum Extinction')
 
 logFormat = configStartSettings['Logging'].get('Format')
 # -------- DEFINE STARTING VARIABLES. --------

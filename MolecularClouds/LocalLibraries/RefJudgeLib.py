@@ -176,7 +176,7 @@ def nearHighExtinction(px, py, data, NDelt, highExtinctionThreshold):
         return True
     return False
 # -------- FUNCTION DEFINITION --------
-
+''' I do not think that this is a good function. It intermeshes with data too much.
 # -------- FUNCTION DEFINITION --------
 def maskRows(dataframe, threshold, columnName):
     # Indices where the threshold is met in the given column
@@ -186,7 +186,7 @@ def maskRows(dataframe, threshold, columnName):
     numAllRefPoints = len(rowSet)
     return rowSet, numAllRefPoints
 # -------- FUNCTION DEFINITION --------
-
+'''
 # -------- FUNCTION DEFINITION --------
 def RADec2xy(RA, Dec, wcs):
     xCoords = []

@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import os
 import collections
 from .CalculateB import CalculateB
+import MolecularClouds.LocalLibraries.MatchedRMExtinctionFunctions as MREF
 #from statistics import mode #Before Python 3.8, errors when there are multiple modes. This is not behavior we desire.
 import MolecularClouds.LocalLibraries.config as config
 
@@ -186,7 +187,7 @@ def stabilityTrendGraph(DataNoRef, saveFigurePath):
     #print('Saving stability trend to ' + saveFigurePath)
     # -------- CREATE A FIGURE. --------
 
-def findTrendData(potentialRefPoints, MatchedRMExtincPath, regionOfInterest):
+def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
     # -------- CREATE A TABLE FOR ALL BLOS DATA --------
     # The rows of this table will represent the number of reference points and the columns of this table will
     # represent the individual BLOS points.  Each entry in the table is a calculated BLOS value.
@@ -199,11 +200,21 @@ def findTrendData(potentialRefPoints, MatchedRMExtincPath, regionOfInterest):
         # The extracted potential reference points will be referred to as "candidates"
         candidateRefPoints = potentialRefPoints.loc[:num]
         # -------- Extract {num} points from the table of potential reference points.
-
+        fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getFiducialValues(candidateRefPoints)
+        remainderTable = MREF.removeMatchingPoints(ExtincRMTable, candidateRefPoints)
+        '''
+        # -------- FIND FIDUCIAL REFERENCE VALUES --------
+        MatchedRMExtincPath
+        fiducialRM = np.mean(candidateRefPoints['Rotation_Measure(rad/m2)'])
+        fiducialRMAvgErr = np.mean(candidateRefPoints['RM_Err(rad/m2)'])
+        # Standard error of the sampled mean:
+        fiducialRMStd = np.std(candidateRefPoints['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(
+            len(candidateRefPoints['Rotation_Measure(rad/m2)']))
+        fiducialExtinction = np.mean(candidateRefPoints['Extinction_Value'])
+        # -------- FIND FIDUCIAL REFERENCE VALUES. --------
+        '''
         # -------- Use the candidate reference points to calculate BLOS
-        #B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
-        #BLOSData = B.BLOSData.set_index('ID#', drop=True)
-        BLOSData = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
+        BLOSData = CalculateB(regionOfInterest.AvFilePath, remainderTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
         BLOSData = BLOSData.set_index('ID#', drop=True)
         # -------- Use the candidate reference points to calculate BLOS
 
@@ -235,7 +246,7 @@ def FindOptimalRefPoints(regionOfInterest, potentialRefPoints, saveFigurePath):
         matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
         # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA. --------
 
-        DataNoRef = findTrendData(potentialRefPoints, MatchedRMExtincPath, regionOfInterest)
+        DataNoRef = findTrendData(potentialRefPoints, matchedRMExtinctionData, regionOfInterest)
         DataNoRef.to_csv(
             os.path.join(config.dir_root, config.dir_fileOutput, config.prefix_OptRefPoints + config.cloud + '.txt'))
 

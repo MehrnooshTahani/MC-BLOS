@@ -10,6 +10,7 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from LocalLibraries.RegionOfInterest import Region
 from LocalLibraries.CalculateB import CalculateB
+import LocalLibraries.MatchedRMExtinctionFunctions as MREF
 import LocalLibraries.config as config
 import math
 
@@ -52,6 +53,7 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 FilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
+FilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
 FilePath_MatchedRMExtinc = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + cloudName + '.txt')
 saveFilePath_BLOSPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
 saveFigurePath_BLOSPointMap = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_BLOSPointFig + config.cloud + '.png')
@@ -63,9 +65,13 @@ saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudNa
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
-# -------- LOAD REFERENCE POINT DATA --------
-refData = pd.read_csv(FilePath_ReferencePoints)
-# -------- LOAD REFERENCE POINT DATA. --------
+# -------- READ REFERENCE POINT TABLE --------
+matchedRMExtincTable = pd.read_csv(FilePath_MatchedRMExtinc, sep='\t')
+refPointTable = pd.read_csv(FilePath_ReferencePoints)
+remainingTable = MREF.removeMatchingPoints(matchedRMExtincTable, refPointTable)
+refData = pd.read_csv(FilePath_ReferenceData)
+fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(refData)
+# -------- READ REFERENCE POINT TABLE. --------
 
 # -------- READ FITS FILE --------
 hdulist = fits.open(regionOfInterest.fitsFilePath)
@@ -74,8 +80,8 @@ wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
 # -------- CALCULATE BLOS --------
-#BLOS = CalculateB(regionOfInterest.AvFilePath, FilePath_MatchedRMExtinc, refData, saveFilePath=saveFilePath_BLOSPoints)
-BLOSData = CalculateB(regionOfInterest.AvFilePath, FilePath_MatchedRMExtinc, refData, saveFilePath=saveFilePath_BLOSPoints)
+BLOSData = CalculateB(regionOfInterest.AvFilePath, remainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+BLOSData.to_csv(saveFilePath_BLOSPoints, index=False)
 print('Saving calculated magnetic field values to '+saveFilePath_BLOSPoints)
 # -------- CALCULATE BLOS. --------
 

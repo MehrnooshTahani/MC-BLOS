@@ -37,6 +37,25 @@ B = list(InitialBData['Magnetic_Field(uG)'])
 p = [5, 10, 20]  # Percents of the input temperature
 percent = ['-{}'.format(i) for i in p[::-1]] + ['0'] + ['+{}'.format(i) for i in p]
 
+# ---- Test to see if the files exist.
+errPercent = []
+for i, value in enumerate(percent):
+    AvAbundanceName = 'Av_T' + value + '_n0'
+    BScaledFilePath = BScaledFileDir + os.sep + 'B_' + AvAbundanceName + '.txt'
+    try:
+        BScaledTemp = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
+    except:
+        errPercent.append(BScaledFilePath)
+        percent.remove(value)
+
+if len(errPercent) > 0:
+    logging.warning('-------------------------------------------------------------------------------')
+    logging.warning('Warning: The following data have not been loaded due to an error.')
+    logging.warning('{}'.format(errPercent))
+    logging.warning('Please review the results.')
+    logging.warning('-------------------------------------------------------------------------------')
+# ---- Test to see if the files exist.
+
 # Each row is a BLOS point, each column is the BLOS value corresponding to each percent of the input density
 AllBScaled = np.zeros([len(B), len(percent)])
 
@@ -48,9 +67,9 @@ for i, value in enumerate(percent):
 # -------- EXTRACT BLOS FOR EACH PERCENT OF THE INPUT DENSITY. -------
 
 # -------- CHOOSE INDICES OF BLOS POINTS TO PLOT -------
-numToPlot = int(input("Choose the number of points to plot: "))
-AvMinToPlot = float(input("Choose the minimum extinction to plot: "))
-AvMaxToPlot = float(input("Choose the maximum extinction to plot: "))
+numToPlot = int(config.tempPlotNumPoints)
+AvMinToPlot = float(config.tempPlotMinExtinct)
+AvMaxToPlot = float(config.tempPlotMaxExtinct)
 
 indMin = list(np.where(np.array(InitialBData['Scaled_Extinction']) >= AvMinToPlot)[0])
 indMax = list(np.where(np.array(InitialBData['Scaled_Extinction']) <= AvMaxToPlot)[0])

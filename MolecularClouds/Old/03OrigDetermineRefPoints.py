@@ -320,7 +320,7 @@ for num in range(numRefPoints):
     # -------- Extract {num} points from the table of potential reference points.
 
     # -------- Use the candidate reference points to calculate BLOS
-    B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
+    B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints)
     BLOSData = B.BLOSData.set_index('ID#', drop=True)
     # -------- Use the candidate reference points to calculate BLOS
 
