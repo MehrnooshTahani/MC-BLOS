@@ -28,7 +28,7 @@ else:
 
 # -------- FIND ALL POTENTIAL REFERENCE POINTS --------
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
+matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # -------- Criterion: Av < threshold

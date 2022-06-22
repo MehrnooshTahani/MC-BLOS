@@ -30,7 +30,7 @@ logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logF
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
-matchedRMExtincTable = pd.read_csv(MatchedRMExtincPath, sep='\t')
+matchedRMExtincTable = pd.read_csv(MatchedRMExtincPath)
 refPointTable = pd.read_csv(RefPointPath)
 remainingTable = MREF.removeMatchingPoints(matchedRMExtincTable, refPointTable)
 refData = pd.read_csv(FilePath_ReferenceData)

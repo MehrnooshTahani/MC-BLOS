@@ -29,7 +29,7 @@ def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable):
         # -------- FIND FIDUCIAL REFERENCE VALUES. --------
 
         # -------- LOAD MATCHED RM AND EXTINCTION DATA
-        AllMatchedRMExtinctionData = pd.read_csv(ExtincRMPath, sep='\t')
+        AllMatchedRMExtinctionData = pd.read_csv(ExtincRMPath)
         # -------- LOAD MATCHED RM AND EXTINCTION DATA.
 
         # -------- REMOVE REFERENCE POINTS FROM THE MATCHED RM AND EXTINCTION DATA --------

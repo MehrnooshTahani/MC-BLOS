@@ -9,22 +9,30 @@ configStartSettings['Cloud'] = {
     }
 configStartSettings['Judgement'] = {
     'Interpolate Bad Extinction Values': True,
+
     'Off Disk Latitude': 15.,
     'On Disk Extinction Threshold': 2.,
     'Off Disk Extinction Threshold': 1.,
+
     'Near High Extinction Multiplier': 2,
     'Far High Extinction Multiplier': 14,
     'High Extinction Threshold Multiplier': 5,
     'Use Near High Extinction Exclusion': True,
     'Use Far High Extinction Exclusion': True,
+
     'Anomalous Values Standard Deviation': 3.,
     'Use Anomalous Values Exclusion': True,
+
+    'Use Minimum Stable Points': True,
+
+    'Use Minimum Quadrant Sampling': True,
     'Minimum Points Per Quadrant': 1
     }
 configStartSettings['Plotting Options'] = {
     'Density Plot Number of Points': 100,
     'Density Plot Minimum Extinction': 0.5,
     'Density Plot Maximum Extinction': 1.5,
+
     'Temperature Plot Number of Points': 100,
     'Temperature Plot Minimum Extinction': 0.5,
     'Temperature Plot Maximum Extinction': 1.5,
@@ -87,6 +95,7 @@ with open('configConstants.ini', 'w') as output_file:
     configConstants.write(output_file)
 # -------- DEFINE CONSTANTS. --------
 
+# -------- DEFINE EXAMPLE REGION. --------
 cloudInfoExport = ConfigParser()
 cloudInfoExport['Cloud Info'] = {
     'distance': 0,
@@ -117,3 +126,4 @@ cloudInfoExport['Cloud Info'] = {
 }
 with open('template.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)
+# -------- DEFINE EXAMPLE REGION. --------

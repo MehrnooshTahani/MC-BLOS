@@ -1,3 +1,7 @@
+'''
+This library contains functions involved with providing information to make decisions on which points to include or
+exclude in script 3.
+'''
 import math
 import scipy.interpolate as interpolate
 import numpy as np
@@ -123,7 +127,9 @@ def isPointAboveLine(x, y, m, b):
     """
     linePoint = m * x + b
     return y > linePoint
+# -------- FUNCTION DEFINITION --------
 
+# -------- FUNCTION DEFINITION --------
 def getPerpendicularLine(x, y, m):
     """
     Given a point and a slope, gives the parameters of the perpendicular line which passes through the point
@@ -176,27 +182,6 @@ def nearHighExtinction(px, py, data, NDelt, highExtinctionThreshold):
         return True
     return False
 # -------- FUNCTION DEFINITION --------
-''' I do not think that this is a good function. It intermeshes with data too much.
-# -------- FUNCTION DEFINITION --------
-def maskRows(dataframe, threshold, columnName):
-    # Indices where the threshold is met in the given column
-    ind = np.where(dataframe[columnName] <= threshold)[0]
-    # All rows which exceed the threshold value in the given column
-    rowSet = dataframe.loc[ind].sort_values(columnName, ignore_index=True)
-    numAllRefPoints = len(rowSet)
-    return rowSet, numAllRefPoints
-# -------- FUNCTION DEFINITION --------
-'''
-# -------- FUNCTION DEFINITION --------
-def RADec2xy(RA, Dec, wcs):
-    xCoords = []
-    yCoords = []
-    for i in range(len(RA)):
-        pixelRow, pixelColumn = wcs.wcs_world2pix(RA[i], Dec[i], 0)
-        xCoords.append(pixelRow)
-        yCoords.append(pixelColumn)
-    return xCoords, yCoords
-# -------- FUNCTION DEFINITION --------
 
 # -------- FUNCTION DEFINITION --------
 def sortQuadrants(ind, X, Y, m, b, m2, b2):
@@ -212,13 +197,13 @@ def sortQuadrants(ind, X, Y, m, b, m2, b2):
         aboveLine2 = isPointAboveLine(px, py, m2, b2)
 
         if aboveLine1 and aboveLine2:
-            Q1.append(i + 1)
+            Q1.append(i)
         elif aboveLine1 and not aboveLine2:
-            Q2.append(i + 1)
+            Q2.append(i)
         elif not aboveLine1 and aboveLine2:
-            Q3.append(i + 1)
+            Q3.append(i)
         elif not aboveLine1 and not aboveLine2:
-            Q4.append(i + 1)
+            Q4.append(i)
     return Q1, Q2, Q3, Q4
 # -------- FUNCTION DEFINITION --------
 
@@ -267,77 +252,3 @@ def interpMask(data, mask, method='cubic', fill_value=0):
 
     return returnData
 # -------- FUNCTION DEFINITION --------
-
-# -------- FUNCTION DEFINITION --------
-def ra_hms2deg(ra_h, ra_m, ra_s):
-    """
-     This function converts a right ascension in hour:min:sec to degrees
-    :param ra_h: hour component of right ascension
-    :param ra_m: minute component of right ascension
-    :param ra_s: second component of right ascension
-    :return: Right ascension in degrees
-    """
-    if (ra_h < 0 or ra_h > 24) or (ra_m < 0 or ra_m > 60) or (ra_s < 0 or ra_s > 60):
-        print('Invalid RA')
-        return None
-    else:
-        ra_deg = (ra_h * 15) + (ra_m / 4) + (ra_s / 240)
-    return ra_deg
-# -------- FUNCTION DEFINITION. --------
-
-
-# -------- FUNCTION DEFINITION --------
-def dec_dms2deg(dec_d, dec_m, dec_s):
-    """
-     This function converts a declination in degree:arcmin:arcsec to degrees
-    :param dec_d: degree component of declination
-    :param dec_m: arcminute component of declination
-    :param dec_s: arcsecond component of declination
-    :return: Declination in degrees
-    """
-    if dec_d < 0:
-        decdeg = -(abs(dec_d) + (abs(dec_m)/60) + (abs(dec_s)/3600))
-    else:
-        decdeg = abs(dec_d) + (abs(dec_m)/60) + (abs(dec_s)/3600)
-
-    return decdeg
-# -------- FUNCTION DEFINITION. --------
-
-# -------- FUNCTION DEFINITION --------
-def ra_deg2hms(ra_deg):
-    """
-     This function converts a right ascension in degrees to hour:min:sec
-    :param: ra_deg: Right ascension in degrees
-    :return ra_h: hour component of right ascension
-    :return ra_m: minute component of right ascension
-    :return ra_s: second component of right ascension
-    """
-    ra_h = ra_deg // 15
-    remaining_deg = ra_deg % 15
-    ra_m = remaining_deg // (1/4)
-    remaining_deg = remaining_deg % (1/4)
-    ra_s = remaining_deg // (1/240)
-
-    return ra_h, ra_m, ra_s
-# -------- FUNCTION DEFINITION. --------
-
-
-# -------- FUNCTION DEFINITION --------
-def dec_deg2dms(dec_deg):
-    """
-     This function converts a declination in degree:arcmin:arcsec to degrees
-
-    :param: dec_deg: Declination in degrees
-    :return dec_d: degree component of declination
-    :return dec_m: arcminute component of declination
-    :return dec_s: arcsecond component of declination
-    """
-
-    dec_d = dec_deg // 1
-    remaining_deg = dec_deg % 1
-    dec_m = remaining_deg // (1/60)
-    remaining_deg = remaining_deg % (1/60)
-    dec_s = remaining_deg // (1/3600)
-
-    return dec_d, dec_m, dec_s
-# -------- FUNCTION DEFINITION. --------

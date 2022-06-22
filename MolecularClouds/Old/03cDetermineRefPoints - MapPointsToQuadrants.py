@@ -14,6 +14,8 @@ import LocalLibraries.RefJudgeLib as rjl
 import LocalLibraries.PlotTemplates as pt
 
 # -------- CHOOSE THE REGION OF INTEREST --------
+import LocalLibraries.ConversionLibrary as cl
+
 cloudName = config.cloud
 regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
@@ -66,7 +68,7 @@ n_AllRef = list(AllPotentialRefPoints['ID#'])
 Ra_AllRef = list(AllPotentialRefPoints['Ra(deg)'])
 Dec_AllRef = list(AllPotentialRefPoints['Dec(deg)'])
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file
-x_AllRef, y_AllRef = rjl.RADec2xy(Ra_AllRef, Dec_AllRef, wcs)
+x_AllRef, y_AllRef = cl.RADec2xy(Ra_AllRef, Dec_AllRef, wcs)
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
 # -------- PREPARE TO PLOT ALL POTENTIAL REFERENCE POINTS. --------
 

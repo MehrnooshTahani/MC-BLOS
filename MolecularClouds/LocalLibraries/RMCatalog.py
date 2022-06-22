@@ -18,12 +18,7 @@ def ra_hms2deg(ra_h, ra_m, ra_s):
     :param ra_s: second component of right ascension
     :return: Right ascension in degrees
     """
-    if (ra_h < 0 or ra_h > 24) or (ra_m < 0 or ra_m > 60) or (ra_s < 0 or ra_s > 60):
-        print('Invalid RA')
-        return None
-    else:
-        ra_deg = (ra_h * 15) + (ra_m / 4) + (ra_s / 240)
-    return ra_deg
+    return np.array(ra_h) * 15 + np.array(ra_m)/4 + np.array(ra_s)/240
 # -------- FUNCTION DEFINITION. --------
 
 
@@ -36,19 +31,14 @@ def dec_dms2deg(dec_d, dec_m, dec_s):
     :param dec_s: arcsecond component of declination
     :return: Declination in degrees
     """
-    if dec_d < 0:
-        decdeg = -(abs(dec_d) + (abs(dec_m)/60) + (abs(dec_s)/3600))
-    else:
-        decdeg = abs(dec_d) + (abs(dec_m)/60) + (abs(dec_s)/3600)
-
-    return decdeg
+    return (np.array(abs(dec_d)) + np.array(abs(dec_m))/60 + np.array(abs(dec_s))/3600) * np.sign(dec_d)
 # -------- FUNCTION DEFINITION. --------
 
 
 # -------- CLASS DEFINITION --------
-class DataFile:
-    def __init__(self, filename, raHoursMax, raMinsMax, raSecMax, raHoursMin, raMinsMin,
-                 raSecMin, decDegMax, decDegMin):
+class RMCatalog:
+    def __init__(self, filename, raHoursMax = 24, raMinsMax = 0, raSecMax  = 0, raHoursMin = 0, raMinsMin  = 0,
+                 raSecMin  = 0, decDegMax = 90, decDegMin = -90):
         """
            Takes a file containing rotation measure data in the format of the Taylor et al. (2009) catalog and gives
            parameters such as ra, dec, rm, etc corresponding to a specific region of interest

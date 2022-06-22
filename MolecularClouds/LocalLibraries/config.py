@@ -9,16 +9,22 @@ configStartSettings.read('configStartSettings.ini')
 cloud = configStartSettings['Cloud'].get('Cloud')
 
 doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Bad Extinction Values')
+
 offDiskLatitude = configStartSettings['Judgement'].getfloat('Off Disk Latitude')
 onDiskAvThresh = configStartSettings['Judgement'].getfloat('On Disk Extinction Threshold')
 offDiskAvThresh = configStartSettings['Judgement'].getfloat('Off Disk Extinction Threshold')
+
 nearExtinctionMultiplier = configStartSettings['Judgement'].getint('Near High Extinction Multiplier')
 farExtinctionMultiplier = configStartSettings['Judgement'].getint('Far High Extinction Multiplier')
 highExtinctionThreshMultiplier = configStartSettings['Judgement'].getfloat('High Extinction Threshold Multiplier')
 useNearExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Near High Extinction Exclusion')
 useFarExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Far High Extinction Exclusion')
+
 anomalousSTDNum = configStartSettings['Judgement'].getfloat('Anomalous Values Standard Deviation')
 useAnomalousSTDNumRemove = configStartSettings['Judgement'].getboolean('Use Anomalous Values Exclusion')
+
+useStableMinimum = configStartSettings['Judgement'].getboolean('Use Minimum Stable Points')
+useQuadrantEnforce = configStartSettings['Judgement'].getboolean('Use Minimum Quadrant Sampling')
 minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points Per Quadrant')
 
 densityPlotNumPoints = configStartSettings['Plotting Options'].getint('Density Plot Number of Points')

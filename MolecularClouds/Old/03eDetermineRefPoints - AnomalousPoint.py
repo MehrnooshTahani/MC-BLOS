@@ -33,7 +33,7 @@ print('We will now check if any of the potential reference points have anomalous
 # -------- Define "anomalous"
 # Load and unpack all the rotation measure data for the region of interest
 ##
-matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
+matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
 
 # Choose a rotation measure corresponding to anomalous
 rm_avg = np.mean(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])

@@ -1,1 +1,0 @@
-The file outputs in .csv and .txt format are stored here

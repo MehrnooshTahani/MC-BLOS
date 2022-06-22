@@ -4,36 +4,25 @@ an extinction value from the fits file. Matching is based on physical proximity.
 
 The matched rotation measure data and extinction information are saved in a file.
 """
-import csv
 from itertools import zip_longest
 
-from LocalLibraries.DataFile import DataFile
-import os
 from astropy.io import fits
 from astropy.wcs import WCS
+
 import numpy as np
 import pandas as pd
 import math
+
+from LocalLibraries.RMCatalog import RMCatalog
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
+
+from LocalLibraries.util import getBoxBounds
+import LocalLibraries.ConversionLibrary as cl
 import LocalLibraries.RefJudgeLib as rjl
 
+import os
 import logging
-
-def getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax):
-    xmin = 0
-    xmax = data.shape[1]
-    ymin = 0
-    ymax = data.shape[0]
-    if not math.isnan(boxXMin):
-        xmin = int(boxXMin)
-    if not math.isnan(boxXMax):
-        xmax = int(boxXMax)
-    if not math.isnan(boxYMin):
-        ymin = int(boxYMin)
-    if not math.isnan(boxYMax):
-        ymax = int(boxYMax)
-    return xmin, xmax, ymin, ymax
 
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
@@ -84,9 +73,9 @@ if config.doInterpExtinct:
 
 # -------- READ ROTATION MEASURE FILE --------
 # Get all the rm points within the region of interest
-rmData = DataFile(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax,
-                  regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin,
-                  regionOfInterest.decDegMax, regionOfInterest.decDegMin)
+rmData = RMCatalog(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax,
+                   regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin,
+                   regionOfInterest.decDegMax, regionOfInterest.decDegMin)
 # -------- READ ROTATION MEASURE FILE. --------
 
 # -------- DEFINE THE ERROR RANGE --------
@@ -96,9 +85,9 @@ raErrsSec = np.array(rmData.targetRAErrSecs)
 decErrs = np.array(rmData.targetDecErrArcSecs)
 
 raErrSec = max(abs(raErrsSec)) #s
-raErr = rjl.ra_hms2deg(0, 0, raErrSec) #deg
+raErr = cl.ra_hms2deg(0, 0, raErrSec) #deg
 decErrSec = max(abs(decErrs)) #s
-decErr = rjl.dec_dms2deg(0, 0, decErrSec) #deg
+decErr = cl.dec_dms2deg(0, 0, decErrSec) #deg
 
 RMResolutionDegs = max(raErr, decErr)
 
@@ -222,9 +211,9 @@ data = list(zip_longest(ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMVal
                         Extinction_MaxInRange, Extinction_MaxInRangeRa, Extinction_MaxInRangeDec,
                         IsExtinctionObserved,
                         fillvalue=''))
-df = pd.DataFrame(data, columns=columns)
-df.index.name = 'ID#'
-df.to_csv(saveFilePath, '\t')
+matchedRMExtinct = pd.DataFrame(data, columns=columns)
+matchedRMExtinct.index.name = 'ID#'
+matchedRMExtinct.to_csv(saveFilePath)
 # -------- WRITE TO A FILE. --------
 
 logging.info('\nWithin the specified region of interest, a total of {} rotation measure points were matched '

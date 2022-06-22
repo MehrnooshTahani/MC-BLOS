@@ -12,6 +12,7 @@ def getRefValFromRefData(refData):
 
 def getFiducialValues(refData):
     # -------- FIND FIDUCIAL REFERENCE VALUES --------
+    numRefPoints = len(refData)
     fiducialRM = np.mean(refData['Rotation_Measure(rad/m2)'])
     fiducialRMAvgErr = np.mean(refData['RM_Err(rad/m2)'])
     # Standard error of the sampled mean:

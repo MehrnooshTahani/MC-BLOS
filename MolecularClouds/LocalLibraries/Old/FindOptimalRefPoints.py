@@ -166,7 +166,7 @@ class FindOptimalRefPoints:
 
         # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA --------
         MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
-        matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath, sep='\t')
+        matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
         # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA. --------
 
         DataNoRef = findTrendData(potentialRefPoints, MatchedRMExtincPath, regionOfInterest)
