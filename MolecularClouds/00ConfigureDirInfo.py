@@ -11,7 +11,8 @@ configStartSettings['Judgement'] = {
     'Interpolate Bad Extinction Values': True,
 
     'Off Disk Latitude': 15.,
-    'On Disk Extinction Threshold': 2.,
+    'On Disk Galactic Extinction Threshold': 2.,
+    'On Disk Anti-Galactic Extinction Threshold': 1.5,
     'Off Disk Extinction Threshold': 1.,
 
     'Near High Extinction Multiplier': 2,
@@ -26,7 +27,9 @@ configStartSettings['Judgement'] = {
     'Use Minimum Stable Points': True,
 
     'Use Minimum Quadrant Sampling': True,
-    'Minimum Points Per Quadrant': 1
+    'Minimum Points Per Quadrant': 1,
+
+    'Weighting Scheme': 'None'
     }
 configStartSettings['Plotting Options'] = {
     'Density Plot Number of Points': 100,

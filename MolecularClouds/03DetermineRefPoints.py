@@ -9,12 +9,14 @@ import math
 
 from astropy.wcs import WCS
 from astropy.io import fits
+from astropy.coordinates import SkyCoord
 
 import matplotlib.pyplot as plt
 
-
 import LocalLibraries.ConversionLibrary as cl
 from LocalLibraries.RegionOfInterest import Region
+
+from LocalLibraries.FindOptimalRefPoints import stabilityTrendGraph
 from LocalLibraries.FindOptimalRefPoints import findTrendData
 from LocalLibraries.FindOptimalRefPoints import FindOptimalRefPoints
 
@@ -87,9 +89,22 @@ matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # -------- LOAD THE THRESHOLD EXTINCTION --------
+regionRaMin = cl.ra_hms2deg(regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax)
+regionRaMax = cl.ra_hms2deg(regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin)
+regionRaAvg = (regionRaMin + regionRaMax) / 2.0
+regionDecMin = regionOfInterest.decDegMax
+regionDecMax = regionOfInterest.decDegMin
+regionDecAvg = (regionDecMin + regionDecMax) / 2.0
+
+coord = SkyCoord(regionRaAvg, regionDecAvg, unit="deg", frame='icrs')
+GalLongDeg = coord.galactic.l.degree
+GalLatDeg = coord.galactic.b.degree
+
 Av_threshold = None
-if abs(regionOfInterest.cloudLatitude) < config.offDiskLatitude:
-    Av_threshold = config.onDiskAvThresh
+if abs(GalLatDeg) < config.offDiskLatitude and (abs(GalLongDeg) < 90 or abs(GalLongDeg) > 270):
+    Av_threshold = config.onDiskAvGalacticThresh
+elif abs(GalLatDeg) < config.offDiskLatitude:
+    Av_threshold = config.onDiskAvAntiGalacticThresh
 else:
     Av_threshold = config.offDiskAvThresh
 # ---- Log info
@@ -364,11 +379,12 @@ idsNear = [str(i) for i in list(nearExtRefPoints['ID#'])]
 idsFar = [str(i) for i in list(farExtRefPoints['ID#'])]
 idsAnom = [str(i) for i in list(anomRefPoints['ID#'])]
 
-#Todo: If the thing is rejected for multiple reasons, this is not tracked!
 labelsRej = [str(i) for i in list(RejectedRefPoints['ID#'])]
-labelsRej = [i + ',n' if i in idsNear else i for i in labelsRej]
-labelsRej = [i + ',f' if i in idsFar else i for i in labelsRej]
-labelsRej = [i + ',a' if i in idsAnom else i for i in labelsRej]
+labelsRejAdditions = dict.fromkeys(labelsRej, "")
+for i in idsNear: labelsRejAdditions[i] += ",n"
+for i in idsFar: labelsRejAdditions[i] += ",f"
+for i in idsAnom: labelsRejAdditions[i] += ",a"
+labelsRej = [label + labelsRejAdditions[label] for label in labelsRej]
 
 RaRej = list(RejectedRefPoints['Ra(deg)'])
 DecRej = list(RejectedRefPoints['Dec(deg)'])
@@ -565,22 +581,8 @@ RefPoints = chosenRefPoints[:-1].append(AllPotentialRefPoints.set_index('ID#').
 DataNoRef = findTrendData(RefPoints, matchedRMExtinctionData, regionOfInterest)
 
 # -------- CREATE A FIGURE --------
-plt.figure(figsize=(6, 4), dpi=120, facecolor='w', edgecolor='k')
 
-plt.title('Calculated BLOS value as a function of the number of reference points \n ' + cloudName, fontsize=12,
-          y=1.08)
-plt.xlabel('Number of reference points')
-plt.ylabel('Calculated BLOS value ' + r'($\mu G$)')
-
-x = [int(col) for col in DataNoRef.columns]
-plt.xticks(x, list(DataNoRef.columns))
-
-cmap = plt.get_cmap('terrain')
-colors = [cmap(i) for i in np.linspace(0, 1, len(DataNoRef.index))]
-
-# For each BLOS Point
-for i, number in enumerate(DataNoRef.index):
-    plt.plot(x, list(DataNoRef.loc[number]), '-o', color=colors[i], markersize=3)
+stabilityTrendGraph(DataNoRef, None)
 
 yLower, yUpper = plt.ylim()
 plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color='black', label='Suggested optimal '
@@ -599,35 +601,62 @@ logging.info('Saving the BLOS stability reassessment figure to '+saveFigurePath_
 # -------- REASSESS STABILITY. --------
 
 #======================================================================================================================
-# -------- CALCULATE AND SAVE REFERENCE VALUES --------
-#Even quadrant weighting.
-
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
 Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'], chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
-'''
+
+# -------- DETERMINE WEIGHTING SCHEME --------
 refRM = 0.0
 refAvgErr = 0.0
 refRMStd = 0.0
 refExtinc = 0.0
-totalQuadrants = 0
-for quadrant in [Q1c, Q2c, Q3c, Q4c]:
-    refRM += np.mean(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)']) if len(quadrant) > 0 else 0.0
-    refAvgErr += np.mean(chosenRefPoints.loc[quadrant]['RM_Err(rad/m2)']) if len(quadrant) > 0 else 0.0
-    refRMStd += (np.std(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(len(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)']))) if len(quadrant) > 0 else 0.0
-    refExtinc += np.mean(chosenRefPoints.loc[quadrant]['Extinction_Value']) if len(quadrant) > 0 else 0.0
-    totalQuadrants += 1.0 if len(quadrant) > 0 else 0.0
 
-refRM = refRM/totalQuadrants if totalQuadrants > 0 else refRM
-refAvgErr = refAvgErr/totalQuadrants if totalQuadrants > 0 else refAvgErr
-refRMStd = refRMStd/totalQuadrants if totalQuadrants > 0 else refRMStd
-refExtinc = refExtinc/totalQuadrants if totalQuadrants > 0 else refExtinc
-'''
-#No weighting
-refRM = np.mean(chosenRefPoints['Rotation_Measure(rad/m2)'])
-refAvgErr = np.mean(chosenRefPoints['RM_Err(rad/m2)'])
-refRMStd = np.std(chosenRefPoints['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(len(chosenRefPoints['Rotation_Measure(rad/m2)']))
-refExtinc = np.mean(chosenRefPoints['Extinction_Value'])
+if config.weightingScheme == "Quadrant Balance":
+    perQuadrantWeight = 1000000
+    chosenPoints = []
+    weightPoints = []
+    for quadrant in [Q1c, Q2c, Q3c, Q4c]:
+        chosenPoints += quadrant
+        weightPoints += [perQuadrantWeight/len(quadrant) for _ in range(len(quadrant))]
+    refRM += np.average(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], weights = weightPoints)
+    refExtinc += np.average(chosenRefPoints.loc[chosenPoints]['Extinction_Value'], weights = weightPoints)
+    refAvgErr += np.average(chosenRefPoints.loc[chosenPoints]['RM_Err(rad/m2)'], weights = weightPoints)
+    refRMStd += (np.sqrt(np.cov(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], aweights=weightPoints)) / np.sqrt(len(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'])))
+    '''
+    totalQuadrants = 0
+    for quadrant in [Q1c, Q2c, Q3c, Q4c]:
+        refRM += np.mean(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)']) if len(quadrant) > 0 else 0.0
+        refExtinc += np.mean(chosenRefPoints.loc[quadrant]['Extinction_Value']) if len(quadrant) > 0 else 0.0
+
+        refAvgErr += np.mean(chosenRefPoints.loc[quadrant]['RM_Err(rad/m2)']) if len(quadrant) > 0 else 0.0
+        refRMStd += (np.std(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(
+            len(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)']))) if len(quadrant) > 0 else 0.0
+        print(quadrant)
+        print(np.std(chosenRefPoints.loc[quadrant]['Rotation_Measure(rad/m2)'], ddof=1))
+        #print(refRMStd)
+
+        totalQuadrants += 1.0 if len(quadrant) > 0 else 0.0
+
+    refRM = refRM / totalQuadrants if totalQuadrants > 0 else refRM
+    refExtinc = refExtinc / totalQuadrants if totalQuadrants > 0 else refExtinc
+
+    refAvgErr = refAvgErr / totalQuadrants if totalQuadrants > 0 else refAvgErr
+    refRMStd = refRMStd / totalQuadrants if totalQuadrants > 0 else refRMStd
+
+    print(refRM, refAvgErr, refRMStd, refExtinc)
+    '''
+else:
+    refRM = np.mean(chosenRefPoints['Rotation_Measure(rad/m2)'])
+    refAvgErr = np.mean(chosenRefPoints['RM_Err(rad/m2)'])
+    refRMStd = np.std(chosenRefPoints['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(
+        len(chosenRefPoints['Rotation_Measure(rad/m2)']))
+    refExtinc = np.mean(chosenRefPoints['Extinction_Value'])
+# -------- DETERMINE WEIGHTING SCHEME --------
+
+# -------- CALCULATE AND SAVE REFERENCE VALUES --------
+
+logging.info(loggingDivider)
+logging.info("The chosen point weighting scheme is: {}".format(config.weightingScheme))
 
 cols = ['Number of Reference Points', 'Reference Extinction', 'Reference RM', 'Reference RM AvgErr',
         'Reference RM Std']

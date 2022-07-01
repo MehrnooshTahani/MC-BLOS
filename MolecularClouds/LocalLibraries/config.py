@@ -11,7 +11,8 @@ cloud = configStartSettings['Cloud'].get('Cloud')
 doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Bad Extinction Values')
 
 offDiskLatitude = configStartSettings['Judgement'].getfloat('Off Disk Latitude')
-onDiskAvThresh = configStartSettings['Judgement'].getfloat('On Disk Extinction Threshold')
+onDiskAvGalacticThresh = configStartSettings['Judgement'].getfloat('On Disk Galactic Extinction Threshold')
+onDiskAvAntiGalacticThresh = configStartSettings['Judgement'].getfloat('On Disk Anti-Galactic Extinction Threshold')
 offDiskAvThresh = configStartSettings['Judgement'].getfloat('Off Disk Extinction Threshold')
 
 nearExtinctionMultiplier = configStartSettings['Judgement'].getint('Near High Extinction Multiplier')
@@ -26,6 +27,9 @@ useAnomalousSTDNumRemove = configStartSettings['Judgement'].getboolean('Use Anom
 useStableMinimum = configStartSettings['Judgement'].getboolean('Use Minimum Stable Points')
 useQuadrantEnforce = configStartSettings['Judgement'].getboolean('Use Minimum Quadrant Sampling')
 minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points Per Quadrant')
+
+weightingScheme = configStartSettings['Judgement'].get('Weighting Scheme')
+
 
 densityPlotNumPoints = configStartSettings['Plotting Options'].getint('Density Plot Number of Points')
 densityPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Minimum Extinction')

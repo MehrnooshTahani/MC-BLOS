@@ -1,6 +1,7 @@
 import numpy as np
 
 
+# -------- FUNCTION DEFINITION --------
 def ra_hms2deg(ra_h, ra_m, ra_s):
     """
      This function converts a right ascension in hour:min:sec to degrees
@@ -9,9 +10,14 @@ def ra_hms2deg(ra_h, ra_m, ra_s):
     :param ra_s: second component of right ascension
     :return: Right ascension in degrees
     """
-    return np.array(ra_h) * 15 + np.array(ra_m)/4 + np.array(ra_s)/240
+    h2deg = np.array(ra_h) * 15
+    m2deg = np.array(ra_m)/4
+    s2deg = np.array(ra_s)/240
+    return h2deg + m2deg + s2deg
+# -------- FUNCTION DEFINITION. --------
 
 
+# -------- FUNCTION DEFINITION --------
 def dec_dms2deg(dec_d, dec_m, dec_s):
     """
      This function converts a declination in degree:arcmin:arcsec to degrees
@@ -20,7 +26,13 @@ def dec_dms2deg(dec_d, dec_m, dec_s):
     :param dec_s: arcsecond component of declination
     :return: Declination in degrees
     """
-    return (np.array(abs(dec_d)) + np.array(abs(dec_m))/60 + np.array(abs(dec_s))/3600) * np.sign(dec_d)
+    deg2deg = np.array(abs(dec_d))
+    min2deg = np.array(abs(dec_m))/60
+    sec2deg = np.array(abs(dec_s))/3600
+    sign = np.sign(dec_d)
+    result = (deg2deg + min2deg + sec2deg) * sign
+    return result
+# -------- FUNCTION DEFINITION. --------
 
 
 def ra_deg2hms(ra_deg):

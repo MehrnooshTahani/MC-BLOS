@@ -100,9 +100,17 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
 
         # -------- SCALE THE RM AND EXTINCTION DATA --------
         BLOSData['Scaled_RM'] = RMExtinctionData['Rotation_Measure(rad/m2)'] - fiducialRM
+
         BLOSData['Scaled_Extinction'] = RMExtinctionData['Extinction_Value'] - fiducialExtinction
         Scaled_Min_Extinction_Value = RMExtinctionData['Min_Extinction_Value'] - fiducialExtinction
         Scaled_Max_Extinction_Value = RMExtinctionData['Max_Extinction_Value'] - fiducialExtinction
+
+        # ---- Enforce the negative extinction criteria (Negative extinction is not physical and should be 0). Note: This seems to have no impact at all???
+        #BLOSData.loc[BLOSData['Scaled_Extinction'] < 0, 'Scaled_Extinction'] = 0
+        #Scaled_Min_Extinction_Value[Scaled_Min_Extinction_Value < 0] = 0
+        #Scaled_Max_Extinction_Value[Scaled_Max_Extinction_Value < 0] = 0
+        # ---- Enforce the negative extinction criteria.
+
         # -------- SCALE THE RM AND EXTINCTION DATA. --------
 
         # -------- CALCULATE THE RM ERROR --------

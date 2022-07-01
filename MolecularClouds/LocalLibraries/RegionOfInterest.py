@@ -45,7 +45,7 @@ class Region:
         regionDataFileLoc = os.path.join(config.dir_root, config.dir_data, config.dir_cloudParameters, regionName.lower() + '.ini')
 
         if not os.path.exists(regionDataFileLoc):
-            print("The region file has not been found! Replace this with a better error message eventually.")
+            print("The region file has not been found!")
             #Error out or read dummy data?
 
         cloudParams.read(regionDataFileLoc)
