@@ -6,6 +6,7 @@ The matched rotation measure data and extinction information are saved in a file
 """
 from itertools import zip_longest
 
+import matplotlib.pyplot as plt
 from astropy.io import fits
 from astropy.wcs import WCS
 
@@ -48,6 +49,7 @@ wcs = WCS(hdu.header)
 
 # -------- PREPROCESS FITS DATA TYPE. --------
 data = rjl.deepCopy(hdu.data)
+nodata = np.isnan(data)
 
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
@@ -61,14 +63,19 @@ boxYMax = regionOfInterest.ymax
 
 xmin, xmax, ymin, ymax = getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax)
 
-#data[np.isnan(data)] = 0
-#data[np.isnan(data)] = config.defaultExtinction
-#data[np.isnan(data)] = np.average(data[np.isfinite(data)])
+if config.fillMissing == 'Zero':
+    data[nodata] = 0
+elif config.fillMissing == 'Average':
+    data[nodata] = np.average(data[np.isfinite(data)])
+else:
+    data[nodata] = math.nan
 
-data[ymin:ymax, xmin:xmax][data[ymin:ymax, xmin:xmax] < 0] = np.nan
-baddata = np.isnan(data)
-if config.doInterpExtinct:
-    data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], 'linear') #This step is computationally costly. It may be omitted if it is taking too long.
+baddata = data[ymin:ymax, xmin:xmax] < 0
+data[ymin:ymax, xmin:xmax][baddata] = np.nan
+
+if config.doInterpExtinct and config.interpAll:
+    data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], config.interpMethod) #This step is computationally costly. It may be omitted if it is taking too long.
+
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -86,6 +93,7 @@ decErrs = np.array(rmData.targetDecErrArcSecs)
 
 raErrSec = max(abs(raErrsSec)) #s
 raErr = cl.ra_hms2deg(0, 0, raErrSec) #deg
+
 decErrSec = max(abs(decErrs)) #s
 decErr = cl.dec_dms2deg(0, 0, decErrSec) #deg
 
@@ -139,66 +147,89 @@ for index in range(len(rmData.targetRotationMeasures)):
     py, px = wcs.world_to_array_index_values(rmRA, rmDec)  # Array indices of the rotation measure
     # ---- Location of the rotation measure.
 
-    # If the rm lies within the given fits file:
-    if 0 <= px < data.shape[1] and 0 <= py < data.shape[0]:
+    # ---- Skip the point if it violates a condition.
+    inFitsFile = 0 <= px < data.shape[1] and 0 <= py < data.shape[0]
+    hasData = inFitsFile and data[py, px] != -1 and math.isfinite(data[py, px])
+    validPoint = inFitsFile and hasData
 
-        # If the rm lies on a point with data:
-        if data[py, px] != -1 and math.isnan(data[py, px]) is False:
-            extinction = data[py, px]
+    # ---- Interpolate Missing Data
+    if inFitsFile and math.isnan(data[py, px]) and config.doInterpExtinct and not config.interpAll:
+        ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(px, py, data)
+        data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
+                                                                    baddata[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
+                                                                    config.interpMethod)
+    # ---- Interpolate Missing Data
 
-            Identifier.append(cntr)
-            RMRa.append(rmRA)
-            RMDec.append(rmDec)
-            RMValue.append(rmData.targetRotationMeasures[index])
-            RMErr.append(rmData.targetRMErrs[index])
+    #if not validPoint:
+    if not inFitsFile:
+        print("Continuing.")
+        continue
+    # ---- Skip the point if it violates a condition.
 
-            # ---- Match rotation measure to an extinction value
-            ExtinctionIndex_x.append(int(px))
-            ExtinctionIndex_y.append(int(py))
-            ExtinctionRa.append(wcs.wcs_pix2world(px, py, 0)[0])
-            ExtinctionDec.append(wcs.wcs_pix2world(px, py, 0)[1])
-            ExtinctionValue.append(extinction)
-            # ---- Match rotation measure to an extinction value.
+    extinction = data[py, px]
 
-            # ---- Find the extinction error range for the given rm
-            ErrRangePix.append(NDelt)
-            ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getBoxRange(px, py, data, NDelt)
-            # ---- Find the extinction error range for the given rm.
+    Identifier.append(cntr)
+    RMRa.append(rmRA)
+    RMDec.append(rmDec)
+    RMValue.append(rmData.targetRotationMeasures[index])
+    RMErr.append(rmData.targetRMErrs[index])
 
-            # ---- Cycle through extinction values within the error range
-            extinction_temp = []
-            ra_temp = []
-            dec_temp = []
+    # ---- Match rotation measure to an extinction value
+    ExtinctionIndex_x.append(int(px))
+    ExtinctionIndex_y.append(int(py))
+    ExtinctionRa.append(wcs.wcs_pix2world(px, py, 0)[0])
+    ExtinctionDec.append(wcs.wcs_pix2world(px, py, 0)[1])
+    ExtinctionValue.append(extinction)
+    # ---- Match rotation measure to an extinction value.
 
-            for pxx in range(ind_xmin, ind_xmax):
-                for pyy in range(ind_ymin, ind_ymax):
-                    extinction = data[pyy, pxx]
-                    extinction_temp.append(extinction)
-                    xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
-                    ra_temp.append(xx)
-                    dec_temp.append(yy)
-            # ---- Cycle through extinction values within the error range.
+    # ---- Find the extinction error range for the given rm
+    ErrRangePix.append(NDelt)
+    ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getBoxRange(px, py, data, NDelt)
+    # ---- Find the extinction error range for the given rm.
 
-            # Find minimum extinction value
-            ind_min = np.where(extinction_temp == min(extinction_temp))[0][0]
-            Extinction_MinInRangeRa.append(ra_temp[ind_min])
-            Extinction_MinInRangeDec.append(dec_temp[ind_min])
-            Extinction_MinInRange.append(extinction_temp[ind_min])
+    # ---- Cycle through extinction values within the error range
+    extinction_temp = []
+    ra_temp = []
+    dec_temp = []
 
-            # Find maximum extinction value
-            ind_max = np.where(extinction_temp == max(extinction_temp))[0][0]
-            Extinction_MaxInRangeRa.append(ra_temp[ind_max])
-            Extinction_MaxInRangeDec.append(dec_temp[ind_max])
-            Extinction_MaxInRange.append(extinction_temp[ind_max])
-            cntr += 1
+    for pxx in range(ind_xmin, ind_xmax):
+        for pyy in range(ind_ymin, ind_ymax):
+            if math.isnan(data[pyy, pxx]) and not config.interpAll:
+                ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(pxx, pyy, data)
+                data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
+                                                                            baddata[ind_ymin:ind_ymax,
+                                                                            ind_xmin:ind_xmax],
+                                                                            config.interpMethod)
+            extinction = data[pyy, pxx]
+            extinction_temp.append(extinction)
+            xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
+            ra_temp.append(xx)
+            dec_temp.append(yy)
+    # ---- Cycle through extinction values within the error range.
 
-            # ---- Negative extinction (the rm value landed on a negative pixel)
-            # Negative extinction is not physical; in prior step it was interpolated away. Mark these points.
-            if baddata[py, px]:
-                IsExtinctionObserved.append(False)
-            else:
-                IsExtinctionObserved.append(True)
-            # ---- Negative extinction.
+    # Find minimum extinction value
+    #print("Min Temp:", min(extinction_temp))
+    ind_min = np.where(extinction_temp == min(extinction_temp))[0][0]
+    Extinction_MinInRangeRa.append(ra_temp[ind_min])
+    Extinction_MinInRangeDec.append(dec_temp[ind_min])
+    Extinction_MinInRange.append(extinction_temp[ind_min])
+
+    # Find maximum extinction value
+    ind_max = np.where(extinction_temp == max(extinction_temp))[0][0]
+    Extinction_MaxInRangeRa.append(ra_temp[ind_max])
+    Extinction_MaxInRangeDec.append(dec_temp[ind_max])
+    Extinction_MaxInRange.append(extinction_temp[ind_max])
+
+    # ---- Negative extinction (the rm value landed on a negative pixel)
+    # Negative extinction is not physical; in prior step it was interpolated away. Mark these points.
+    if baddata[py, px]:
+        IsExtinctionObserved.append(False)
+    else:
+        IsExtinctionObserved.append(True)
+    # ---- Negative extinction.
+
+    cntr += 1
+
 # -------- MATCH ROTATION MEASURES AND EXTINCTION VALUES. --------
 
 # -------- WRITE TO A FILE --------

@@ -8,7 +8,10 @@ configStartSettings['Cloud'] = {
     'Cloud': 'Oriona',
     }
 configStartSettings['Judgement'] = {
+    'Fill Missing Data': 'Nan',
     'Interpolate Bad Extinction Values': True,
+    'Interpolate All': False,
+    'Interpolation Method': 'linear',
 
     'Off Disk Latitude': 15.,
     'On Disk Galactic Extinction Threshold': 2.,
@@ -116,8 +119,6 @@ cloudInfoExport['Cloud Info'] = {
     'T0': '',
     'G0': '',
 
-    'cloudLatitude': 0,
-
     'raHoursMax': 0,
     'raMinsMax': 0,
     'raSecMax': 0,
@@ -127,6 +128,6 @@ cloudInfoExport['Cloud Info'] = {
     'decDegMax': 0,
     'decDegMin': 0,
 }
-with open('template.ini', 'w') as output_file:
+with open('cloudTemplate.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)
 # -------- DEFINE EXAMPLE REGION. --------

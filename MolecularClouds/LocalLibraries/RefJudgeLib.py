@@ -161,6 +161,39 @@ def getBoxRange(px, py, data, NDelt):
 # -------- FUNCTION DEFINITION --------
 
 # -------- FUNCTION DEFINITION --------
+def getNullBox(px, py, data):
+    ind_xmax = px + 1 + 1  # add 1 to be inclusive of the upper bound
+    ind_ymax = py + 1 + 1  # add 1 to be inclusive of the upper bound
+    ind_xmin = px - 1
+    ind_ymin = py - 1
+
+    boundaries = True
+    while boundaries:
+        right_boundary = ind_xmax < data.shape[1] and math.isnan(np.sum(data[ind_ymin:ind_ymax, ind_xmax-1]))
+        left_boundary = ind_xmin > 0 and math.isnan(np.sum(data[ind_ymin:ind_ymax, ind_xmin]))
+        top_boundary = ind_ymax < data.shape[0] and math.isnan(np.sum(data[ind_ymax-1, ind_xmin:ind_xmax]))
+        bottom_boundary = ind_ymin > 0 and math.isnan(np.sum(data[ind_ymin, ind_xmin:ind_xmax]))
+
+        if right_boundary:
+            ind_xmax += 1
+        if left_boundary:
+            ind_xmin -= 1
+        if top_boundary:
+            ind_ymax += 1
+        if bottom_boundary:
+            ind_ymin -= 1
+
+        boundaries = right_boundary or left_boundary or top_boundary or bottom_boundary
+
+    ind_xmin = int(max(ind_xmin, 0))
+    ind_xmax = int(min(ind_xmax, data.shape[1]))
+    ind_ymin = int(max(ind_ymin, 0))
+    ind_ymax = int(min(ind_ymax, data.shape[0]))
+
+    return ind_xmin, ind_xmax, ind_ymin, ind_ymax
+# -------- FUNCTION DEFINITION --------
+
+# -------- FUNCTION DEFINITION --------
 def nearHighExtinction(px, py, data, NDelt, highExtinctionThreshold):
     """
     Checks to see if a point is near a point of high extinction.

@@ -110,9 +110,10 @@ else:
 # ---- Log info
 logging.info(loggingDivider)
 logging.info('Potential reference points with a matched extinction value less than the extinction threshold set in the starting settings configuration are considered candidates.')
-logging.info('\t-For clouds that appear near the disk, an appropriate threshold value is {}.'.format(config.onDiskAvThresh))
+logging.info('\t-For clouds that appear near the disk and towards the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvGalacticThresh))
+logging.info('\t-For clouds that appear near the disk and away from the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvAntiGalacticThresh))
 logging.info('\t-For clouds that appear off the disk, an appropriate threshold value is {}.'.format(config.offDiskAvThresh))
-logging.info("{}'s absolute latitude is: {}".format(cloudName, abs(regionOfInterest.cloudLatitude)))
+logging.info("{}'s absolute latitude is: {}".format(cloudName, abs(GalLatDeg)))
 logging.info("The selected threshold latitude (from the starting settings config) is: {}".format(config.offDiskLatitude))
 logging.info("Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold))
 # ---- Log info

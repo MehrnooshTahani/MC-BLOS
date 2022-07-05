@@ -8,7 +8,11 @@ configStartSettings = ConfigParser()
 configStartSettings.read('configStartSettings.ini')
 cloud = configStartSettings['Cloud'].get('Cloud')
 
+fillMissing = configStartSettings['Judgement'].get('Fill Missing Data')
+
 doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Bad Extinction Values')
+interpAll = configStartSettings['Judgement'].getboolean('Interpolate All')
+interpMethod = configStartSettings['Judgement'].get('Interpolation Method')
 
 offDiskLatitude = configStartSettings['Judgement'].getfloat('Off Disk Latitude')
 onDiskAvGalacticThresh = configStartSettings['Judgement'].getfloat('On Disk Galactic Extinction Threshold')
