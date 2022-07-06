@@ -75,13 +75,15 @@ regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
+#Input Files
 FilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
 FilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
 FilePath_MatchedRMExtinc = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + cloudName + '.txt')
+
+#Output Files
 saveFilePath_BLOSPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
 saveFigurePath_BLOSPointMap = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_BLOSPointFig + config.cloud + '.png')
-
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script4Log.txt")
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script3Log.txt")
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
@@ -92,7 +94,6 @@ logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logF
 matchedRMExtincTable = pd.read_csv(FilePath_MatchedRMExtinc)
 refPointTable = pd.read_csv(FilePath_ReferencePoints)
 remainingTable = MREF.removeMatchingPoints(matchedRMExtincTable, refPointTable)
-#remainingTable = matchedRMExtincTable
 refData = pd.read_csv(FilePath_ReferenceData)
 fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(refData)
 # -------- READ REFERENCE POINT TABLE. --------
@@ -103,15 +104,16 @@ hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
+# =====================================================================================================================
+
 # -------- CALCULATE BLOS --------
 BLOSData = CalculateB(regionOfInterest.AvFilePath, remainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
 BLOSData.to_csv(saveFilePath_BLOSPoints, index=False)
+logging.info('Saving calculated magnetic field values to '+saveFilePath_BLOSPoints)
 print('Saving calculated magnetic field values to '+saveFilePath_BLOSPoints)
 # -------- CALCULATE BLOS. --------
 
-# -------- CALCULATE REF POINT BLOS. --------
-RefBLOSData = CalculateB(regionOfInterest.AvFilePath, refPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-# -------- CALCULATE REF POINT BLOS. --------
+# =====================================================================================================================
 
 # -------- PREPARE TO PLOT BLOS POINTS --------
 n = list(BLOSData['ID#'])
@@ -146,6 +148,11 @@ pt.labelPoints(ax, n, x, y)
 # ---- Annotate the BLOS Points.
 
 # -------- PREPARE TO PLOT REF BLOS POINTS --------
+# ---- CALCULATE REF POINT BLOS.
+#Utilized only for the plot which includes the reference points used to find the BLOS
+RefBLOSData = CalculateB(regionOfInterest.AvFilePath, refPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, ZeroNegativeExtinctionEntries=False, DeleteNegativeExtinctionEntries=False)
+# ---- CALCULATE REF POINT BLOS.
+
 Refn = list(RefBLOSData['ID#'])
 RefRa = list(RefBLOSData['Ra(deg)'])
 RefDec = list(RefBLOSData['Dec(deg)'])

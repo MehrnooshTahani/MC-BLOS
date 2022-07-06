@@ -1,6 +1,5 @@
 import math
 
-
 def getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax):
     xmin = 0
     xmax = data.shape[1]

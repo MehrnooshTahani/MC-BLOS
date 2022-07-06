@@ -1,12 +1,10 @@
 import os
 
-import pandas as pd
-import numpy as np
 import math
+import pandas as pd
 
 from astropy.wcs import WCS
 from astropy.io import fits
-from astropy.coordinates import SkyCoord
 
 import matplotlib.pyplot as plt
 
@@ -14,13 +12,21 @@ import LocalLibraries.ConversionLibrary as cl
 from LocalLibraries.RegionOfInterest import Region
 
 import LocalLibraries.config as config
-import LocalLibraries.RefJudgeLib as rjl
 import LocalLibraries.PlotTemplates as pt
 import LocalLibraries.RMPlotLibrary as rmpl
 
 import logging
 
 def plotRefPoints(refPoints, hdu, regionOfInterest, title):
+    '''
+    Given a list of reference points and the data of the region in question,
+    generates a basic plot of the region with the locations of the reference points.
+    :param refPoints: A pandas datatable containing the reference point information.
+    :param hdu: HDU entity corresponding to the region
+    :param regionOfInterest: RegionOfInterest class corresponding to a given region of interest.
+    :param title: Title of the plot.
+    :return: fig, ax - the figure and plot axes of the plot.
+    '''
     # -------- PREPARE TO PLOT REFERENCE POINTS --------
     labels = list(refPoints['ID#'])
     Ra = list(refPoints['Ra(deg)'])
@@ -42,6 +48,31 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title):
     # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
     return fig, ax
 
+def refPointPlot(titleFragment, saveFragment, cloudName, refPoints, hdu, regionOfInterest):
+    '''
+    Wrapper function for commonly duplicated code in creating a reference point plot.
+    :param titleFragment: Part of the title. String.
+    :param saveFragment: Part of the save file name. String.
+    :param cloudName: Part of the title. String.
+    :param refPoints: Input reference point data to be mapped on the image.
+    :param hdu: HDU image file of the region.
+    :param regionOfInterest: Region information in a RegionOfInterest class.
+    :return: Nothing.
+    '''
+    # -------- PREPARE TO PLOT REFERENCE POINTS --------
+    title = titleFragment + 'Reference Points' + ' in the ' + cloudName + ' region\n'
+    plotRefPoints(refPoints, hdu, regionOfInterest, title)
+
+    # ---- Display or save the figure
+    saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_' + saveFragment + '.png'
+    plt.savefig(saveFigurePath_RefPointMap)
+    plt.close()
+    # ---- Display or save the figure.
+    # ---- Log info
+    logging.info(loggingDivider)
+    logging.info('Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap)
+    # ---- Log info
+    # -------- CREATE A FIGURE - REF POINTS MAP. --------
 
 # -------- LOAD THE REGION OF INTEREST --------
 cloudName = config.cloud
@@ -49,31 +80,27 @@ regionOfInterest = Region(cloudName)
 # -------- LOAD THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
+# ---- Input Files
 saveFilePath_ALlPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_allPotRefPoints + cloudName + '.txt')
 saveFilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_selRefPoints + cloudName + '.txt')
-saveFilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
-
-saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
-saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
-saveFigureDir_RefPointMap = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots)
-
-saveQuadrantFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, cloudName + "QuadrantDivision.png")
-
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script3Log.txt")
-
-# -------- Matched rm and extinction data
-MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionMatch + cloudName + '.txt')
-# -------- Matched rm and extinction data.
-
-# -------- Filtered rm and extinction data
-FilteredRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFiltered + cloudName + '.txt')
-# -------- Filtered rm and extinction data.
 
 NearRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionNearRej + cloudName + '.txt')
 FarRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFarRej + cloudName + '.txt')
 AnomalousRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionAnomRej + cloudName + '.txt')
 RejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionRej + cloudName + '.txt')
 RemainingRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionRemaining + cloudName + '.txt')
+# ---- Input Files
+
+# ---- Output Files
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2cLog.txt")
+
+saveFigureDir_RefPointMap = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots)
+
+#saveQuadrantFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, cloudName + "QuadrantDivision.png") Quadrant division graph not implemented. Todo?
+
+# ---- Output Files
+saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
+saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
 
 # -------- DEFINE FILES AND PATHS. --------
 
@@ -96,94 +123,19 @@ FarRejectedRefPoints = pd.read_csv(FarRejectedRefPointsPath)
 AnomalousRejectedRefPoints = pd.read_csv(AnomalousRejectedRefPointsPath)
 RejectedRefPoints = pd.read_csv(RejectedRefPointsPath)
 RemainingRefPoints = pd.read_csv(RemainingRefPointsPath)
+
+chosenRefPoints = pd.read_csv(saveFilePath_ReferencePoints)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
-#============================================================================================================
-# -------- PREPARE TO PLOT ALL POTENTIAL REFERENCE POINTS --------
-title = 'All Potential Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(AllPotentialRefPoints, hdu, regionOfInterest, title)
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_AllPotentialRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-# -------- CREATE A FIGURE - ALL POTENTIAL REF POINTS MAP. --------
-#============================================================================================================
-# -------- PREPARE TO PLOT NEAR HIGH EXTINCTION REJECTED REFERENCE POINTS --------
-title = 'All Near-High Extinction Rejected Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(NearRejectedRefPoints, hdu, regionOfInterest, title)
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_NearExtinctRejectedRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-
-#============================================================================================================
-# -------- PREPARE TO PLOT FAR FROM HIGH EXTINCTION REFERENCE POINTS --------
-title = 'All Too Far from High Extinction Rejected Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(FarRejectedRefPoints, hdu, regionOfInterest, title)
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_FarExtinctRejectedRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-#============================================================================================================
-# -------- PREPARE TO PLOT ANOMALOUS REJECTED REFERENCE POINTS --------
-title = 'All Anomalous RM Rejected Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(AnomalousRejectedRefPoints, hdu, regionOfInterest, title)
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_AnomalousRMRejectedRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-
-#============================================================================================================
-# -------- PREPARE TO PLOT ALL REJECTED REFERENCE POINTS --------
-title = 'All Rejected Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(RejectedRefPoints, hdu, regionOfInterest, title)
-
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_AllRejectedRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-# -------- CREATE A FIGURE - ALL REJECTED REF POINTS MAP. --------
-
-#============================================================================================================
-# -------- PREPARE TO PLOT REMAINING REFERENCE POINTS --------
-title = 'All Remaining Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(RemainingRefPoints, hdu, regionOfInterest, title)
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_RemainingRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-# -------- CREATE A FIGURE - REMAINING REF POINTS MAP. --------
-#============================================================================================================
+#======================================================================================================================
+refPointPlot("All Potential ", "AllPotentialRefPoints", cloudName, AllPotentialRefPoints, hdu, regionOfInterest)
+refPointPlot("Near-High Extinction Rejected ", "NearExtinctRejectedRefPoints", cloudName, NearRejectedRefPoints, hdu, regionOfInterest)
+refPointPlot("Far from High Extinction Rejected ", "FarExtinctRejectedRefPoints", cloudName, FarRejectedRefPoints, hdu, regionOfInterest)
+refPointPlot("Anomalous RM Rejected ", "AnomalousRMRejectedRefPoints", cloudName, AnomalousRejectedRefPoints, hdu, regionOfInterest)
+refPointPlot("All Rejected ", "AllRejectedRefPoints", cloudName, RejectedRefPoints, hdu, regionOfInterest)
+refPointPlot("All Remaining ", "AllRemainingRefPoints", cloudName, RemainingRefPoints, hdu, regionOfInterest)
+refPointPlot("All Chosen ", "ChosenRefPoints", cloudName, chosenRefPoints, hdu, regionOfInterest)
+#======================================================================================================================
 # -------- PREPARE TO PLOT REMAINING AND REJECTED REFERENCE POINTS --------
 refPoints = RemainingRefPoints
 nearExtRefPoints = NearRejectedRefPoints
@@ -274,4 +226,4 @@ logging.info(loggingDivider)
 logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
 # ---- Log info
 # -------- CREATE A FIGURE - REMAINING AND REJECTED REF POINTS MAP. --------
-#============================================================================================================
+#======================================================================================================================

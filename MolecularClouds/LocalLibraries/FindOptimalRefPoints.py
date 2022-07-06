@@ -240,8 +240,6 @@ def FindOptimalRefPoints(regionOfInterest, potentialRefPoints, saveFigurePath):
             os.path.join(config.dir_root, config.dir_fileOutput, config.prefix_OptRefPoints + config.cloud + '.txt'))
 
         stabilityTrendGraph(DataNoRef, saveFigurePath)
-        #plt.show()
-        #plt.close()
 
         TotalNumPoints = len(matchedRMExtinctionData)
         '''

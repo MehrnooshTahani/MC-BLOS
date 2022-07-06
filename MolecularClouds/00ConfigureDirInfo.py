@@ -2,6 +2,17 @@ import os
 import math
 from configparser import ConfigParser
 
+'''
+This script initializes the default config files and their values.
+- Run this script if there are no configuration files present, or you wish to reset those files.
+- Do not run this script if there are configuration files present and you wish to keep those values.
+
+The format of the code below is config['config section'] = {
+    'key': value,
+    'key': value
+}
+'''
+
 # -------- DEFINE STARTING VARIABLES. --------
 configStartSettings = ConfigParser()
 configStartSettings['Cloud'] = {
@@ -18,8 +29,8 @@ configStartSettings['Judgement'] = {
     'On Disk Anti-Galactic Extinction Threshold': 1.5,
     'Off Disk Extinction Threshold': 1.,
 
-    'Near High Extinction Multiplier': 2,
-    'Far High Extinction Multiplier': 14,
+    'Near High Extinction Multiplier': 7,
+    'Far High Extinction Multiplier': 28,
     'High Extinction Threshold Multiplier': 5,
     'Use Near High Extinction Exclusion': True,
     'Use Far High Extinction Exclusion': True,
@@ -64,13 +75,24 @@ configDirectoryAndNames['Output File Locations'] = {
 
 configDirectoryAndNames['Output File Prefixes'] = {
     'RM Mapping': 'RMMapping',
+
     'RM-Extinction Matching': 'MatchedRMExtinction',
+    'RM-Extinction Filtering': 'FilteredRMExtinction',
+
+    'Near High-Extinction Rejected RM-Extinction': 'NearHighExtRej',
+    'Far High-Extinction Rejected RM-Extinction': 'FarHighExtRej',
+    'Anomalous Rejected RM-Extinction': 'AnomRej',
+    'Rejected RM-Extinction': 'Rejected',
+    'Remaining RM-Extinction': 'Remaining',
+
     'All Potential Reference Points': 'AllPotentialRefPoints',
     'Selected Reference Points': 'RefPoints',
     'Reference Data': 'ReferenceData',
+
     'BLOS Point Data': 'BLOSPoints',
     'BLOS Point Figure': 'BLOSPointMap',
     'BLOS Uncertainties': 'FinalBLOSResults',
+
     'Optimal Reference Points': 'DataNoRef'
     }
 

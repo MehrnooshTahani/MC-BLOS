@@ -1,4 +1,6 @@
 """
+This is an optional part of the first stage meant to provide more information only.
+
 This file maps the RMs on the extinction files to get an understanding of the rotation measure coverage
 of the region of interest.
 """
@@ -28,7 +30,7 @@ saveFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, config.clo
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1Log.txt")
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1bLog.txt")
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
@@ -98,5 +100,4 @@ frame.set_alpha(0.4)
 plt.savefig(saveFigurePath, bbox_inches='tight')
 print('Saving RM Matching figure to '+saveFigurePath)
 logging.info('Saving RM Matching figure to '+saveFigurePath)
-#plt.show()
 # -------- CREATE A FIGURE. --------

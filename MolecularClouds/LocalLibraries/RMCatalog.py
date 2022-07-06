@@ -6,34 +6,8 @@ catalogue
     SkyCoord package if desired.  Code to accomplish this is left in comments throughout the file
 """
 import numpy as np
+import MolecularClouds.LocalLibraries.ConversionLibrary as cl
 from astropy.coordinates import SkyCoord
-
-
-# -------- FUNCTION DEFINITION --------
-def ra_hms2deg(ra_h, ra_m, ra_s):
-    """
-     This function converts a right ascension in hour:min:sec to degrees
-    :param ra_h: hour component of right ascension
-    :param ra_m: minute component of right ascension
-    :param ra_s: second component of right ascension
-    :return: Right ascension in degrees
-    """
-    return np.array(ra_h) * 15 + np.array(ra_m)/4 + np.array(ra_s)/240
-# -------- FUNCTION DEFINITION. --------
-
-
-# -------- FUNCTION DEFINITION --------
-def dec_dms2deg(dec_d, dec_m, dec_s):
-    """
-     This function converts a declination in degree:arcmin:arcsec to degrees
-    :param dec_d: degree component of declination
-    :param dec_m: arcminute component of declination
-    :param dec_s: arcsecond component of declination
-    :return: Declination in degrees
-    """
-    return (np.array(abs(dec_d)) + np.array(abs(dec_m))/60 + np.array(abs(dec_s))/3600) * np.sign(dec_d)
-# -------- FUNCTION DEFINITION. --------
-
 
 # -------- CLASS DEFINITION --------
 class RMCatalog:
@@ -108,8 +82,8 @@ class RMCatalog:
         self.targetRotationMeasures = []
         self.targetRMErrs = []
 
-        radegMax = ra_hms2deg(raHoursMax, raMinsMax, raSecMax)  # <- If converting manually
-        radegMin = ra_hms2deg(raHoursMin, raMinsMin, raSecMin)  # <- If converting manually
+        radegMax = cl.ra_hms2deg(raHoursMax, raMinsMax, raSecMax)  # <- If converting manually
+        radegMin = cl.ra_hms2deg(raHoursMin, raMinsMin, raSecMin)  # <- If converting manually
 
         # If using SkyCoord:
         # -------- MAKE SKYCOORD OBJECTS FOR REGION OF INTEREST  --------
@@ -126,8 +100,8 @@ class RMCatalog:
         for index in range(len(raHours)):
 
             # If converting manually:
-            radeg = ra_hms2deg(raHours[index], raMins[index], raMins[index])  # <- If converting manually
-            decdeg = dec_dms2deg(decDegs[index], decArcmins[index], decArcsecs[index])  # <- If converting manually
+            radeg = cl.ra_hms2deg(raHours[index], raMins[index], raMins[index])  # <- If converting manually
+            decdeg = cl.dec_dms2deg(decDegs[index], decArcmins[index], decArcsecs[index])  # <- If converting manually
 
             # If using SkyCoord:
             # ---- Make given coordinate into a SkyCoord object and convert to degrees

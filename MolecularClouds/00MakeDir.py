@@ -1,8 +1,8 @@
 """
 This is the zeroth stage of the BLOSMapping method where the necessary directories are made
 
-    - When run, the file will ask for the name of a region of interest.  It will then check to see of this region of
-    interest has a folder yet, if not it will make the needed folders and sub-folders.
+    - When run, the file will check for the region of interest.  It will then check to see of this region of
+    interest has a folder yet. If not it will make the needed folders and sub-folders.
 """
 import os
 import LocalLibraries.config as config
@@ -14,7 +14,7 @@ cloudName = config.cloud
 
 # -------- MAKE DIRECTORIES FOR THE REGION OF INTEREST --------
 # Check if there is a FileOutput directory already; if not make one
-#   - this will house the results for all of regions of interest
+#   - this will house the results for all regions of interest
 os.chdir(config.dir_root)
 InHome = os.listdir(config.dir_root)
 if config.dir_fileOutput not in InHome:

@@ -60,9 +60,18 @@ dir_temperatureSensitivity = configDirectoryAndNames['Output File Locations'].ge
 #Output Name Prefixes
 prefix_rmMapping = configDirectoryAndNames['Output File Prefixes'].get('RM Mapping')
 prefix_RMExtinctionMatch = configDirectoryAndNames['Output File Prefixes'].get('RM-Extinction Matching')
+prefix_RMExtinctionFiltered = configDirectoryAndNames['Output File Prefixes'].get('RM-Extinction Filtering')
+
+prefix_RMExtinctionNearRej = configDirectoryAndNames['Output File Prefixes'].get('Near High-Extinction Rejected RM-Extinction')
+prefix_RMExtinctionFarRej = configDirectoryAndNames['Output File Prefixes'].get('Far High-Extinction Rejected RM-Extinction')
+prefix_RMExtinctionAnomRej = configDirectoryAndNames['Output File Prefixes'].get('Anomalous Rejected RM-Extinction')
+prefix_RMExtinctionRej = configDirectoryAndNames['Output File Prefixes'].get('Rejected RM-Extinction')
+prefix_RMExtinctionRemaining = configDirectoryAndNames['Output File Prefixes'].get('Remaining RM-Extinction')
+
 prefix_allPotRefPoints = configDirectoryAndNames['Output File Prefixes'].get('All Potential Reference Points')
 prefix_selRefPoints = configDirectoryAndNames['Output File Prefixes'].get('Selected Reference Points')
 prefix_refData = configDirectoryAndNames['Output File Prefixes'].get('Reference Data')
+
 prefix_BLOSPointData = configDirectoryAndNames['Output File Prefixes'].get('BLOS Point Data')
 prefix_BLOSPointFig = configDirectoryAndNames['Output File Prefixes'].get('BLOS Point Figure')
 prefix_BLOSUncertainty = configDirectoryAndNames['Output File Prefixes'].get('BLOS Uncertainties')

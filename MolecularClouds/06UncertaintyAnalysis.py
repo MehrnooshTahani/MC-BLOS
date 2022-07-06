@@ -33,21 +33,17 @@ regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
+#Input Files
 BFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
 
 BData_DensityPathFragment = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity)
 BData_TempPathFragment = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity)
-
-#BData_Density50IncreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity, 'B_Av_T0_n+50.txt')
-#BData_Density50DecreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity, 'B_Av_T0_n-50.txt')
-#BData_Temp20IncreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity, 'B_Av_T+20_n0.txt')
-#BData_Temp20DecreasePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity, 'B_Av_T-20_n0.txt')
-
+#Output Files
 saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSUncertainty + cloudName + '.txt')
 # -------- DEFINE FILES AND PATHS --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script7Log.txt")
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script6Log.txt")
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
@@ -100,8 +96,9 @@ for densPercent in DensPercent:
 
 if len(errDensPercent) > 0:
     logging.info('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following density changes percentages were not used to calculate the uncertainty due to an error.')
+    logging.warning('Warning: The following density changes percentages (+-) were not used to calculate the uncertainty due to an error.')
     logging.warning('{}'.format(errDensPercent))
+    logging.warning('Ex. 50 means that at least one of -50 or 50 percent changes have an error.')
     logging.warning('Please review the results.')
     logging.info('-------------------------------------------------------------------------------')
 
@@ -118,8 +115,9 @@ for tempPercent in TempPercent:
 
 if len(errTempPercent) > 0:
     logging.info('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following temperature changes percentages were not used to calculate the uncertainty due to an error.')
+    logging.warning('Warning: The following temperature changes percentages (+-) were not used to calculate the uncertainty due to an error.')
     logging.warning('{}'.format(errTempPercent))
+    logging.warning('Ex. 20 means that at least one of -20 or 20 percent changes have an error.')
     logging.warning('Please review the results.')
     logging.info('-------------------------------------------------------------------------------')
 

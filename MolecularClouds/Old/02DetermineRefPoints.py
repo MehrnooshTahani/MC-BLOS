@@ -442,12 +442,13 @@ logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
 
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------
 chosenRefPoints_Num = [int(np.round(i)) for i in PotRefPoints]
+#Todo: Look into this. Goal is to...
 AllPotentialRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value').reset_index()
 
 logging.info(loggingDivider)
 logging.info("The Remaining Reference Points will be:")
 logging.info(PotRefPoints)
-logging.info("The Chosen data is thus:")
+logging.info("The Remaining data is thus:")
 logging.info(AllPotentialRefPoints)
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------
 
@@ -584,7 +585,6 @@ DataNoRef = findTrendData(RefPoints, matchedRMExtinctionData, regionOfInterest)
 # -------- CREATE A FIGURE --------
 
 stabilityTrendGraph(DataNoRef, None)
-
 yLower, yUpper = plt.ylim()
 plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color='black', label='Suggested optimal '
                                                                                                 'number of reference '

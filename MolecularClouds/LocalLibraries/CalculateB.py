@@ -34,12 +34,10 @@ def electronColumnDensity(Av, eAbundance, indLayerOfInterest, ScaledExtinction):
     return LayerNe
     # -------- Matched Extinction Value.
 
-def findLayerOfInterest(Av, eAbundance, scaledExtinction, scaledExtinctionMin, scaledExtinctionMax):
+def findLayerOfInterest(Av, eAbundance, scaledExtinction):
     # -------- FIND THE LAYER OF INTEREST --------
     eAbundanceMatched = []
     indLayerOfInterest = []
-    indLayerOfInterest_MinExt = []
-    indLayerOfInterest_MaxExt = []
 
     # For each BLOS point:
     for i in range(0, len(scaledExtinction)):
@@ -47,23 +45,15 @@ def findLayerOfInterest(Av, eAbundance, scaledExtinction, scaledExtinctionMin, s
          extinction value. Since Av is a list ordered from least to greatest, this corresponds to the first location 
          where Av is greater than half the scaled extinction value 
         '''
-        # Todo: This fails on Orionb...
         ind = np.where(Av >= scaledExtinction[i] / 2)[0][0]
-        # print(i) #debug
         indLayerOfInterest.append(ind)
         eAbundanceMatched.append(eAbundance[ind])
 
-        indMin = np.where(Av >= scaledExtinctionMin[i] / 2)[0][0]
-        indLayerOfInterest_MinExt.append(indMin)
-
-        # Todo: This fails on Taurus...
-        indMax = np.where(Av >= scaledExtinctionMax[i] / 2)[0][0]
-        indLayerOfInterest_MaxExt.append(indMax)
-    return eAbundanceMatched, indLayerOfInterest, indLayerOfInterest_MinExt, indLayerOfInterest_MaxExt
+    return eAbundanceMatched, indLayerOfInterest
     # -------- FIND THE LAYER OF INTEREST. --------
 
 # -------- FUNCTION DEFINITION --------
-def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction):
+def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, ZeroNegativeExtinctionEntries = True, DeleteNegativeExtinctionEntries = True):
         """
         Takes files containing extinction, rotation measure data, and reference point data for the region of interest
         and calculates BLOS, returning a PANDAS accordingly.
@@ -104,11 +94,6 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
         BLOSData['Scaled_Extinction'] = RMExtinctionData['Extinction_Value'] - fiducialExtinction
         Scaled_Min_Extinction_Value = RMExtinctionData['Min_Extinction_Value'] - fiducialExtinction
         Scaled_Max_Extinction_Value = RMExtinctionData['Max_Extinction_Value'] - fiducialExtinction
-
-        # ---- Enforce the negative extinction criteria (Negative extinction is not physical and should be 0). Note: This seems to have no impact at all???
-        #BLOSData.loc[BLOSData['Scaled_Extinction'] < 0, 'Scaled_Extinction'] = 0
-        #Scaled_Min_Extinction_Value[Scaled_Min_Extinction_Value < 0] = 0
-        #Scaled_Max_Extinction_Value[Scaled_Max_Extinction_Value < 0] = 0
         # ---- Enforce the negative extinction criteria.
 
         # -------- SCALE THE RM AND EXTINCTION DATA. --------
@@ -129,7 +114,9 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
         Av, eAbundance = np.loadtxt(AvAbundancePath, usecols=(1, 2), unpack=True, skiprows=2)
         # -------- LOAD ABUNDANCE DATA.
 
-        eAbundanceMatched, indLayerOfInterest, indLayerOfInterest_MinExt, indLayerOfInterest_MaxExt = findLayerOfInterest(Av, eAbundance, BLOSData['Scaled_Extinction'], Scaled_Min_Extinction_Value, Scaled_Max_Extinction_Value)
+        eAbundanceMatched, indLayerOfInterest = findLayerOfInterest(Av, eAbundance, BLOSData['Scaled_Extinction'])
+        _, indLayerOfInterest_MinExt = findLayerOfInterest(Av, eAbundance, Scaled_Min_Extinction_Value)
+        _, indLayerOfInterest_MaxExt = findLayerOfInterest(Av, eAbundance, Scaled_Max_Extinction_Value)
 
         BLOSData['eAbundance'] = eAbundanceMatched
         # -------- FIND THE LAYER OF INTEREST. --------
@@ -160,5 +147,21 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
         BLOSData['BScaled_RM_ERR_with_0.05Uncty'] = (0.1 * BLOSData['Magnetic_Field(uG)']) \
                                                     / BLOSData['Scaled_RM']
         # -------- CALCULATE THE MAGNETIC FIELD. --------
+
+        # -------- CORRECT NEGATIVE SCALED EXTINCTION VALUES. --------
+        if ZeroNegativeExtinctionEntries:
+            negativeScaledExtinctionIndex = BLOSData[BLOSData['Scaled_Extinction'] < 0].index.tolist()
+            BLOSData.loc[negativeScaledExtinctionIndex, 'Raw_Magnetic_FieldMagnetic_Field(uG)'] = 0
+            BLOSData.loc[negativeScaledExtinctionIndex, 'Magnetic_Field(uG)'] = 0
+            BLOSData.loc[negativeScaledExtinctionIndex, 'Reference_BField_RMErr(\u00B1)'] = 0
+            BLOSData.loc[negativeScaledExtinctionIndex, 'BField_of_Min_Extinction'] = 0
+            BLOSData.loc[negativeScaledExtinctionIndex, 'BField_of_Max_Extinction'] = 0
+            BLOSData.loc[negativeScaledExtinctionIndex, 'BScaled_RM_ERR_with_0.05Uncty&StDev'] = 0
+            BLOSData.loc[negativeScaledExtinctionIndex, 'BScaled_RM_ERR_with_0.05Uncty'] = 0
+
+        if DeleteNegativeExtinctionEntries:
+            negativeScaledExtinctionIndex = BLOSData[BLOSData['Scaled_Extinction'] < 0].index.tolist()
+            BLOSData.drop(negativeScaledExtinctionIndex, inplace = True)
+        # -------- CORRECT NEGATIVE SCALED EXTINCTION VALUES. --------
 
         return BLOSData

@@ -1,12 +1,11 @@
 """
-This is the second stage of the BLOSMapping method where rotation measure points from the catalogue are matched to
+This is the first stage of the BLOSMapping method where rotation measure points from the catalogue are matched to
 an extinction value from the fits file. Matching is based on physical proximity.
 
 The matched rotation measure data and extinction information are saved in a file.
 """
 from itertools import zip_longest
 
-import matplotlib.pyplot as plt
 from astropy.io import fits
 from astropy.wcs import WCS
 
@@ -34,7 +33,7 @@ regionOfInterest = Region(cloudName)
 RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCatalogue)
 saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
 
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2Log.txt")
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1aLog.txt")
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
@@ -49,20 +48,22 @@ wcs = WCS(hdu.header)
 
 # -------- PREPROCESS FITS DATA TYPE. --------
 data = rjl.deepCopy(hdu.data)
+
+# Identify where there is no data
 nodata = np.isnan(data)
 
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
     data = data / config.VExtinct_2_Hcol
 
-#Handle bad data (negative/no values) by interpolation.
+# Obtain data bounds
 boxXMin = regionOfInterest.xmin
 boxXMax = regionOfInterest.xmax
 boxYMin = regionOfInterest.ymin
 boxYMax = regionOfInterest.ymax
-
 xmin, xmax, ymin, ymax = getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax)
 
+# Set default data values for missing data
 if config.fillMissing == 'Zero':
     data[nodata] = 0
 elif config.fillMissing == 'Average':
@@ -70,12 +71,13 @@ elif config.fillMissing == 'Average':
 else:
     data[nodata] = math.nan
 
-baddata = data[ymin:ymax, xmin:xmax] < 0
-data[ymin:ymax, xmin:xmax][baddata] = np.nan
+# Identify and remove bad data, defined as non-physical negative extinction values.
+baddata = data < 0
+data[ymin:ymax, xmin:xmax][baddata[ymin:ymax, xmin:xmax]] = np.nan
 
+# Handle bad data (negative/no values) by full fits-file interpolation, if turned on.
 if config.doInterpExtinct and config.interpAll:
     data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], config.interpMethod) #This step is computationally costly. It may be omitted if it is taking too long.
-
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -87,6 +89,7 @@ rmData = RMCatalog(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.
 
 # -------- DEFINE THE ERROR RANGE --------
 # The physical limit on how far an extinction value can be from the rm and still be considered valid/applicable
+
 # Uncertainty based.
 raErrsSec = np.array(rmData.targetRAErrSecs)
 decErrs = np.array(rmData.targetDecErrArcSecs)
@@ -103,7 +106,8 @@ RMResolutionDegs = max(raErr, decErr)
 RMResolutionDegs = config.resolution_RMCatalogue
 '''
 ExtinctionResolutionDegs = min(abs(hdu.header['CDELT1']), abs(hdu.header['CDELT2'])) #deg
-# -------- It is 1 pixel at most if the extinction map has a lower resolution than the RM map. The maximum number of pixels which fit within the RM's resolution otherwise.
+# It is 1 pixel at most if the extinction map has a lower resolution than the RM map.
+# #The maximum number of pixels which fit within the RM's resolution otherwise.
 if (ExtinctionResolutionDegs > RMResolutionDegs):
     NDelt = 1
 else:
@@ -149,22 +153,24 @@ for index in range(len(rmData.targetRotationMeasures)):
 
     # ---- Skip the point if it violates a condition.
     inFitsFile = 0 <= px < data.shape[1] and 0 <= py < data.shape[0]
+
     hasData = inFitsFile and data[py, px] != -1 and math.isfinite(data[py, px])
-    validPoint = inFitsFile and hasData
+    interpByPoint = config.doInterpExtinct and not config.interpAll
+
+    validPoint = inFitsFile and (hasData or interpByPoint)
+
+    #if not validPoint:
+    if not validPoint:
+        continue
+    # ---- Skip the point if it violates a condition.
 
     # ---- Interpolate Missing Data
-    if inFitsFile and math.isnan(data[py, px]) and config.doInterpExtinct and not config.interpAll:
+    if math.isnan(data[py, px]) and config.doInterpExtinct and not config.interpAll:
         ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(px, py, data)
         data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
                                                                     baddata[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
                                                                     config.interpMethod)
     # ---- Interpolate Missing Data
-
-    #if not validPoint:
-    if not inFitsFile:
-        print("Continuing.")
-        continue
-    # ---- Skip the point if it violates a condition.
 
     extinction = data[py, px]
 
@@ -194,12 +200,14 @@ for index in range(len(rmData.targetRotationMeasures)):
 
     for pxx in range(ind_xmin, ind_xmax):
         for pyy in range(ind_ymin, ind_ymax):
+            # ---- Interpolate Missing Data
             if math.isnan(data[pyy, pxx]) and not config.interpAll:
                 ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(pxx, pyy, data)
                 data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
                                                                             baddata[ind_ymin:ind_ymax,
                                                                             ind_xmin:ind_xmax],
                                                                             config.interpMethod)
+            # ---- Interpolate Missing Data
             extinction = data[pyy, pxx]
             extinction_temp.append(extinction)
             xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
@@ -208,7 +216,6 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Cycle through extinction values within the error range.
 
     # Find minimum extinction value
-    #print("Min Temp:", min(extinction_temp))
     ind_min = np.where(extinction_temp == min(extinction_temp))[0][0]
     Extinction_MinInRangeRa.append(ra_temp[ind_min])
     Extinction_MinInRangeDec.append(dec_temp[ind_min])

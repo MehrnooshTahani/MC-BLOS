@@ -5,14 +5,12 @@ import os
 
 import pandas as pd
 import numpy as np
-import math
 
 from astropy.wcs import WCS
 from astropy.io import fits
 
 import matplotlib.pyplot as plt
 
-import LocalLibraries.ConversionLibrary as cl
 from LocalLibraries.RegionOfInterest import Region
 
 from LocalLibraries.FindOptimalRefPoints import stabilityTrendGraph
@@ -21,32 +19,8 @@ from LocalLibraries.FindOptimalRefPoints import FindOptimalRefPoints
 
 import LocalLibraries.config as config
 import LocalLibraries.RefJudgeLib as rjl
-import LocalLibraries.PlotTemplates as pt
-import LocalLibraries.RMPlotLibrary as rmpl
 
 import logging
-
-def plotRefPoints(refPoints, hdu, regionOfInterest, title):
-    # -------- PREPARE TO PLOT REFERENCE POINTS --------
-    labels = list(refPoints['ID#'])
-    Ra = list(refPoints['Ra(deg)'])
-    Dec = list(refPoints['Dec(deg)'])
-    # ---- Convert Ra and Dec of reference points into pixel values of the fits file
-    x, y = cl.RADec2xy(Ra, Dec, wcs)
-    # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
-    # -------- PREPARE TO PLOT REFERENCE POINTS. --------
-
-    # -------- CREATE A FIGURE - ALL REF POINTS MAP --------
-    fig, ax = pt.extinctionPlot(hdu, regionOfInterest)
-
-    plt.title(title, fontsize=12, y=1.08)
-    plt.scatter(x, y, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50)
-
-    # ---- Annotate the chosen reference points
-    pt.labelPoints(ax, labels, x, y)
-    # ---- Annotate the chosen reference points
-    # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
-    return fig, ax
 
 # -------- LOAD THE REGION OF INTEREST --------
 cloudName = config.cloud
@@ -54,25 +28,22 @@ regionOfInterest = Region(cloudName)
 # -------- LOAD THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-saveFilePath_ALlPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_allPotRefPoints + cloudName + '.txt')
+# ---- Input Files
+# Matched rm and extinction data
+MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionMatch + cloudName + '.txt')
+# Filtered rm and extinction data
+FilteredRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFiltered + cloudName + '.txt')
+# ---- Input Files
+
+# ---- Output Files
 saveFilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_selRefPoints + cloudName + '.txt')
 saveFilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
 
 saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
 saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
-saveFigureDir_RefPointMap = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots)
 
-saveQuadrantFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, cloudName + "QuadrantDivision.png")
-
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script3Log.txt")
-
-# -------- Matched rm and extinction data
-MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionMatch + cloudName + '.txt')
-# -------- Matched rm and extinction data.
-
-# -------- Filtered rm and extinction data
-FilteredRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFiltered + cloudName + '.txt')
-# -------- Filtered rm and extinction data.
+saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2bLog.txt")
+# ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------
 
@@ -92,7 +63,7 @@ matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
-AllPotentialRefPoints = pd.read_csv(FilteredRMExtincPath)
+FilteredRefPoints = pd.read_csv(FilteredRMExtincPath)
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
 
 #============================================================================================================
@@ -103,7 +74,7 @@ mPerp, bPerp = rjl.getPerpendicularLine(cloudCenterX, cloudCenterY, m)
 # -------- FIND REGIONS TO SPLIT THE CLOUD INTO. --------
 
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
-Q1, Q2, Q3, Q4 = rjl.sortQuadrants(list(AllPotentialRefPoints.index), AllPotentialRefPoints['Extinction_Index_x'], AllPotentialRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
+Q1, Q2, Q3, Q4 = rjl.sortQuadrants(list(FilteredRefPoints.index), FilteredRefPoints['Extinction_Index_x'], FilteredRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
 # ---- Sort into quadrant
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
 
@@ -124,7 +95,7 @@ quadrantsUndersampled = quadrantsUndersampled + 1 if Q4Less else quadrantsUnders
 
 # -------- OUTPUT RESULTS. --------
 logging.info(loggingDivider)
-logging.info("The chosen reference points, sorted by quadrant, are:")
+logging.info("The filtered reference points, sorted by quadrant, are:")
 logging.info("Q1: {}".format(Q1))
 logging.info("Q2: {}".format(Q2))
 logging.info("Q3: {}".format(Q3))
@@ -138,11 +109,10 @@ logging.info("consider raising your extinction threshold in your start settings 
 #============================================================================================================
 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
-OptimalNumRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, AllPotentialRefPoints, saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
+OptimalNumRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, FilteredRefPoints, saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
 # -------- Solidify reference points. --------
-chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.useStableMinimum else [i for i in range(len(AllPotentialRefPoints.index))]
-#chosenRefPoints = AllPotentialRefPoints #If we ignore the algorithm.
-chosenRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
+chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.useStableMinimum else [i for i in range(len(FilteredRefPoints.index))]
+chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
 Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'], chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
@@ -170,13 +140,12 @@ minSamples = max(minSamples) if len(minSamples) > 0 else max(chosenRefPoints_Num
 minSamples = minSamples+1 #Account for the index shift.
 
 chosenRefPoints_After_Quadrants_Num = [i for i in range(minSamples)] if config.useQuadrantEnforce else chosenRefPoints_Num
-#chosenRefPoints = AllPotentialRefPoints #If we ignore the algorithm.
-chosenRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_After_Quadrants_Num].sort_values('Extinction_Value')
+chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_After_Quadrants_Num].sort_values('Extinction_Value')
 
 # ---- Log info
 logging.info(loggingDivider)
 logging.info('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
-      'total number of reference points ({}):'.format(len(AllPotentialRefPoints)))
+      'total number of reference points ({}):'.format(len(FilteredRefPoints)))
 logging.info("Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_Num]))
 logging.info("Next, minimum quadrant sampling is accounted for.")
 logging.info("The chosen reference points, sorted by quadrant, are:")
@@ -194,22 +163,6 @@ logging.info('Please review the BLOS trend stability plot at {}.'.format(saveFig
 # -------- Solidify reference points. --------
 
 #======================================================================================================================
-# -------- PREPARE TO PLOT CHOSEN REFERENCE POINTS --------
-title = 'All Chosen Reference Points' + ' in the ' + cloudName + ' region\n'
-plotRefPoints(chosenRefPoints, hdu, regionOfInterest, title)
-
-# ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_ChosenRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
-plt.close()
-# ---- Display or save the figure.
-# ---- Log info
-logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
-# ---- Log info
-# -------- CREATE A FIGURE - ALL REJECTED REF POINTS MAP. --------
-
-#======================================================================================================================
 
 # -------- REASSESS STABILITY --------
 '''
@@ -219,7 +172,7 @@ However, we also want to include points which come after the chosen reference po
 The following selects all of the chosen reference points and then adds any of the potential reference points with
 extinction greater than the extinction of the last chosen reference point/
 '''
-RefPoints = chosenRefPoints[:-1].append(AllPotentialRefPoints.set_index('ID#').
+RefPoints = chosenRefPoints[:-1].append(FilteredRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
 
@@ -256,7 +209,7 @@ refRMStd = 0.0
 refExtinc = 0.0
 
 if config.weightingScheme == "Quadrant Balance":
-    perQuadrantWeight = 1000000
+    perQuadrantWeight = 100000000 #Arbitrarily large number for weighting.
     chosenPoints = []
     weightPoints = []
     for quadrant in [Q1c, Q2c, Q3c, Q4c]:
