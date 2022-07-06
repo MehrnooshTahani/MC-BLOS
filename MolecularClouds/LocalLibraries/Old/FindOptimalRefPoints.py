@@ -19,8 +19,6 @@ def mode(listInput):
     '''
     return collections.Counter(listInput).most_common()[0][0]
 
-#Todo: Only one attribute is used: Optimal_NumRefPoints_firstMode . Consider turning into a function?
-
 def stabilityCheckAlg(DataNoRef):
     '''
     The following algorithm searches for the number of candidate reference points where the trend of calculated BLOS

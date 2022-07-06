@@ -9,8 +9,6 @@ import numpy as np
 import os
 import MolecularClouds.LocalLibraries.config as config
 
-#Todo: This is actually a function which is only ever needed once by script 3.
-
 # -------- CLASS DEFINITION --------
 class FindAllPotentialReferencePoints:
     def __init__(self, cloudName, threshold, saveFilePath='none'):

@@ -1,3 +1,7 @@
+'''
+Contains common plots or plot elements utilized in various scripts
+'''
+
 import matplotlib.pyplot as plt
 import adjustText
 import math
@@ -5,6 +9,12 @@ import math
 from astropy.wcs import WCS
 
 def extinctionPlot(hdu, regionOfInterest):
+    '''
+
+    :param hdu: The HDU contianing the image data that is to be plotted. HDU object.
+    :param regionOfInterest: RegionOfInterest object which gives data on where and what part of the HDU is to be plotted. RegionOfInterest Object.
+    :return: fig, ax - the figure and axis of the plot. Matplotlib objects.
+    '''
     fig, ax, im = heatPlot(hdu)
     equatorialCoords(ax)
     overlayCoords(ax)
@@ -14,6 +24,12 @@ def extinctionPlot(hdu, regionOfInterest):
     return fig, ax
 
 def heatPlot(hdu):
+    '''
+    Creates a heat plot for the given HDU.
+
+    :param hdu: The HDU image file.
+    :return: fig, ax, im: The figure, axis, and image of the plot. Matplotlib objects.
+    '''
     wcs = WCS(hdu.header)
 
     fig = plt.figure(figsize=(8, 8), dpi=120, facecolor='w', edgecolor='k')
@@ -23,6 +39,11 @@ def heatPlot(hdu):
     return fig, ax, im
 
 def equatorialCoords(ax):
+    '''
+    Overlays the given axes with equatorial coordinates.
+    :param ax: The axis of the plot. Matplotlib axis object.
+    :return: Nothing, it applies it to the axis.
+    '''
     # ---- Style the main axes and their grid
     ra = ax.coords[0]
     dec = ax.coords[1]
@@ -42,6 +63,11 @@ def equatorialCoords(ax):
     # ---- Style the main axes and their grid.
 
 def overlayCoords(ax):
+    '''
+    Overlays galactic coordinates onto the axis.
+    :param ax: The axis of the plot. Matplotlib axis object.
+    :return: Nothing, it applies it to the axis.
+    '''
     # ---- Style the overlay and its grid
     overlay = ax.get_coords_overlay('galactic')
 
@@ -56,6 +82,12 @@ def overlayCoords(ax):
 
 
 def colourbar(regionOfInterest, im):
+    '''
+    Sets the colour bar on the image for our region of interest.
+    :param regionOfInterest: Used to obtain data on the fits data type. RegionOfInterest object.
+    :param im: The matplotlib image object to make a colour bar for.
+    :return: cb - the pointer to the colourbar object.
+    '''
     cb = None
     # ---- Style the colour bar
     if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
@@ -68,12 +100,32 @@ def colourbar(regionOfInterest, im):
     return cb
 
 def setBoundsIfValid(ax, xmin, xmax, ymin, ymax):
+    '''
+    Sets the axis bounds if the given bounds are valid bounds.
+    :param ax: The axis of the plot. Matplotlib axis object.
+    :param xmin: The desired x minimum bound. int.
+    :param xmax: The desired x maximum bound. int.
+    :param ymin: The desired y minimum bound. int.
+    :param ymax: The desired y maximum bound. int.
+    :return: Nothing, it applies it to the axis.
+    '''
     if not math.isnan(xmax) and not math.isnan(xmin):
         ax.set_xlim(xmin, xmax)
     if not math.isnan(ymax) and not math.isnan(ymin):
         ax.set_ylim(ymin, ymax)
 
 def labelPoints(ax, labels, xCoords, yCoords, size = 9, color = 'w'):
+    '''
+    Labels points on a given graph given by the axis.
+
+    :param ax: The axis of the plot. Matplotlib axis object.
+    :param labels: A set of labels for the points. List.
+    :param xCoords: A set of x coordinates denoting where the points are. List.
+    :param yCoords: A set of y coordinates denoting where the points are. List.
+    :param size: The size of the text. Integer.
+    :param color: The colour of the text. String.
+    :return: text: A list of matlotlib text objects pointing to each of the labels. List.
+    '''
     # ---- Annotate the chosen reference points
     text = []
     for i, label in enumerate(labels):

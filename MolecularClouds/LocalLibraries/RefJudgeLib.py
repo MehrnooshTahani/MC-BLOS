@@ -1,6 +1,5 @@
 '''
-This library contains functions involved with providing information to make decisions on which points to include or
-exclude in script 3.
+Contains functions involved with providing information to make decisions on which points to include or exclude.
 '''
 import math
 import scipy.interpolate as interpolate
@@ -147,6 +146,14 @@ def getPerpendicularLine(x, y, m):
 
 # -------- FUNCTION DEFINITION --------
 def getBoxRange(px, py, data, NDelt):
+    '''
+    Returns valid bounds of a box around a coordinate.
+    :param px: The x coordinate of the center of the box
+    :param py: The y coordinate of the center of the box
+    :param data: A data canvas, to make sure the box is within the bounds of the canvas.
+    :param NDelt: Number of pixels horizontally and vertically from the center to extend out the box.
+    :return: ind_xmin, ind_xmax, ind_ymin, ind_ymax - The x and y bounds of that box.
+    '''
     ind_xmax = px + NDelt + 1  # add 1 to be inclusive of the upper bound
     ind_ymax = py + NDelt + 1  # add 1 to be inclusive of the upper bound
     ind_xmin = px - NDelt
@@ -162,6 +169,14 @@ def getBoxRange(px, py, data, NDelt):
 
 # -------- FUNCTION DEFINITION --------
 def getNullBox(px, py, data):
+    '''
+    Given a point on a data canvas, gets the box that bounds all the nan values inside.
+
+    :param px: The x coordinate of the center of the box
+    :param py: The y coordinate of the center of the box
+    :param data: A data canvas, to make sure the box is within the bounds of the canvas and expand the box as needed to cover the nans.
+    :return: ind_xmin, ind_xmax, ind_ymin, ind_ymax - The x and y bounds of that box.
+    '''
     ind_xmax = px + 1 + 1  # add 1 to be inclusive of the upper bound
     ind_ymax = py + 1 + 1  # add 1 to be inclusive of the upper bound
     ind_xmin = px - 1
@@ -218,6 +233,17 @@ def nearHighExtinction(px, py, data, NDelt, highExtinctionThreshold):
 
 # -------- FUNCTION DEFINITION --------
 def sortQuadrants(ind, X, Y, m, b, m2, b2):
+    '''
+    Given a set of points, sorts them into quadrants as divided by two lines.
+    :param ind: The indexes of the points.
+    :param X: The x coordinate of the points.
+    :param Y: The y coordinate of the points.
+    :param m: The slope of the first line
+    :param b: The y offset of the first line.
+    :param m2: The slope of the second line.
+    :param b2: The y offset of the second line.
+    :return: Q1, Q2, Q3, Q4 - Four lists which contain the indexes sorted into the four quadrants.
+    '''
     Q1 = []
     Q2 = []
     Q3 = []
@@ -261,11 +287,24 @@ def averageBox(px, py, data, NDelt):
 
 # -------- FUNCTION DEFINITION --------
 def deepCopy(data):
+    '''
+    Alias for copy.deepcopy, so that a given file which has imported this module doesn't need to import that too.
+    :param data: The data to be deep-copied
+    :return: A deep copy of the data.
+    '''
     return copy.deepcopy(data)
 # -------- FUNCTION DEFINITION --------
 
 # -------- FUNCTION DEFINITION --------
 def interpMask(data, mask, method='cubic', fill_value=0):
+    '''
+    Given some data and a mask on that data, performs interpolation on the points in the data specified by the mask.
+    :param data: The data to interpolate on. Numpy array.
+    :param mask: A boolean mask on that data that indicates where to interpolate on. Boolean numpy array.
+    :param method: The interpolation method. Strong. Ex. 'linear', 'nearest', 'cubic'.
+    :param fill_value: Default value to fill values outside the convex hull of the input data.
+    :return: returnData: The data with the interpolated data.
+    '''
     width = data.shape[1]
     height = data.shape[0]
     x, y = np.meshgrid(np.arange(width), np.arange(height))

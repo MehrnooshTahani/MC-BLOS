@@ -1,13 +1,15 @@
 """
-In this file global variables which are used across all modules are defined.
-They are adjusted in the Config[Setting].ini accordingly
+Loads global variables which are used across all modules.
+Adjusted in the Config[Setting].ini.
 """
 from configparser import ConfigParser
 # -------- DEFINE STARTING VARIABLES. --------
 configStartSettings = ConfigParser()
 configStartSettings.read('configStartSettings.ini')
+#Cloud
 cloud = configStartSettings['Cloud'].get('Cloud')
 
+#Judgement
 fillMissing = configStartSettings['Judgement'].get('Fill Missing Data')
 
 doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Bad Extinction Values')
@@ -34,7 +36,7 @@ minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points P
 
 weightingScheme = configStartSettings['Judgement'].get('Weighting Scheme')
 
-
+#Plotting Options
 densityPlotNumPoints = configStartSettings['Plotting Options'].getint('Density Plot Number of Points')
 densityPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Minimum Extinction')
 densityPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Maximum Extinction')

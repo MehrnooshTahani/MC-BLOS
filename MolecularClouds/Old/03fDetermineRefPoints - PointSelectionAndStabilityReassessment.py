@@ -17,7 +17,6 @@ from LocalLibraries.CalculateB import CalculateB
 import LocalLibraries.config as config
 import LocalLibraries.RefJudgeLib as rjl
 
-#Todo: Refactor this, don't really like it.
 
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud

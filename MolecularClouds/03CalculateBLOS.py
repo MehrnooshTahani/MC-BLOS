@@ -150,7 +150,7 @@ pt.labelPoints(ax, n, x, y)
 # -------- PREPARE TO PLOT REF BLOS POINTS --------
 # ---- CALCULATE REF POINT BLOS.
 #Utilized only for the plot which includes the reference points used to find the BLOS
-RefBLOSData = CalculateB(regionOfInterest.AvFilePath, refPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, ZeroNegativeExtinctionEntries=False, DeleteNegativeExtinctionEntries=False)
+RefBLOSData = CalculateB(regionOfInterest.AvFilePath, refPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange="None")
 # ---- CALCULATE REF POINT BLOS.
 
 Refn = list(RefBLOSData['ID#'])

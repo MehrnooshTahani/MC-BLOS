@@ -91,7 +91,7 @@ def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable):
              extinction value. Since Av is a list ordered from least to greatest, this corresponds to the first location 
              where Av is greater than half the scaled extinction value 
             '''
-            #Todo: This fails on Orionb...
+
             ind = np.where(Av >= BLOSData['Scaled_Extinction'][i] / 2)[0][0]
             #print(i) #debug
             indLayerOfInterest.append(ind)
@@ -100,7 +100,6 @@ def CalculateB(AvAbundancePath, ExtincRMPath, RefPointTable):
             indMin = np.where(Av >= Scaled_Min_Extinction_Value[i] / 2)[0][0]
             indLayerOfInterest_MinExt.append(indMin)
 
-            # Todo: This fails on Taurus...
             indMax = np.where(Av >= Scaled_Max_Extinction_Value[i] / 2)[0][0]
             indLayerOfInterest_MaxExt.append(indMax)
 

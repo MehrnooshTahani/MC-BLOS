@@ -1,6 +1,7 @@
 import numpy as np
-
-
+'''
+Contains common unit conversion utilities.
+'''
 # -------- FUNCTION DEFINITION --------
 def ra_hms2deg(ra_h, ra_m, ra_s):
     """
@@ -72,6 +73,13 @@ def dec_deg2dms(dec_deg):
 
 
 def RADec2xy(RA, Dec, wcs):
+    '''
+
+    :param RA: List of Right Ascensions associated with a set of points
+    :param Dec: List of Declinations associated with a set of points
+    :param wcs: A World Coordinate System associated with the grid we want to convert the RA and Dec to.
+    :return: xCoords, yCoords: Two lists which contain the x and y coordinates of the points, respectively.
+    '''
     xCoords = []
     yCoords = []
     for i in range(len(RA)):

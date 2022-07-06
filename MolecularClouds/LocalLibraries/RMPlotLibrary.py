@@ -1,4 +1,7 @@
 import numpy as np
+'''
+Contains plots or plot element functions utilized in relation to plotting rotation measure data.
+'''
 # -------- FUNCTION DEFINITION --------
 def rm2RGB(rm):
     """

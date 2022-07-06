@@ -1,15 +1,22 @@
 """
-This file contains the class/function to calculate BLOS values.
-
+Contains the functions to calculate BLOS values.
 """
 import pandas as pd
 import numpy as np
 from . import config
 
 def electronColumnDensity(Av, eAbundance, indLayerOfInterest, ScaledExtinction):
+    '''
+    Finds the electron column density.
+
+    :param Av: The extinction of the cloud. List.
+    :param eAbundance: The electron abundances per layer of the cloud. List.
+    :param indLayerOfInterest: The layers of interest in the cloud. List.
+    :param ScaledExtinction: The extinction corresponding to the layer cared about. List.
+    :return: LayerNe: The electron column density for each of the input layers of interest. List.
+    '''
     # -------- LOAD CONSTANT INFO FROM CONFIG --------
     conversionFactor = config.VExtinct_2_Hcol  # to convert extinction to H column density
-    pcTocm = config.pcTocm
     # -------- LOAD CONSTANT INFO FROM CONFIG --------
 
     # -------- CALCULATE THE TOTAL ELECTRON COLUMN DENSITY --------
@@ -35,6 +42,15 @@ def electronColumnDensity(Av, eAbundance, indLayerOfInterest, ScaledExtinction):
     # -------- Matched Extinction Value.
 
 def findLayerOfInterest(Av, eAbundance, scaledExtinction):
+    '''
+    Finds the layer depth and the associated electron abundance of that layer given the extinction of
+    :param Av: Per layer extinction value of the cloud. List/iterable.
+    :param eAbundance: Per layer electron abundance of the cloud. List/iterable.
+    :param scaledExtinction: A list of extinctions for which the user wants to find the layer depth and electron abundance for. List/iterable.
+    :return:
+        eAbundanceMatched: The electron abundance. List.
+        indLayerOfInterest: The number of layers deep corresponding to the input extinction. List.
+    '''
     # -------- FIND THE LAYER OF INTEREST --------
     eAbundanceMatched = []
     indLayerOfInterest = []
@@ -53,17 +69,18 @@ def findLayerOfInterest(Av, eAbundance, scaledExtinction):
     # -------- FIND THE LAYER OF INTEREST. --------
 
 # -------- FUNCTION DEFINITION --------
-def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, ZeroNegativeExtinctionEntries = True, DeleteNegativeExtinctionEntries = True):
+def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange = "Delete"):
         """
         Takes files containing extinction, rotation measure data, and reference point data for the region of interest
         and calculates BLOS, returning a PANDAS accordingly.
 
         :param AvAbundancePath:  Path to extinction data produced by chemical evolution code
         :param ExtincRNPoints: Table (pandas dataframe) of non-reference points.
-        :param fiducialRM
-        :param fiducialRMAvgErr
-        :param fiducialRMStd
-        :param fiducialExtinction
+        :param fiducialRM: Reference RM, representing the galactic RM contribution. On positions have this subtracted from them. Float.
+        :param fiducialRMAvgErr: Average Error of the Reference RM. Float.
+        :param fiducialRMStd: Standard Deviation of the Reference RM. Float.
+        :param fiducialExtinction: Reference extinction of the galactic contribution. On positions have this subtracted from them. Float.
+        :param NegativeExtinctionEntriesChange: What to do about negative scaled extinction entries. Default is set to Delete. String.
         """
 
         # -------- SELECT EXTINCTION RM POINT DATA --------
@@ -149,7 +166,7 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
         # -------- CALCULATE THE MAGNETIC FIELD. --------
 
         # -------- CORRECT NEGATIVE SCALED EXTINCTION VALUES. --------
-        if ZeroNegativeExtinctionEntries:
+        if NegativeExtinctionEntriesChange == "Zero":
             negativeScaledExtinctionIndex = BLOSData[BLOSData['Scaled_Extinction'] < 0].index.tolist()
             BLOSData.loc[negativeScaledExtinctionIndex, 'Raw_Magnetic_FieldMagnetic_Field(uG)'] = 0
             BLOSData.loc[negativeScaledExtinctionIndex, 'Magnetic_Field(uG)'] = 0
@@ -159,7 +176,7 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
             BLOSData.loc[negativeScaledExtinctionIndex, 'BScaled_RM_ERR_with_0.05Uncty&StDev'] = 0
             BLOSData.loc[negativeScaledExtinctionIndex, 'BScaled_RM_ERR_with_0.05Uncty'] = 0
 
-        if DeleteNegativeExtinctionEntries:
+        elif NegativeExtinctionEntriesChange == "Delete":
             negativeScaledExtinctionIndex = BLOSData[BLOSData['Scaled_Extinction'] < 0].index.tolist()
             BLOSData.drop(negativeScaledExtinctionIndex, inplace = True)
         # -------- CORRECT NEGATIVE SCALED EXTINCTION VALUES. --------

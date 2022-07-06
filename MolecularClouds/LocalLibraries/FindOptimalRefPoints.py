@@ -1,6 +1,6 @@
 """
-This file contains the script to find the optimal number of reference points out of a given set.
-It is used in the third stage of the BLOS Mapping Method.
+Contains the script to find the optimal number of reference points out of a given set.
+Used in the third stage of the BLOS Mapping Method.
 """
 import pandas as pd
 import numpy as np
@@ -161,6 +161,12 @@ def stabilityCheckAlg(DataNoRef):
     return Optimal_NumRefPoints
 
 def stabilityTrendGraph(DataNoRef, saveFigurePath):
+    '''
+
+    :param DataNoRef:
+    :param saveFigurePath:
+    :return:
+    '''
     Identifiers = list(DataNoRef.index)
     # -------- CREATE A FIGURE --------
     plt.figure(figsize=(6, 4), dpi=120, facecolor='w', edgecolor='k')
@@ -188,6 +194,13 @@ def stabilityTrendGraph(DataNoRef, saveFigurePath):
     # -------- CREATE A FIGURE. --------
 
 def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
+    '''
+
+    :param potentialRefPoints:
+    :param ExtincRMTable:
+    :param regionOfInterest:
+    :return:
+    '''
     # -------- CREATE A TABLE FOR ALL BLOS DATA --------
     # The rows of this table will represent the number of reference points and the columns of this table will
     # represent the individual BLOS points.  Each entry in the table is a calculated BLOS value.
@@ -222,35 +235,36 @@ def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
 
 
 def FindOptimalRefPoints(regionOfInterest, potentialRefPoints, saveFigurePath):
-        """
-        This function determines the optimal number of reference points from a table of potential reference points
+    """
+    This function determines the optimal number of reference points from a table of potential reference points
 
-        :param cloudName: Name of the region of interest
-        :param potentialRefPoints: Table of potential reference points
-        :param saveFigurePath: Path to where the Blos vs Nref figure is saved
-        """
+    :param cloudName: Name of the region of interest
+    :param potentialRefPoints: Table of potential reference points
+    :param saveFigurePath: Path to where the Blos vs Nref figure is saved
+    """
 
-        # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA --------
-        MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
-        matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
-        # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA. --------
+    # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA --------
+    MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud,
+                                       config.prefix_RMExtinctionMatch + config.cloud + '.txt')
+    matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
+    # -------- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA. --------
 
-        DataNoRef = findTrendData(potentialRefPoints, matchedRMExtinctionData, regionOfInterest)
-        DataNoRef.to_csv(
-            os.path.join(config.dir_root, config.dir_fileOutput, config.prefix_OptRefPoints + config.cloud + '.txt'))
+    DataNoRef = findTrendData(potentialRefPoints, matchedRMExtinctionData, regionOfInterest)
+    DataNoRef.to_csv(
+        os.path.join(config.dir_root, config.dir_fileOutput, config.prefix_OptRefPoints + config.cloud + '.txt'))
 
-        stabilityTrendGraph(DataNoRef, saveFigurePath)
+    stabilityTrendGraph(DataNoRef, saveFigurePath)
 
-        TotalNumPoints = len(matchedRMExtinctionData)
-        '''
-        We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
-        number of candidate reference points.
-        '''
-        Optimal_NumRefPoints = stabilityCheckAlg(DataNoRef)
+    TotalNumPoints = len(matchedRMExtinctionData)
+    '''
+    We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
+    number of candidate reference points.
+    '''
+    Optimal_NumRefPoints = stabilityCheckAlg(DataNoRef)
 
-        # -------- FIND OPTIMAL NUM REF POINTS --------
-        # The number of reference points should be greater than 3 and less than half the total number of points
+    # -------- FIND OPTIMAL NUM REF POINTS --------
+    # The number of reference points should be greater than 3 and less than half the total number of points
 
-        Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if 4 < value < 0.5 * TotalNumPoints]
+    Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if 4 < value < 0.5 * TotalNumPoints]
 
-        return mode(Optimal_NumRefPoints_Selection)
+    return mode(Optimal_NumRefPoints_Selection)
