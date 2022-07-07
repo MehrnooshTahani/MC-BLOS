@@ -40,7 +40,7 @@ class Region:
         self.G0 = cloudParams['Cloud Info'].get('G0')  # can be 1 for most clouds unless clouds with many type o and b stars
         Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
         self.AvFileDir = os.path.join(config.dir_root, config.dir_data, config.dir_chemAbundance, Parameters)
-        self.AvFilePath = os.path.join(config.dir_root, config.dir_data, config.dir_chemAbundance, Parameters, 'Av_T0_n0.out')
+        self.AvFilePath = os.path.join(self.AvFileDir, 'Av_T0_n0.out')
 
         # Boundaries of the region of interest:
         self.raHoursMax = cloudParams['Cloud Info'].getfloat('raHoursmax')

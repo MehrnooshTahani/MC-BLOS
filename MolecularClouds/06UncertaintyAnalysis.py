@@ -34,16 +34,16 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-BFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
+BFilePath = config.BLOSPointsFile
 
-BData_DensityPathFragment = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity)
-BData_TempPathFragment = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity)
+BData_DensityPath = config.CloudDensSensDir
+BData_TempPath = config.CloudTempSensDir
 #Output Files
-saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSUncertainty + cloudName + '.txt')
+saveFilePath = config.BLOSUncertaintyFile
 # -------- DEFINE FILES AND PATHS --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script6Log.txt")
+saveScriptLogPath = config.Script06File
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
@@ -86,8 +86,8 @@ TempPercent = TempPercent[::-1]
 errDensPercent = []
 for densPercent in DensPercent:
     try:
-        BData_DensityIncreasePath = os.path.join(BData_DensityPathFragment, "B_Av_T0_n+{}.txt".format(densPercent))
-        BData_DensityDecreasePath = os.path.join(BData_DensityPathFragment, "B_Av_T0_n-{}.txt".format(densPercent))
+        BData_DensityIncreasePath = os.path.join(BData_DensityPath, "B_Av_T0_n+{}.txt".format(densPercent))
+        BData_DensityDecreasePath = os.path.join(BData_DensityPath, "B_Av_T0_n-{}.txt".format(densPercent))
         BChemDensIncrease = list(pd.read_csv(BData_DensityIncreasePath)['Magnetic_Field(uG)'])
         BChemDensDecrease = list(pd.read_csv(BData_DensityDecreasePath)['Magnetic_Field(uG)'])
         break
@@ -105,8 +105,8 @@ if len(errDensPercent) > 0:
 errTempPercent = []
 for tempPercent in TempPercent:
     try:
-        BData_TempIncreasePath = os.path.join(BData_TempPathFragment, "B_Av_T+{}_n0.txt".format(tempPercent))
-        BData_TempDecreasePath = os.path.join(BData_TempPathFragment, "B_Av_T-{}_n0.txt".format(tempPercent))
+        BData_TempIncreasePath = os.path.join(BData_TempPath, "B_Av_T+{}_n0.txt".format(tempPercent))
+        BData_TempDecreasePath = os.path.join(BData_TempPath, "B_Av_T-{}_n0.txt".format(tempPercent))
         BChemTempIncrease = list(pd.read_csv(BData_TempIncreasePath)['Magnetic_Field(uG)'])
         BChemTempDecrease = list(pd.read_csv(BData_TempDecreasePath)['Magnetic_Field(uG)'])
         break

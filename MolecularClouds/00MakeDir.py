@@ -36,7 +36,8 @@ if cloudName.lower() not in InFileOutput:
     os.mkdir(config.dir_temperatureSensitivity)
 
 # ---- CONFIGURE LOGGING
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script0Log.txt")
+saveScriptLogPath = config.Script00File
+print(saveScriptLogPath)
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # ---- CONFIGURE LOGGING
 

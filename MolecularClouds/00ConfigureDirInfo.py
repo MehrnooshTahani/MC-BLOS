@@ -29,7 +29,7 @@ configStartSettings['Judgement'] = {
     'On Disk Anti-Galactic Extinction Threshold': 1.5,
     'Off Disk Extinction Threshold': 1.,
 
-    'Near High Extinction Multiplier': 7,
+    'Near High Extinction Multiplier': 2,
     'Far High Extinction Multiplier': 28,
     'High Extinction Threshold Multiplier': 5,
     'Use Near High Extinction Exclusion': True,
@@ -73,33 +73,34 @@ configDirectoryAndNames['Output File Locations'] = {
     'Temperature Sensitivity': 'TemperatureSensitivity'
     }
 
-configDirectoryAndNames['Output File Prefixes'] = {
-    'RM Mapping': 'RMMapping',
+configDirectoryAndNames['Output Files'] = {
+    'RM Mapping': 'RMMapping.png',
 
-    'RM-Extinction Matching': 'MatchedRMExtinction',
-    'RM-Extinction Filtering': 'FilteredRMExtinction',
+    'RM-Extinction Matching': 'MatchedRMExtinction.csv',
+    'RM-Extinction Filtering': 'FilteredRMExtinction.csv',
 
-    'Near High-Extinction Rejected RM-Extinction': 'NearHighExtRej',
-    'Far High-Extinction Rejected RM-Extinction': 'FarHighExtRej',
-    'Anomalous Rejected RM-Extinction': 'AnomRej',
-    'Rejected RM-Extinction': 'Rejected',
-    'Remaining RM-Extinction': 'Remaining',
+    'Near High-Extinction Rejected RM-Extinction': 'NearHighExtRej.csv',
+    'Far High-Extinction Rejected RM-Extinction': 'FarHighExtRej.csv',
+    'Anomalous Rejected RM-Extinction': 'AnomRej.csv',
+    'Rejected RM-Extinction': 'Rejected.csv',
+    'Remaining RM-Extinction': 'Remaining.csv',
 
-    'All Potential Reference Points': 'AllPotentialRefPoints',
-    'Selected Reference Points': 'RefPoints',
-    'Reference Data': 'ReferenceData',
+    'All Potential Reference Points': 'AllPotentialRefPoints.csv',
+    'Selected Reference Points': 'RefPoints.csv',
+    'Reference Data': 'ReferenceData.csv',
 
-    'BLOS Point Data': 'BLOSPoints',
-    'BLOS Point Figure': 'BLOSPointMap',
-    'BLOS Uncertainties': 'FinalBLOSResults',
+    'BLOS Point Data': 'BLOSPoints.csv',
+    'BLOS Point Figure': 'BLOSPointMap.png',
+    'BLOS Uncertainties': 'FinalBLOSResults.csv',
 
-    'Optimal Reference Points': 'DataNoRef'
+    'Optimal Reference Points': 'DataNoRef.csv'
     }
 
 configDirectoryAndNames['Input File Locations'] = {
     'Input Data': 'Data',
     'Cloud Parameter Data': 'CloudParameters',
-    'Chemical Abundance Data': 'ChemicalAbundance'
+    'Chemical Abundance Data': 'ChemicalAbundance',
+    'RM Catalogue Data': 'RMCatalogue'
     }
 
 configDirectoryAndNames['Input Files'] = {

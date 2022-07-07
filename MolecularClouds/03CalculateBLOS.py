@@ -76,14 +76,14 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-FilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
-FilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
-FilePath_MatchedRMExtinc = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + cloudName + '.txt')
+FilePath_ReferencePoints = config.ChosenRefPointFile
+FilePath_ReferenceData = config.ChosenRefDataFile
+FilePath_MatchedRMExtinc = config.MatchedRMExtinctionFile
 
 #Output Files
-saveFilePath_BLOSPoints = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_BLOSPointData + config.cloud + '.txt')
-saveFigurePath_BLOSPointMap = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_BLOSPointFig + config.cloud + '.png')
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script3Log.txt")
+saveFilePath_BLOSPoints = config.BLOSPointsFile
+saveFigurePath_BLOSPointMap = config.BLOSPointsPlot
+saveScriptLogPath = config.Script03File
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------

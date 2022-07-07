@@ -81,26 +81,24 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 # ---- Input Files
-saveFilePath_ALlPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_allPotRefPoints + cloudName + '.txt')
-saveFilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_selRefPoints + cloudName + '.txt')
+AllPotRefPointsFile = config.AllPotRefPointFile
+ChosenRefPointFile = config.ChosenRefPointFile
 
-NearRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionNearRej + cloudName + '.txt')
-FarRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFarRej + cloudName + '.txt')
-AnomalousRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionAnomRej + cloudName + '.txt')
-RejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionRej + cloudName + '.txt')
-RemainingRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionRemaining + cloudName + '.txt')
+NearRejectedRefPointsPath = config.NearExtinctRefPointFile
+FarRejectedRefPointsPath = config.FarExtinctRefPointFile
+AnomalousRejectedRefPointsPath = config.AnomRefPointFile
+RejectedRefPointsPath = config.RejRefPointFile
+RemainingRefPointsPath = config.RemainingRefPointFile
 # ---- Input Files
 
 # ---- Output Files
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2cLog.txt")
+saveScriptLogPath = config.Script02cFile
+saveFigureDir_RefPointMap = config.CloudPlotsDir
 
-saveFigureDir_RefPointMap = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots)
-
-#saveQuadrantFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, cloudName + "QuadrantDivision.png") Quadrant division graph not implemented. Todo?
-
+saveQuadrantFigurePath = config.QuadrantDivisionPlotFile #Todo?
+saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = config.BLOSvsNRef_AllPlotFile
+saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = config.BLOSvsNRef_ChosenPlotFile
 # ---- Output Files
-saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
-saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
 
 # -------- DEFINE FILES AND PATHS. --------
 
@@ -116,7 +114,7 @@ wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-AllPotentialRefPoints = pd.read_csv(saveFilePath_ALlPotentialRefPoints)
+AllPotentialRefPoints = pd.read_csv(AllPotRefPointsFile)
 
 NearRejectedRefPoints = pd.read_csv(NearRejectedRefPointsPath)
 FarRejectedRefPoints = pd.read_csv(FarRejectedRefPointsPath)
@@ -124,7 +122,7 @@ AnomalousRejectedRefPoints = pd.read_csv(AnomalousRejectedRefPointsPath)
 RejectedRefPoints = pd.read_csv(RejectedRefPointsPath)
 RemainingRefPoints = pd.read_csv(RemainingRefPointsPath)
 
-chosenRefPoints = pd.read_csv(saveFilePath_ReferencePoints)
+chosenRefPoints = pd.read_csv(ChosenRefPointFile)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 #======================================================================================================================

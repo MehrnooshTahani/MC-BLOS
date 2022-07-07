@@ -19,14 +19,14 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-BScaledFileDir = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity)
-InitialPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_temperatureSensitivity + os.sep + 'B_Av_T0_n0.txt')
+BScaledFileDir = config.CloudTempSensDir
+InitialPath = config.TempBT0n0File
 #Output Files
-saveFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots + os.sep + 'BTemperatureSensitivity.png')
+saveFigurePath = config.BTempSensPlot
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script5bLog.txt")
+saveScriptLogPath = config.Script05bFile
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 

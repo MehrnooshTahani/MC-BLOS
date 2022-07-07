@@ -27,21 +27,20 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 # ---- Input Files
 # Matched rm and extinction data
-MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionMatch + cloudName + '.txt')
+MatchedRMExtincPath = config.MatchedRMExtinctionFile
 # Filtered rm and extinction data
-FilteredRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFiltered + cloudName + '.txt')
+FilteredRMExtincPath = config.FilteredRMExtinctionFile
 # ---- Input Files
 
 # ---- Output Files
-saveFilePath_ReferencePoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_selRefPoints + cloudName + '.txt')
-saveFilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
+chosenRefPointFile = config.ChosenRefPointFile
+chosenRefDataFile = config.ChosenRefDataFile
 
-saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
-saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
+BLOSvsNRef_AllPotRefPointsPlot = config.BLOSvsNRef_AllPlotFile
+BLOSvsNRef_ChosenPlotFile = config.BLOSvsNRef_ChosenPlotFile
 
-DataNoRefPath = os.path.join(config.dir_root, config.dir_fileOutput, config.prefix_OptRefPoints + config.cloud + '.txt')
-
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2bLog.txt")
+DataNoRefPath = config.DataNoRefFile
+saveScriptLogPath = config.Script02bFile
 # ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------
@@ -112,7 +111,7 @@ DataNoRef = orp.findTrendData(FilteredRefPoints, matchedRMExtinctionData, region
 DataNoRef.to_csv(DataNoRefPath)
 
 fig = orp.stabilityTrendGraph(DataNoRef)
-plt.savefig(saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
+plt.savefig(BLOSvsNRef_AllPotRefPointsPlot)
 TotalNumPoints = len(matchedRMExtinctionData)
 '''
 We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
@@ -121,8 +120,7 @@ number of candidate reference points.
 Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef)
 # -------- FIND OPTIMAL NUM REF POINTS --------
 # The number of reference points should be greater than 3 and less than half the total number of points
-
-Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if 4 < value < 0.5 * TotalNumPoints]
+Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if 3 < value < 0.5 * TotalNumPoints]
 OptimalNumRefPoints_from_AllPotentialRefPoints = orp.mode(Optimal_NumRefPoints_Selection)
 # -------- FIND OPTIMAL NUM REF POINTS --------
 
@@ -173,7 +171,7 @@ logging.info("Additional points are taken until quadrants which could meet the m
 logging.info("but do not from the stability-recommended points, meet the minimum sampling criteria.")
 logging.info("Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_After_Quadrants_Num]))
 logging.info("Given this information, the remaining table is \n {}.".format(chosenRefPoints))
-logging.info('Please review the BLOS trend stability plot at {}.'.format(saveFigurePath_BLOSvsNRef_AllPotentialRefPoints))
+logging.info('Please review the BLOS trend stability plot at {}.'.format(BLOSvsNRef_AllPotRefPointsPlot))
 # ---- Log info
 
 # -------- Solidify reference points. --------
@@ -203,12 +201,12 @@ plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color
                                                                                                 'points')
 plt.legend(loc='center right', bbox_to_anchor=(1.1, 0.5), ncol=2, framealpha=1)
 
-plt.savefig(saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints)
+plt.savefig(BLOSvsNRef_ChosenPlotFile)
 #plt.show()
 plt.close()
 
 logging.info(loggingDivider)
-logging.info('Saving the BLOS stability reassessment figure to '+saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints)
+logging.info('Saving the BLOS stability reassessment figure to ' + BLOSvsNRef_ChosenPlotFile)
 
 # -------- CREATE A FIGURE. --------
 # -------- REASSESS STABILITY. --------
@@ -260,19 +258,19 @@ referenceData['Reference RM AvgErr'] = [refAvgErr]
 # Standard error of the sampled mean:
 referenceData['Reference RM Std'] = [refRMStd]
 referenceData['Reference Extinction'] = [refExtinc]
-referenceData.to_csv(saveFilePath_ReferenceData, index=False)
+referenceData.to_csv(chosenRefDataFile, index=False)
 
 logging.info(loggingDivider)
-logging.info('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
-print('Reference values were saved to {}'.format(saveFilePath_ReferenceData))
+logging.info('Reference values were saved to {}'.format(chosenRefDataFile))
+print('Reference values were saved to {}'.format(chosenRefDataFile))
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------
 
 # -------- SAVE REFERENCE POINTS  --------
-chosenRefPoints.to_csv(saveFilePath_ReferencePoints, index=False)
+chosenRefPoints.to_csv(chosenRefPointFile, index=False)
 
 logging.info(loggingDivider)
-logging.info('Chosen reference points were saved to {}'.format(saveFilePath_ReferencePoints))
-print('Chosen reference points were saved to {}'.format(saveFilePath_ReferencePoints))
+logging.info('Chosen reference points were saved to {}'.format(chosenRefPointFile))
+print('Chosen reference points were saved to {}'.format(chosenRefPointFile))
 # -------- SAVE REFERENCE POINTS. --------
 
 #============================================================================================================

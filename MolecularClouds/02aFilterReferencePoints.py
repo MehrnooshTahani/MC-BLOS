@@ -28,21 +28,21 @@ regionOfInterest = Region(cloudName)
 
 # ---- Input Files
 # Matched rm and extinction data
-MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionMatch + cloudName + '.txt')
+MatchedRMExtincPath = config.MatchedRMExtinctionFile
 # ---- Input Files
 
 # ---- Output Files
-AllPotentialRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_allPotRefPoints + cloudName + '.txt')
+AllPotentialRefPointsPath = config.AllPotRefPointFile
 
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2aLog.txt")
+saveScriptLogPath = config.Script02aFile
 
-NearRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionNearRej + cloudName + '.txt')
-FarRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFarRej + cloudName + '.txt')
-AnomalousRejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionAnomRej + cloudName + '.txt')
-RejectedRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionRej + cloudName + '.txt')
-RemainingRefPointsPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionRemaining + cloudName + '.txt')
+NearRejectedRefPointsPath = config.NearExtinctRefPointFile
+FarRejectedRefPointsPath = config.FarExtinctRefPointFile
+AnomalousRejectedRefPointsPath = config.AnomRefPointFile
+RejectedRefPointsPath = config.RejRefPointFile
+RemainingRefPointsPath = config.RemainingRefPointFile
 
-FilteredRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_RMExtinctionFiltered + cloudName + '.txt')
+FilteredRMExtincPath = config.FilteredRMExtinctionFile
 # ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------

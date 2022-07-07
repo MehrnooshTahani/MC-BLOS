@@ -19,15 +19,15 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
-RefPointPath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_selRefPoints + config.cloud + '.txt')
-FilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.prefix_refData + cloudName + '.txt')
+MatchedRMExtincPath = config.MatchedRMExtinctionFile
+RefPointPath = config.ChosenRefPointFile
+FilePath_ReferenceData = config.ChosenRefDataFile
 #Output Files
-saveFileDir = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_densitySensitivity)
+saveFileDir = config.CloudDensSensDir
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script4aLog.txt")
+saveScriptLogPath = config.Script04aFile
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 

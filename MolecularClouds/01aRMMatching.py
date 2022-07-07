@@ -30,10 +30,10 @@ regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCatalogue)
-saveFilePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.prefix_RMExtinctionMatch + config.cloud + '.txt')
+RMCatalogPath = config.DataRMCatalogFile
 
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1aLog.txt")
+saveFilePath = config.MatchedRMExtinctionFile
+saveScriptLogPath = config.Script01aFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------

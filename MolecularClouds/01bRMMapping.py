@@ -25,8 +25,8 @@ regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-RMCatalogPath = os.path.join(config.dir_root, config.dir_data, config.file_RMCatalogue)
-saveFigurePath = os.path.join(config.dir_root, config.dir_fileOutput, config.cloud, config.dir_plots, config.prefix_rmMapping + config.cloud + '.png')
+RMCatalogPath = config.DataRMCatalogFile
+saveFigurePath = config.MatchedRMExtinctionPlotFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
