@@ -12,12 +12,9 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 
 from LocalLibraries.RegionOfInterest import Region
-
-from LocalLibraries.FindOptimalRefPoints import stabilityTrendGraph
-from LocalLibraries.FindOptimalRefPoints import findTrendData
-from LocalLibraries.FindOptimalRefPoints import FindOptimalRefPoints
-
 import LocalLibraries.config as config
+
+import LocalLibraries.OptimalRefPoints as orp
 import LocalLibraries.RefJudgeLib as rjl
 
 import logging
@@ -41,6 +38,8 @@ saveFilePath_ReferenceData = os.path.join(config.dir_root, config.dir_fileOutput
 
 saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_AllPotentialRefPoints.png')
 saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_plots, 'BLOS_vs_NRef_ChosenRefPoints.png')
+
+DataNoRefPath = os.path.join(config.dir_root, config.dir_fileOutput, config.prefix_OptRefPoints + config.cloud + '.txt')
 
 saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script2bLog.txt")
 # ---- Output Files
@@ -109,7 +108,24 @@ logging.info("consider raising your extinction threshold in your start settings 
 #============================================================================================================
 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
-OptimalNumRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, FilteredRefPoints, saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
+DataNoRef = orp.findTrendData(FilteredRefPoints, matchedRMExtinctionData, regionOfInterest)
+DataNoRef.to_csv(DataNoRefPath)
+
+fig = orp.stabilityTrendGraph(DataNoRef)
+plt.savefig(saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
+TotalNumPoints = len(matchedRMExtinctionData)
+'''
+We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
+number of candidate reference points.
+ '''
+Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef)
+# -------- FIND OPTIMAL NUM REF POINTS --------
+# The number of reference points should be greater than 3 and less than half the total number of points
+
+Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if 4 < value < 0.5 * TotalNumPoints]
+OptimalNumRefPoints_from_AllPotentialRefPoints = orp.mode(Optimal_NumRefPoints_Selection)
+# -------- FIND OPTIMAL NUM REF POINTS --------
+
 # -------- Solidify reference points. --------
 chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.useStableMinimum else [i for i in range(len(FilteredRefPoints.index))]
 chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
@@ -176,11 +192,11 @@ RefPoints = chosenRefPoints[:-1].append(FilteredRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
 
-DataNoRef = findTrendData(RefPoints, matchedRMExtinctionData, regionOfInterest)
+DataNoRef = orp.findTrendData(RefPoints, matchedRMExtinctionData, regionOfInterest)
 
 # -------- CREATE A FIGURE --------
 
-stabilityTrendGraph(DataNoRef, None)
+fig = orp.stabilityTrendGraph(DataNoRef)
 yLower, yUpper = plt.ylim()
 plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color='black', label='Suggested optimal '
                                                                                                 'number of reference '
