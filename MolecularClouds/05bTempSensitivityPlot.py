@@ -19,19 +19,19 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-BScaledFileDir = config.CloudTempSensDir
-InitialPath = config.TempBT0n0File
+CloudTempSensDir = config.CloudTempSensDir
+TempBT0n0File = config.TempBT0n0File
 #Output Files
-saveFigurePath = config.BTempSensPlot
+BTempSensPlot = config.BTempSensPlot
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = config.Script05bFile
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+LogFile = config.Script05bFile
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- EXTRACT ORIGINAL BLOS VALUES --------
-InitialBData = pd.read_csv(InitialPath)
+InitialBData = pd.read_csv(TempBT0n0File)
 B = list(InitialBData['Magnetic_Field(uG)'])
 # -------- EXTRACT ORIGINAL BLOS VALUES. --------
 
@@ -43,9 +43,9 @@ percent = ['-{}'.format(i) for i in p[::-1]] + ['0'] + ['+{}'.format(i) for i in
 errPercent = []
 for i, value in enumerate(percent):
     AvAbundanceName = 'Av_T' + value + '_n0'
-    BScaledFilePath = BScaledFileDir + os.sep + 'B_' + AvAbundanceName + '.txt'
+    BScaledFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
     try:
-        BScaledTemp = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
+        _ = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
     except:
         errPercent.append(BScaledFilePath)
         percent.remove(value)
@@ -63,7 +63,7 @@ AllBScaled = np.zeros([len(B), len(percent)])
 
 for i, value in enumerate(percent):
     AvAbundanceName = 'Av_T' + value + '_n0'
-    BScaledFilePath = BScaledFileDir + os.sep + 'B_' + AvAbundanceName + '.txt'
+    BScaledFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
     BScaledTemp = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
     AllBScaled[:, i] = BScaledTemp[:]
 # -------- EXTRACT BLOS FOR EACH PERCENT OF THE INPUT DENSITY. -------
@@ -103,8 +103,8 @@ plt.legend(loc='upper center', ncol=2)
 
 # ---- Display or save the figure
 # plt.show()
-plt.savefig(saveFigurePath)
+plt.savefig(BTempSensPlot)
 # ---- Display or save the figure.
-logging.info('Saving temp sensitivity figure to '+saveFigurePath)
-print('Saving temp sensitivity figure to '+saveFigurePath)
+logging.info('Saving temp sensitivity figure to ' + BTempSensPlot)
+print('Saving temp sensitivity figure to ' + BTempSensPlot)
 # -------- CREATE A FIGURE. --------

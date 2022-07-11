@@ -32,12 +32,12 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 RMCatalogPath = config.DataRMCatalogFile
 
-saveFilePath = config.MatchedRMExtinctionFile
-saveScriptLogPath = config.Script01aFile
+MatchedRMExtinctFile = config.MatchedRMExtinctionFile
+LogFile = config.Script01aFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
@@ -63,20 +63,28 @@ boxYMin = regionOfInterest.ymin
 boxYMax = regionOfInterest.ymax
 xmin, xmax, ymin, ymax = getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax)
 
-# Set default data values for missing data
-if config.fillMissing == 'Zero':
+# Set default data values for missing data for interpolation
+if config.fillMissingExtinct == 'Zero':
     data[nodata] = 0
-elif config.fillMissing == 'Average':
+elif config.fillMissingExtinct == 'Average':
     data[nodata] = np.average(data[np.isfinite(data)])
+elif config.fillMissingExtinct == 'Inf':
+    data[nodata] = math.inf
+elif config.fillMissingExtinct == 'Interpolate':
+    data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], nodata[ymin:ymax, xmin:xmax], config.interpMethod)
 else:
     data[nodata] = math.nan
+
+#Refresh the nodata situation depending on config decision.
+if config.useFillExtinct:
+    nodata = np.isnan(data)
 
 # Identify and remove bad data, defined as non-physical negative extinction values.
 baddata = data < 0
 data[ymin:ymax, xmin:xmax][baddata[ymin:ymax, xmin:xmax]] = np.nan
 
 # Handle bad data (negative/no values) by full fits-file interpolation, if turned on.
-if config.doInterpExtinct and config.interpAll:
+if config.doInterpExtinct and config.interpRegion == 'All':
     data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], config.interpMethod) #This step is computationally costly. It may be omitted if it is taking too long.
 # -------- PREPROCESS FITS DATA TYPE. --------
 
@@ -154,10 +162,11 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Skip the point if it violates a condition.
     inFitsFile = 0 <= px < data.shape[1] and 0 <= py < data.shape[0]
 
-    hasData = inFitsFile and data[py, px] != -1 and math.isfinite(data[py, px])
-    interpByPoint = config.doInterpExtinct and not config.interpAll
+    hasData = inFitsFile and not nodata[py, px]
+    physicalData = inFitsFile and not baddata[py, px]
+    interpByPoint = config.doInterpExtinct and config.interpRegion == 'Local'
 
-    validPoint = inFitsFile and (hasData or interpByPoint)
+    validPoint = inFitsFile and hasData and (physicalData or interpByPoint)
 
     #if not validPoint:
     if not validPoint:
@@ -165,7 +174,7 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Skip the point if it violates a condition.
 
     # ---- Interpolate Missing Data
-    if math.isnan(data[py, px]) and config.doInterpExtinct and not config.interpAll:
+    if not physicalData and interpByPoint:
         ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(px, py, data)
         data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
                                                                     baddata[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
@@ -201,7 +210,7 @@ for index in range(len(rmData.targetRotationMeasures)):
     for pxx in range(ind_xmin, ind_xmax):
         for pyy in range(ind_ymin, ind_ymax):
             # ---- Interpolate Missing Data
-            if math.isnan(data[pyy, pxx]) and not config.interpAll:
+            if math.isnan(data[pyy, pxx]) and config.interpRegion == 'Local':
                 ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(pxx, pyy, data)
                 data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
                                                                             baddata[ind_ymin:ind_ymax,
@@ -251,13 +260,13 @@ data = list(zip_longest(ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMVal
                         fillvalue=''))
 matchedRMExtinct = pd.DataFrame(data, columns=columns)
 matchedRMExtinct.index.name = 'ID#'
-matchedRMExtinct.to_csv(saveFilePath)
+matchedRMExtinct.to_csv(MatchedRMExtinctFile)
 # -------- WRITE TO A FILE. --------
 
 logging.info('\nWithin the specified region of interest, a total of {} rotation measure points were matched '
       'to visual extinction values.\n'.format(len(Identifier)))
-logging.info('Matched visual extinction and rotation measure data were saved to {}'.format(saveFilePath))
+logging.info('Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile))
 
 print('\nWithin the specified region of interest, a total of {} rotation measure points were matched '
       'to visual extinction values.\n'.format(len(Identifier)))
-print('Matched visual extinction and rotation measure data were saved to {}'.format(saveFilePath))
+print('Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile))

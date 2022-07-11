@@ -19,24 +19,24 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-MatchedRMExtincPath = config.MatchedRMExtinctionFile
-RefPointPath = config.ChosenRefPointFile
-FilePath_ReferenceData = config.ChosenRefDataFile
+MatchedRMExtinctFile = config.MatchedRMExtinctionFile
+ChosenRefPointFile = config.ChosenRefPointFile
+ChosenRefDataFile = config.ChosenRefDataFile
 #Output Files
-saveFileDir = config.CloudTempSensDir
+CloudTempSensDir = config.CloudTempSensDir
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = config.Script05aFile
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+LogFile = config.Script05aFile
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
-matchedRMExtincTable = pd.read_csv(MatchedRMExtincPath)
-refPointTable = pd.read_csv(RefPointPath)
-remainingTable = MREF.removeMatchingPoints(matchedRMExtincTable, refPointTable)
-refData = pd.read_csv(FilePath_ReferenceData)
-fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(refData)
+MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile)
+RefPointTable = pd.read_csv(ChosenRefPointFile)
+RemainingTable = MREF.removeMatchingPoints(MatchedRMExtinctTable, RefPointTable)
+RefData = pd.read_csv(ChosenRefDataFile)
+fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
 # -------- CALCULATE BLOS AS A FUNCTION OF PERCENT OF THE INPUT TEMPERATURE --------
@@ -50,9 +50,9 @@ errPercent = []
 for value in percent:
     AvAbundanceName = 'Av_T' + value + '_n0'
     AvAbundancePath = regionOfInterest.AvFileDir + os.sep + AvAbundanceName + '.out'
-    saveFilePath = saveFileDir + os.sep + 'B_' + AvAbundanceName + '.txt'
+    saveFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
     try:
-        B = CalculateB(AvAbundancePath, remainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+        B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
         B.to_csv(saveFilePath, index=False)
     except:
         logging.warning("Error! The following percentage change could not be calculated: {}".format(value))
@@ -66,6 +66,6 @@ if len(errPercent) > 0:
     logging.warning('Please review the results.')
     logging.info('-------------------------------------------------------------------------------')
 
-logging.info('Saving calculated magnetic field values in the folder: '+saveFileDir)
-print('Saving calculated magnetic field values in the folder: '+saveFileDir)
+logging.info('Saving calculated magnetic field values in the folder: ' + CloudTempSensDir)
+print('Saving calculated magnetic field values in the folder: ' + CloudTempSensDir)
 # -------- CALCULATE BLOS AS A FUNCTION OF PERCENT OF THE INPUT TEMPERATURE. --------

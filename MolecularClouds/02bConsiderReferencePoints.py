@@ -27,26 +27,26 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 # ---- Input Files
 # Matched rm and extinction data
-MatchedRMExtincPath = config.MatchedRMExtinctionFile
+MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 # Filtered rm and extinction data
-FilteredRMExtincPath = config.FilteredRMExtinctionFile
+FilteredRMExtinctFile = config.FilteredRMExtinctionFile
 # ---- Input Files
 
 # ---- Output Files
-chosenRefPointFile = config.ChosenRefPointFile
-chosenRefDataFile = config.ChosenRefDataFile
+ChosenRefPointFile = config.ChosenRefPointFile
+ChosenRefDataFile = config.ChosenRefDataFile
 
 BLOSvsNRef_AllPotRefPointsPlot = config.BLOSvsNRef_AllPlotFile
 BLOSvsNRef_ChosenPlotFile = config.BLOSvsNRef_ChosenPlotFile
 
 DataNoRefPath = config.DataNoRefFile
-saveScriptLogPath = config.Script02bFile
+LogFile = config.Script02bFile
 # ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 loggingDivider = "====================================================================================================="
 # -------- CONFIGURE LOGGING --------
 
@@ -56,12 +56,18 @@ hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
+# -------- PREPROCESS FITS DATA TYPE. --------
+# If fitsDataType is column density, then convert to visual extinction
+if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
+    hdu.data = hdu.data / config.VExtinct_2_Hcol
+# -------- PREPROCESS FITS DATA TYPE. --------
+
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
+MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
-FilteredRefPoints = pd.read_csv(FilteredRMExtincPath)
+FilteredRefPoints = pd.read_csv(FilteredRMExtinctFile)
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
 
 #============================================================================================================
@@ -107,12 +113,12 @@ logging.info("consider raising your extinction threshold in your start settings 
 #============================================================================================================
 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
-DataNoRef = orp.findTrendData(FilteredRefPoints, matchedRMExtinctionData, regionOfInterest)
+DataNoRef = orp.findTrendData(FilteredRefPoints, MatchedRMExtinctionData, regionOfInterest)
 DataNoRef.to_csv(DataNoRefPath)
 
 fig = orp.stabilityTrendGraph(DataNoRef)
 plt.savefig(BLOSvsNRef_AllPotRefPointsPlot)
-TotalNumPoints = len(matchedRMExtinctionData)
+TotalNumPoints = len(MatchedRMExtinctionData)
 '''
 We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
 number of candidate reference points.
@@ -190,7 +196,7 @@ RefPoints = chosenRefPoints[:-1].append(FilteredRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
 
-DataNoRef = orp.findTrendData(RefPoints, matchedRMExtinctionData, regionOfInterest)
+DataNoRef = orp.findTrendData(RefPoints, MatchedRMExtinctionData, regionOfInterest)
 
 # -------- CREATE A FIGURE --------
 
@@ -258,19 +264,19 @@ referenceData['Reference RM AvgErr'] = [refAvgErr]
 # Standard error of the sampled mean:
 referenceData['Reference RM Std'] = [refRMStd]
 referenceData['Reference Extinction'] = [refExtinc]
-referenceData.to_csv(chosenRefDataFile, index=False)
+referenceData.to_csv(ChosenRefDataFile, index=False)
 
 logging.info(loggingDivider)
-logging.info('Reference values were saved to {}'.format(chosenRefDataFile))
-print('Reference values were saved to {}'.format(chosenRefDataFile))
+logging.info('Reference values were saved to {}'.format(ChosenRefDataFile))
+print('Reference values were saved to {}'.format(ChosenRefDataFile))
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------
 
 # -------- SAVE REFERENCE POINTS  --------
-chosenRefPoints.to_csv(chosenRefPointFile, index=False)
+chosenRefPoints.to_csv(ChosenRefPointFile, index=False)
 
 logging.info(loggingDivider)
-logging.info('Chosen reference points were saved to {}'.format(chosenRefPointFile))
-print('Chosen reference points were saved to {}'.format(chosenRefPointFile))
+logging.info('Chosen reference points were saved to {}'.format(ChosenRefPointFile))
+print('Chosen reference points were saved to {}'.format(ChosenRefPointFile))
 # -------- SAVE REFERENCE POINTS. --------
 
 #============================================================================================================

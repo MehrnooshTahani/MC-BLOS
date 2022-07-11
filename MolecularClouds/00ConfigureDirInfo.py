@@ -19,9 +19,11 @@ configStartSettings['Cloud'] = {
     'Cloud': 'Oriona',
     }
 configStartSettings['Judgement'] = {
-    'Fill Missing Data': 'Nan',
+    'Fill Missing Interp Data': 'Nan',
+    'Use Filled Values in RM Matching': False,
+
     'Interpolate Bad Extinction Values': True,
-    'Interpolate All': False,
+    'Interpolate Region': 'Local',
     'Interpolation Method': 'linear',
 
     'Off Disk Latitude': 15.,

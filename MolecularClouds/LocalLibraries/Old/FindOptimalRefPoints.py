@@ -132,7 +132,7 @@ def findTrendData(potentialRefPoints, MatchedRMExtincPath, regionOfInterest):
         # -------- Extract {num} points from the table of potential reference points.
 
         # -------- Use the candidate reference points to calculate BLOS
-        #B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
+        #B = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtinctFile, candidateRefPoints, BLOSUncertaintyFile=None)
         #BLOSData = B.BLOSData.set_index('ID#', drop=True)
         BLOSData = CalculateB(regionOfInterest.AvFilePath, MatchedRMExtincPath, candidateRefPoints, saveFilePath=None)
         BLOSData = BLOSData.set_index('ID#', drop=True)

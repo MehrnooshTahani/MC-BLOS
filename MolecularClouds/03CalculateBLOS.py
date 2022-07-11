@@ -76,26 +76,26 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-FilePath_ReferencePoints = config.ChosenRefPointFile
-FilePath_ReferenceData = config.ChosenRefDataFile
-FilePath_MatchedRMExtinc = config.MatchedRMExtinctionFile
+ChosenRefPointFile = config.ChosenRefPointFile
+ChosenRefDataFile = config.ChosenRefDataFile
+MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 
 #Output Files
-saveFilePath_BLOSPoints = config.BLOSPointsFile
-saveFigurePath_BLOSPointMap = config.BLOSPointsPlot
-saveScriptLogPath = config.Script03File
+BLOSPointsFile = config.BLOSPointsFile
+BLOSPointsPlotFile = config.BLOSPointsPlot
+LogFile = config.Script03File
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
-matchedRMExtincTable = pd.read_csv(FilePath_MatchedRMExtinc)
-refPointTable = pd.read_csv(FilePath_ReferencePoints)
-remainingTable = MREF.removeMatchingPoints(matchedRMExtincTable, refPointTable)
-refData = pd.read_csv(FilePath_ReferenceData)
-fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(refData)
+MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile)
+RefPointTable = pd.read_csv(ChosenRefPointFile)
+RemainingPointTable = MREF.removeMatchingPoints(MatchedRMExtinctTable, RefPointTable)
+RefData = pd.read_csv(ChosenRefDataFile)
+fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
 # -------- READ FITS FILE --------
@@ -104,13 +104,19 @@ hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
+# -------- PREPROCESS FITS DATA TYPE. --------
+# If fitsDataType is column density, then convert to visual extinction
+if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
+    hdu.data = hdu.data / config.VExtinct_2_Hcol
+# -------- PREPROCESS FITS DATA TYPE. --------
+
 # =====================================================================================================================
 
 # -------- CALCULATE BLOS --------
-BLOSData = CalculateB(regionOfInterest.AvFilePath, remainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-BLOSData.to_csv(saveFilePath_BLOSPoints, index=False)
-logging.info('Saving calculated magnetic field values to '+saveFilePath_BLOSPoints)
-print('Saving calculated magnetic field values to '+saveFilePath_BLOSPoints)
+BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+BLOSData.to_csv(BLOSPointsFile, index=False)
+logging.info('Saving calculated magnetic field values to ' + BLOSPointsFile)
+print('Saving calculated magnetic field values to ' + BLOSPointsFile)
 # -------- CALCULATE BLOS. --------
 
 # =====================================================================================================================
@@ -150,7 +156,7 @@ pt.labelPoints(ax, n, x, y)
 # -------- PREPARE TO PLOT REF BLOS POINTS --------
 # ---- CALCULATE REF POINT BLOS.
 #Utilized only for the plot which includes the reference points used to find the BLOS
-RefBLOSData = CalculateB(regionOfInterest.AvFilePath, refPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange="None")
+RefBLOSData = CalculateB(regionOfInterest.AvFilePath, RefPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange="None")
 # ---- CALCULATE REF POINT BLOS.
 
 Refn = list(RefBLOSData['ID#'])
@@ -254,9 +260,9 @@ ax.text(0.02, 0.98, offPointsText, transform=ax.transAxes, fontsize=10, vertical
 
 # ---- Display or save the figure
 # plt.show()
-plt.savefig(saveFigurePath_BLOSPointMap)
+plt.savefig(BLOSPointsPlotFile)
 plt.close()
 # ---- Display or save the figure.
-logging.info('Saving BLOS figure to '+saveFigurePath_BLOSPointMap)
-print('Saving BLOS figure to '+saveFigurePath_BLOSPointMap)
+logging.info('Saving BLOS figure to ' + BLOSPointsPlotFile)
+print('Saving BLOS figure to ' + BLOSPointsPlotFile)
 # -------- CREATE A FIGURE - BLOS POINT MAP. --------

@@ -113,6 +113,12 @@ hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
+# -------- PREPROCESS FITS DATA TYPE. --------
+# If fitsDataType is column density, then convert to visual extinction
+if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
+    hdu.data = hdu.data / config.VExtinct_2_Hcol
+# -------- PREPROCESS FITS DATA TYPE. --------
+
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 AllPotentialRefPoints = pd.read_csv(AllPotRefPointsFile)
 

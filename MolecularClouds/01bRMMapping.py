@@ -25,13 +25,13 @@ regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-RMCatalogPath = config.DataRMCatalogFile
-saveFigurePath = config.MatchedRMExtinctionPlotFile
+RMCatalogFile = config.DataRMCatalogFile
+MatchedRMExtinctPlotFile = config.MatchedRMExtinctionPlotFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1bLog.txt")
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+LogFile = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1bLog.txt")
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
@@ -40,9 +40,15 @@ hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
+# -------- PREPROCESS FITS DATA TYPE. --------
+# If fitsDataType is column density, then convert to visual extinction
+if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
+    hdu.data = hdu.data / config.VExtinct_2_Hcol
+# -------- PREPROCESS FITS DATA TYPE. --------
+
 # -------- READ ROTATION MEASURE FILE --------
 # Get all the rm points within the region of interest
-rmData = RMCatalog(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax,
+RMData = RMCatalog(RMCatalogFile, regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax,
                    regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin,
                    regionOfInterest.decDegMax, regionOfInterest.decDegMin)
 # -------- READ ROTATION MEASURE FILE. --------
@@ -50,11 +56,11 @@ rmData = RMCatalog(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.
 # -------- PREPARE TO PLOT ROTATION MEASURES --------
 
 # ---- Convert Ra and Dec of RMs into pixel values of the fits file
-x, y = cl.RADec2xy(rmData.targetRaHourMinSecToDeg, rmData.targetDecDegArcMinSecs, wcs)
+x, y = cl.RADec2xy(RMData.targetRaHourMinSecToDeg, RMData.targetDecDegArcMinSecs, wcs)
 # ---- Convert Ra and Dec of RMs into pixel values of the fits file.
 
 # ---- Determine the color and size of the RM points on the plot.
-color, size = rmpl.rm2RGB(rmData.targetRotationMeasures)
+color, size = rmpl.rm2RGB(RMData.targetRotationMeasures)
 # ---- Determine the color and size of the RM points on the plot.
 
 # -------- PREPARE TO PLOT ROTATION MEASURES. --------
@@ -97,7 +103,7 @@ frame.set_facecolor('1')
 frame.set_alpha(0.4)
 # ---- Style the legend.
 
-plt.savefig(saveFigurePath, bbox_inches='tight')
-print('Saving RM Matching figure to '+saveFigurePath)
-logging.info('Saving RM Matching figure to '+saveFigurePath)
+plt.savefig(MatchedRMExtinctPlotFile, bbox_inches='tight')
+print('Saving RM Matching figure to ' + MatchedRMExtinctPlotFile)
+logging.info('Saving RM Matching figure to ' + MatchedRMExtinctPlotFile)
 # -------- CREATE A FIGURE. --------

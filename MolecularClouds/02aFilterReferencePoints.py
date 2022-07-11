@@ -28,19 +28,19 @@ regionOfInterest = Region(cloudName)
 
 # ---- Input Files
 # Matched rm and extinction data
-MatchedRMExtincPath = config.MatchedRMExtinctionFile
+MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 # ---- Input Files
 
 # ---- Output Files
-AllPotentialRefPointsPath = config.AllPotRefPointFile
+AllPotRefPointsPath = config.AllPotRefPointFile
 
-saveScriptLogPath = config.Script02aFile
+LogFile = config.Script02aFile
 
-NearRejectedRefPointsPath = config.NearExtinctRefPointFile
-FarRejectedRefPointsPath = config.FarExtinctRefPointFile
-AnomalousRejectedRefPointsPath = config.AnomRefPointFile
-RejectedRefPointsPath = config.RejRefPointFile
-RemainingRefPointsPath = config.RemainingRefPointFile
+NearRejectedRefPointsFile = config.NearExtinctRefPointFile
+FarRejectedRefPointsFile = config.FarExtinctRefPointFile
+AnomRejRefPointFile = config.AnomRefPointFile
+RejRefPointFile = config.RejRefPointFile
+RemainingRefPointsFile = config.RemainingRefPointFile
 
 FilteredRMExtincPath = config.FilteredRMExtinctionFile
 # ---- Output Files
@@ -48,7 +48,7 @@ FilteredRMExtincPath = config.FilteredRMExtinctionFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 loggingDivider = "====================================================================================================="
 # -------- CONFIGURE LOGGING --------
 
@@ -58,8 +58,14 @@ hdu = hdulist[0]
 wcs = WCS(hdu.header)
 # -------- READ FITS FILE. --------
 
+# -------- PREPROCESS FITS DATA TYPE. --------
+# If fitsDataType is column density, then convert to visual extinction
+if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
+    hdu.data = hdu.data / config.VExtinct_2_Hcol
+# -------- PREPROCESS FITS DATA TYPE. --------
+
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-matchedRMExtinctionData = pd.read_csv(MatchedRMExtincPath)
+MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # -------- LOAD THE THRESHOLD EXTINCTION --------
@@ -113,7 +119,7 @@ reference points
 - Here we extract these points and sort the resulting dataframe from smallest to greatest extinction 
 '''
 # All potential reference points are all reference points with extinction less than the threshold:
-dataframe = matchedRMExtinctionData.copy()
+dataframe = MatchedRMExtinctionData.copy()
 columnName = 'Extinction_Value'
 threshold = Av_threshold
 # Indices where the threshold is met in the given column
@@ -125,8 +131,8 @@ listIndRefPoints = [i for i in range(numAllRefPoints)]
 # -------- Criterion: Av < threshold.
 
 # ---- SAVE REFERENCE POINT DATA AS A TABLE
-if AllPotentialRefPointsPath is not None:
-    AllPotentialRefPoints.to_csv(AllPotentialRefPointsPath, index=False)
+if AllPotRefPointsPath is not None:
+    AllPotentialRefPoints.to_csv(AllPotRefPointsPath, index=False)
 # ---- SAVE REFERENCE POINT DATA AS A TABLE.
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
 
@@ -164,7 +170,6 @@ for i in list(AllPotentialRefPoints.index):
     idNum = AllPotentialRefPoints['ID#'][i]
     px = AllPotentialRefPoints['Extinction_Index_x'][i]
     py = AllPotentialRefPoints['Extinction_Index_y'][i]
-
     # ---- Find the extinction range for the given point
     if rjl.nearHighExtinction(px, py, hdu.data, NDeltNear, highExtinctionThreshold):
         nearHighExtinctionRegion.append(i)
@@ -186,8 +191,8 @@ PotRefPoints = [item for item in PotRefPoints if item not in farHighExtinctRejec
 NearRejectedRefPoints = AllPotentialRefPoints.loc[nearHighExtinctReject].sort_values('Extinction_Value')
 FarRejectedRefPoints = AllPotentialRefPoints.loc[farHighExtinctReject].sort_values('Extinction_Value')
 
-NearRejectedRefPoints.to_csv(NearRejectedRefPointsPath)
-FarRejectedRefPoints.to_csv(FarRejectedRefPointsPath)
+NearRejectedRefPoints.to_csv(NearRejectedRefPointsFile)
+FarRejectedRefPoints.to_csv(FarRejectedRefPointsFile)
 # ---- Record the points rejected for what reason, and what points remain as potential reference points.
 
 # ---- Log info
@@ -201,8 +206,8 @@ logging.info('The potential reference point(s) {} are far from a region of high 
 logging.info('As per configuration settings, near points will be removed: {}'.format(config.useNearExtinctionRemove))
 logging.info('As per configuration settings, far points will be removed: {}'.format(config.useFarExtinctionRemove))
 logging.info('As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints))
-logging.info('Near High Extinction Rejected Points data was saved to {}'.format(NearRejectedRefPointsPath))
-logging.info('Far from High Extinction Rejected Points data was saved to {}'.format(FarRejectedRefPointsPath))
+logging.info('Near High Extinction Rejected Points data was saved to {}'.format(NearRejectedRefPointsFile))
+logging.info('Far from High Extinction Rejected Points data was saved to {}'.format(FarRejectedRefPointsFile))
 # ---- Log info
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION. --------
@@ -211,8 +216,8 @@ logging.info('Far from High Extinction Rejected Points data was saved to {}'.for
 # -------- Define "anomalous"
 
 # Choose a rotation measure corresponding to anomalous
-rm_avg = np.mean(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])
-rm_std = np.std(matchedRMExtinctionData['Rotation_Measure(rad/m2)'])
+rm_avg = np.mean(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
+rm_std = np.std(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
 
 coeffSTD = config.anomalousSTDNum
 rm_upperLimit = rm_avg + coeffSTD * rm_std
@@ -233,7 +238,7 @@ RejectedReferencePoints += anomalousReject
 PotRefPoints = [item for item in PotRefPoints if item not in anomalousReject]
 
 AnomalousRejectedRefPoints = AllPotentialRefPoints.loc[anomalousReject].sort_values('Extinction_Value')
-AnomalousRejectedRefPoints.to_csv(AnomalousRejectedRefPointsPath)
+AnomalousRejectedRefPoints.to_csv(AnomRejRefPointFile)
 # ---- Log info
 logging.info(loggingDivider)
 logging.info('We will now check if any of the potential reference points have anomalous rotation measure values.')
@@ -242,7 +247,7 @@ logging.info("\t-Anomalous rotation measure values have been defined in the star
 logging.info('As per configuration settings, anomalous points will be removed: {}'.format(config.useAnomalousSTDNumRemove))
 logging.info('The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex))
 logging.info('As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints))
-logging.info('Anomalous Rejected Points data was saved to {}'.format(AnomalousRejectedRefPointsPath))
+logging.info('Anomalous Rejected Points data was saved to {}'.format(AnomRejRefPointFile))
 # ---- Log info
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES. --------
 
@@ -251,10 +256,10 @@ logging.info('Anomalous Rejected Points data was saved to {}'.format(AnomalousRe
 # -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
 RejectedRefPoints = AllPotentialRefPoints.loc[RejectedReferencePoints].sort_values('Extinction_Value')
 RemainingRefPoints = AllPotentialRefPoints.loc[PotRefPoints].sort_values('Extinction_Value')
-RejectedRefPoints.to_csv(RejectedRefPointsPath)
-RemainingRefPoints.to_csv(RemainingRefPointsPath)
-logging.info('Rejected Reference Points data was saved to {}'.format(RejectedRefPointsPath))
-logging.info('Remaining Reference Points data was saved to {}'.format(RemainingRefPointsPath))
+RejectedRefPoints.to_csv(RejRefPointFile)
+RemainingRefPoints.to_csv(RemainingRefPointsFile)
+logging.info('Rejected Reference Points data was saved to {}'.format(RejRefPointFile))
+logging.info('Remaining Reference Points data was saved to {}'.format(RemainingRefPointsFile))
 # -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
 
 #======================================================================================================================

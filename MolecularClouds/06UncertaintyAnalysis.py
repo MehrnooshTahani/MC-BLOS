@@ -34,21 +34,21 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-BFilePath = config.BLOSPointsFile
+BLOSPointsFile = config.BLOSPointsFile
 
-BData_DensityPath = config.CloudDensSensDir
-BData_TempPath = config.CloudTempSensDir
+CloudDensSensDir = config.CloudDensSensDir
+CloudTempSensDir = config.CloudTempSensDir
 #Output Files
-saveFilePath = config.BLOSUncertaintyFile
+BLOSUncertaintyFile = config.BLOSUncertaintyFile
 # -------- DEFINE FILES AND PATHS --------
 
 # -------- CONFIGURE LOGGING --------
-saveScriptLogPath = config.Script06File
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+LogFile = config.Script06File
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ BLOS DATA--------
-BData = pd.read_csv(BFilePath)
+BData = pd.read_csv(BLOSPointsFile)
 # -------- READ BLOS DATA. --------
 
 # -------- CREATE A TABLE FOR THE UNCERTAINTY DATA --------
@@ -86,8 +86,8 @@ TempPercent = TempPercent[::-1]
 errDensPercent = []
 for densPercent in DensPercent:
     try:
-        BData_DensityIncreasePath = os.path.join(BData_DensityPath, "B_Av_T0_n+{}.txt".format(densPercent))
-        BData_DensityDecreasePath = os.path.join(BData_DensityPath, "B_Av_T0_n-{}.txt".format(densPercent))
+        BData_DensityIncreasePath = os.path.join(CloudDensSensDir, "B_Av_T0_n+{}.txt".format(densPercent))
+        BData_DensityDecreasePath = os.path.join(CloudDensSensDir, "B_Av_T0_n-{}.txt".format(densPercent))
         BChemDensIncrease = list(pd.read_csv(BData_DensityIncreasePath)['Magnetic_Field(uG)'])
         BChemDensDecrease = list(pd.read_csv(BData_DensityDecreasePath)['Magnetic_Field(uG)'])
         break
@@ -105,8 +105,8 @@ if len(errDensPercent) > 0:
 errTempPercent = []
 for tempPercent in TempPercent:
     try:
-        BData_TempIncreasePath = os.path.join(BData_TempPath, "B_Av_T+{}_n0.txt".format(tempPercent))
-        BData_TempDecreasePath = os.path.join(BData_TempPath, "B_Av_T-{}_n0.txt".format(tempPercent))
+        BData_TempIncreasePath = os.path.join(CloudTempSensDir, "B_Av_T+{}_n0.txt".format(tempPercent))
+        BData_TempDecreasePath = os.path.join(CloudTempSensDir, "B_Av_T-{}_n0.txt".format(tempPercent))
         BChemTempIncrease = list(pd.read_csv(BData_TempIncreasePath)['Magnetic_Field(uG)'])
         BChemTempDecrease = list(pd.read_csv(BData_TempDecreasePath)['Magnetic_Field(uG)'])
         break
@@ -155,8 +155,8 @@ FinalBLOSResults['TotalLowerBUncertainty'] = BTotalLowerUncertainty
 # -------- CALCULATE UNCERTAINTIES. --------
 
 # -------- SAVE FINAL BLOS RESULTS --------
-FinalBLOSResults.to_csv(saveFilePath, index=False)
+FinalBLOSResults.to_csv(BLOSUncertaintyFile, index=False)
 
-logging.info('Saving calculated magnetic field values and associated uncertainties to '+saveFilePath)
-print('Saving calculated magnetic field values and associated uncertainties to '+saveFilePath)
+logging.info('Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile)
+print('Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile)
 # -------- SAVE FINAL BLOS RESULTS --------

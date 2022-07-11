@@ -11,10 +11,11 @@ configStartSettings.read('configStartSettings.ini')
 cloud = configStartSettings['Cloud'].get('Cloud')
 
 #Judgement
-fillMissing = configStartSettings['Judgement'].get('Fill Missing Data')
+fillMissingExtinct = configStartSettings['Judgement'].get('Fill Missing Interp Data')
+useFillExtinct = configStartSettings['Judgement'].getboolean('Use Filled Values in RM Matching')
 
-doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Bad Extinction Values')
-interpAll = configStartSettings['Judgement'].getboolean('Interpolate All')
+doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Negative Extinction Values')
+interpRegion = configStartSettings['Judgement'].get('Interpolate Region')
 interpMethod = configStartSettings['Judgement'].get('Interpolation Method')
 
 offDiskLatitude = configStartSettings['Judgement'].getfloat('Off Disk Latitude')
