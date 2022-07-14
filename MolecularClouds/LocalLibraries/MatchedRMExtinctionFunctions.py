@@ -28,8 +28,7 @@ def getFiducialValues(refData):
     fiducialRM = np.mean(refData['Rotation_Measure(rad/m2)'])
     fiducialRMAvgErr = np.mean(refData['RM_Err(rad/m2)'])
     # Standard error of the sampled mean:
-    fiducialRMStd = np.std(refData['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(
-        len(refData['Rotation_Measure(rad/m2)']))
+    fiducialRMStd = np.std(refData['Rotation_Measure(rad/m2)'], ddof=1) / np.sqrt(len(refData['Rotation_Measure(rad/m2)']))
     fiducialExtinction = np.mean(refData['Extinction_Value'])
     # -------- FIND FIDUCIAL REFERENCE VALUES. --------
     return fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction

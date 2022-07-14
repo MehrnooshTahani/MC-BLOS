@@ -267,8 +267,29 @@ logging.info('Remaining Reference Points data was saved to {}'.format(RemainingR
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------
 chosenRefPoints_Num = [int(np.round(i)) for i in PotRefPoints]
 
+maxRefPoints = int(round(len(MatchedRMExtinctionData.index) * config.maxFracPointNum))
+if len(chosenRefPoints_Num) > maxRefPoints: chosenRefPoints_Num = chosenRefPoints_Num[:maxRefPoints]
+
 FilteredRMExtincPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value').reset_index()
 FilteredRMExtincPoints.to_csv(FilteredRMExtincPath)
+
+# ---- Check if the number of points left after filtering is good for further analysis.
+if len(FilteredRMExtincPoints.index) < 1:
+    logging.critical(loggingDivider)
+    logging.critical("Less than one potential reference points are left after filtering!")
+    logging.critical("No further analysis can be done, and all future scripts will error.")
+    logging.critical("Consider adjusting your judgement criteria in the config.")
+    logging.critical("Alternatively, consider getting more rotation measure data!")
+
+elif len(FilteredRMExtincPoints.index) == len(MatchedRMExtinctionData.index):
+    logging.critical(loggingDivider)
+    logging.critical("All matched RM-Extinction points remain after filtering!")
+    logging.critical("This will cause issues with stability trend analysis.")
+    logging.critical("Consider limiting how many points can be taken as off positions.")
+    logging.critical("This can be adjusted in the configs (Max Fraction Reference Points).")
+    logging.critical("Alternatively, consider getting more rotation measure data.")
+
+# ---- Check if the number of points left after filtering is good for further analysis.
 
 logging.info(loggingDivider)
 logging.info("The Remaining Reference Points will be:")

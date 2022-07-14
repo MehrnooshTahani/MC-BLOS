@@ -41,19 +41,22 @@ percent = ['-{}'.format(i) for i in p[::-1]] + ['0'] + ['+{}'.format(i) for i in
 
 # ---- Test to see if the files exist.
 errPercent = []
+errPercentFiles = []
 for i, value in enumerate(percent):
     AvAbundanceName = 'Av_T0_n' + value
     BScaledFilePath = CloudDensSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
     try:
-        _ = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
+        BScaledTemp = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
     except:
-        errPercent.append(BScaledFilePath)
-        percent.remove(value)
+        errPercent.append(value)
+        errPercentFiles.append(BScaledFilePath)
 
-if len(errPercent) > 0:
+percent = [item for item in percent if item not in errPercent]
+
+if len(errPercentFiles) > 0:
     logging.warning('-------------------------------------------------------------------------------')
     logging.warning('Warning: The following data have not been loaded due to an error.')
-    logging.warning('{}'.format(errPercent))
+    logging.warning('{}'.format(errPercentFiles))
     logging.warning('Please review the results.')
     logging.warning('-------------------------------------------------------------------------------')
 # ---- Test to see if the files exist.

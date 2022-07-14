@@ -151,7 +151,6 @@ def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
         # -------- Add calculated BLOS to the table of BLOS vs number of reference points
         AllData[str(num + 1)] = BLOSData['Magnetic_Field(uG)']
         # -------- Add calculated BLOS to the table of BLOS vs number of reference points
-
     # -------- CALCULATE BLOS AS A FUNCTION OF # REF POINTS. --------
 
     # -------- FIND OPTIMAL NUM REF POINTS --------

@@ -41,9 +41,8 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title):
 
     plt.title(title, fontsize=12, y=1.08)
     plt.scatter(x, y, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50)
-
     # ---- Annotate the chosen reference points
-    pt.labelPoints(ax, labels, x, y)
+    pt.labelPoints(ax, labels, x, y, textFix=config.textFix)
     # ---- Annotate the chosen reference points
     # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
     return fig, ax
@@ -62,13 +61,13 @@ def refPointPlot(titleFragment, saveFragment, cloudName, refPoints, hdu, regionO
     # -------- PREPARE TO PLOT REFERENCE POINTS --------
     title = titleFragment + 'Reference Points' + ' in the ' + cloudName + ' region\n'
     plotRefPoints(refPoints, hdu, regionOfInterest, title)
-
     # ---- Display or save the figure
     saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_' + saveFragment + '.png'
     plt.savefig(saveFigurePath_RefPointMap)
     plt.close()
     # ---- Display or save the figure.
     # ---- Log info
+    print('Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap)
     logging.info(loggingDivider)
     logging.info('Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap)
     # ---- Log info
@@ -130,7 +129,6 @@ RemainingRefPoints = pd.read_csv(RemainingRefPointsPath)
 
 chosenRefPoints = pd.read_csv(ChosenRefPointFile)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-
 #======================================================================================================================
 refPointPlot("All Potential ", "AllPotentialRefPoints", cloudName, AllPotentialRefPoints, hdu, regionOfInterest)
 refPointPlot("Near-High Extinction Rejected ", "NearExtinctRejectedRefPoints", cloudName, NearRejectedRefPoints, hdu, regionOfInterest)
@@ -164,7 +162,7 @@ ax.scatter(x, y, marker='o', facecolor=c, s=s, edgecolors='black')
 # -------- PREPARE TO PLOT REFERENCE POINTS. --------
 
 # ---- Annotate the chosen reference points
-pt.labelPoints(ax, labels, x, y)
+pt.labelPoints(ax, labels, x, y, textFix=config.textFix)
 # ---- Annotate the chosen reference points
 
 # -------- PREPARE TO PLOT REFERENCE POINTS --------
@@ -190,7 +188,7 @@ ax.scatter(xRej, yRej, marker='o', facecolor=c, s=s, edgecolors='black')
 # -------- PREPARE TO PLOT REFERENCE POINTS. --------
 
 # ---- Annotate the chosen reference points
-pt.labelPoints(ax, labelsRej, xRej, yRej)
+pt.labelPoints(ax, labelsRej, xRej, yRej, textFix=config.textFix)
 # ---- Annotate the chosen reference points
 # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
 

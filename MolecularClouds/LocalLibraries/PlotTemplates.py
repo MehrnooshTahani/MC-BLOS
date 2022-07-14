@@ -114,7 +114,7 @@ def setBoundsIfValid(ax, xmin, xmax, ymin, ymax):
     if not math.isnan(ymax) and not math.isnan(ymin):
         ax.set_ylim(ymin, ymax)
 
-def labelPoints(ax, labels, xCoords, yCoords, size = 9, color = 'w'):
+def labelPoints(ax, labels, xCoords, yCoords, size = 9, color = 'w', textFix = True):
     '''
     Labels points on a given graph given by the axis.
 
@@ -134,6 +134,7 @@ def labelPoints(ax, labels, xCoords, yCoords, size = 9, color = 'w'):
         # txt = ax.text(x_AllRef[i], y_AllRef[i], str(i + 1), size=9, color='w')
         txt = ax.text(xCoords[i], yCoords[i], label, size=size, color=color)
         text.append(txt)
-    adjustText.adjust_text(text)
+    if textFix:
+        adjustText.adjust_text(text)
     return text
     # ---- Annotate the chosen reference points

@@ -148,7 +148,7 @@ color, size = B2RGB(BLOS)
 plt.scatter(x, y, s=size, facecolor=color, marker='o', linewidth=.5, edgecolors='black')
 
 # ---- Annotate the BLOS Points
-pt.labelPoints(ax, n, x, y)
+pt.labelPoints(ax, n, x, y, textFix = config.textFix)
 #for i, txt in enumerate(n):
 #    ax.annotate(txt, (x[i], y[i]), size=9, color='w')
 # ---- Annotate the BLOS Points.
@@ -177,7 +177,7 @@ colorRef, sizeRef = B2G(RefBLOS)
 plt.scatter(xRef, yRef, s=sizeRef, facecolor=colorRef, marker='o', linewidth=.5, edgecolors='black')
 
 # ---- Annotate the BLOS Points
-pt.labelPoints(ax, Refn, xRef, yRef, color = 'magenta')
+pt.labelPoints(ax, Refn, xRef, yRef, color = 'magenta', textFix=config.textFix)
 #for i, txt in enumerate(Refn):
 #    ax.annotate(txt, (xRef[i], yRef[i]), size=9, color='w')
 # ---- Annotate the BLOS Points.

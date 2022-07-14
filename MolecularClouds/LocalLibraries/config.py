@@ -33,12 +33,18 @@ anomalousSTDNum = configStartSettings['Judgement'].getfloat('Anomalous Values St
 useAnomalousSTDNumRemove = configStartSettings['Judgement'].getboolean('Use Anomalous Values Exclusion')
 
 useStableMinimum = configStartSettings['Judgement'].getboolean('Use Minimum Stable Points')
+minStablePointNum = configStartSettings['Judgement'].getint('Minimum Stable Points to be Selected')
+
+maxFracPointNum = configStartSettings['Judgement'].getfloat('Max Fraction Reference Points')
+
 useQuadrantEnforce = configStartSettings['Judgement'].getboolean('Use Minimum Quadrant Sampling')
 minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points Per Quadrant')
 
 weightingScheme = configStartSettings['Judgement'].get('Weighting Scheme')
 
 #Plotting Options
+textFix = configStartSettings['Plotting Options'].getboolean('Adjust Text Positions')
+
 densityPlotNumPoints = configStartSettings['Plotting Options'].getint('Density Plot Number of Points')
 densityPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Minimum Extinction')
 densityPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Density Plot Maximum Extinction')
@@ -47,6 +53,7 @@ tempPlotNumPoints = configStartSettings['Plotting Options'].getint('Temperature 
 tempPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Minimum Extinction')
 tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Maximum Extinction')
 
+#Logging Options
 logFormat = configStartSettings['Logging'].get('Format')
 # -------- DEFINE STARTING VARIABLES. --------
 

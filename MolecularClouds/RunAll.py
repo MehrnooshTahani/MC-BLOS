@@ -1,15 +1,13 @@
 import subprocess
-
-#subprocess.run(["python", "00ConfigureDirInfo.py"], shell=True)
-subprocess.run(["python","00MakeDir.py"], shell=True)
-subprocess.run(["python","01aRMMatching.py"], shell=True)
-subprocess.run(["python","01bRMMapping.py"], shell=True)
-subprocess.run(["python","02aFilterReferencePoints.py"], shell=True)
-subprocess.run(["python","02bConsiderReferencePoints.py"], shell=True)
-subprocess.run(["python","02cMapReferencePoints.py"], shell=True)
-subprocess.run(["python","03CalculateBLOS.py"], shell=True)
-subprocess.run(["python","04aDensitySensitivity.py"], shell=True)
-subprocess.run(["python","04bDensitySensitivityPlot.py"], shell=True)
-subprocess.run(["python","05aTempSensitivity.py"], shell=True)
-subprocess.run(["python","05bTempSensitivityPlot.py"], shell=True)
-subprocess.run(["python","06UncertaintyAnalysis.py"], shell=True)
+scripts = ["00MakeDir.py",
+           "01aRMMatching.py","01bRMMapping.py",
+           "02aFilterReferencePoints.py","02bConsiderReferencePoints.py","02cMapReferencePoints.py",
+           "03CalculateBLOS.py",
+           "04aDensitySensitivity.py","04bDensitySensitivityPlot.py",
+           "05aTempSensitivity.py","05bTempSensitivityPlot.py",
+           "06UncertaintyAnalysis.py"]
+for script in scripts:
+    print("===========================================================")
+    print("Script: {}".format(script))
+    subprocess.run(["python", script], shell=True)
+#subprocess.run(["python", "00MakeConfig.py"], shell=True)

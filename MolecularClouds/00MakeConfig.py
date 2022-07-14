@@ -41,6 +41,9 @@ configStartSettings['Judgement'] = {
     'Use Anomalous Values Exclusion': True,
 
     'Use Minimum Stable Points': True,
+    'Minimum Stable Points to be Selected': 3,
+
+    'Max Fraction Reference Points': 0.5,
 
     'Use Minimum Quadrant Sampling': True,
     'Minimum Points Per Quadrant': 1,
@@ -48,6 +51,8 @@ configStartSettings['Judgement'] = {
     'Weighting Scheme': 'None'
     }
 configStartSettings['Plotting Options'] = {
+    'Adjust Text Positions': True,
+
     'Density Plot Number of Points': 100,
     'Density Plot Minimum Extinction': 0.5,
     'Density Plot Maximum Extinction': 1.5,
