@@ -6,7 +6,7 @@ catalogue
     SkyCoord package if desired.  Code to accomplish this is left in comments throughout the file
 """
 import numpy as np
-import MolecularClouds.LocalLibraries.ConversionLibrary as cl
+from . import ConversionLibrary as cl
 from astropy.coordinates import SkyCoord
 
 # -------- CLASS DEFINITION --------

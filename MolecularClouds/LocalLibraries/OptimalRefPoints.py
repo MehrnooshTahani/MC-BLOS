@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 import os
 import collections
 from .CalculateB import CalculateB
-import MolecularClouds.LocalLibraries.MatchedRMExtinctionFunctions as MREF
+from . import MatchedRMExtinctionFunctions as MREF
 #from statistics import mode #Before Python 3.8, errors when there are multiple modes. This is not behavior we desire.
-import MolecularClouds.LocalLibraries.config as config
+from . import config as config
 
 def mode(listInput):
     '''

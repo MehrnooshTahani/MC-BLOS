@@ -9,7 +9,7 @@ from astropy.io import fits
 import math
 import matplotlib.pyplot as plt
 from LocalLibraries.RegionOfInterest import Region
-from MolecularClouds.LocalLibraries.Old.FindAllPotentialRefPoints import FindAllPotentialReferencePoints
+from LocalLibraries.Old.FindAllPotentialRefPoints import FindAllPotentialReferencePoints
 from LocalLibraries.FindOptimalRefPoints import FindOptimalRefPoints
 import adjustText
 from LocalLibraries.CalculateB import CalculateB

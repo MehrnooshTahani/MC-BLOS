@@ -7,7 +7,7 @@ It is used in the third stage of the BLOS Mapping Method.
 import pandas as pd
 import numpy as np
 import os
-import MolecularClouds.LocalLibraries.config as config
+import LocalLibraries.config as config
 
 # -------- CLASS DEFINITION --------
 class FindAllPotentialReferencePoints:

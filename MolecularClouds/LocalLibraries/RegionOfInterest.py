@@ -6,7 +6,7 @@ The zeroth stage of the BLOSMapping method is to define regions of interest.
 import os
 from sys import exit
 from configparser import ConfigParser
-import MolecularClouds.LocalLibraries.config as config
+from . import config as config
 
 class Region:
     def __init__(self, regionName):

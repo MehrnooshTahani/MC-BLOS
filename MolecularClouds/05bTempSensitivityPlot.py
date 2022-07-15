@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
-from MolecularClouds.LocalLibraries.RegionOfInterest import Region
+from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 
 import logging

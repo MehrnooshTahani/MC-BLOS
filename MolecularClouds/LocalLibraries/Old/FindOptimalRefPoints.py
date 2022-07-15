@@ -9,7 +9,7 @@ import os
 import collections
 from .CalculateB import CalculateB
 #from statistics import mode #Before Python 3.8, errors when there are multiple modes. This is not behavior we desire.
-import MolecularClouds.LocalLibraries.config as config
+import LocalLibraries.config as config
 
 def mode(listInput):
     '''

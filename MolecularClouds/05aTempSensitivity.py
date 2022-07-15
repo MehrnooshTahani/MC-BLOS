@@ -5,7 +5,7 @@ This is the sixth stage the BLOSMapping method where the dependence on temperatu
 """
 from LocalLibraries.CalculateB import CalculateB
 import os
-from MolecularClouds.LocalLibraries.RegionOfInterest import Region
+from LocalLibraries.RegionOfInterest import Region
 import pandas as pd
 import LocalLibraries.config as config
 
