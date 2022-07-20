@@ -13,7 +13,7 @@ from LocalLibraries.RMCatalog import RMCatalog
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 import LocalLibraries.PlotTemplates as pt
-import LocalLibraries.RMPlotLibrary as rmpl
+import LocalLibraries.PlotUtils as putil
 import LocalLibraries.ConversionLibrary as cl
 
 import os
@@ -60,7 +60,7 @@ x, y = cl.RADec2xy(RMData.targetRaHourMinSecToDeg, RMData.targetDecDegArcMinSecs
 # ---- Convert Ra and Dec of RMs into pixel values of the fits file.
 
 # ---- Determine the color and size of the RM points on the plot.
-color, size = rmpl.rm2RGB(RMData.targetRotationMeasures)
+color, size = putil.p2RGB(RMData.targetRotationMeasures)
 # ---- Determine the color and size of the RM points on the plot.
 
 # -------- PREPARE TO PLOT ROTATION MEASURES. --------

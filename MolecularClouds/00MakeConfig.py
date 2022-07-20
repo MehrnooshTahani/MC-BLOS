@@ -62,7 +62,8 @@ configStartSettings['Plotting Options'] = {
     'Temperature Plot Maximum Extinction': 1.5,
 }
 configStartSettings['Logging'] = {
-    'Format': '%%(name)s - %%(levelname)s - %%(asctime)s - %%(message)s'
+    'Format': '%%(name)s - %%(levelname)s - %%(asctime)s - %%(message)s',
+    'Section Divider': "====================================================================================================="
 }
 with open('configStartSettings.ini', 'w') as output_file:
     configStartSettings.write(output_file)

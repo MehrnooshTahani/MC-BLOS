@@ -49,7 +49,7 @@ FilteredRMExtincPath = config.FilteredRMExtinctionFile
 
 # -------- CONFIGURE LOGGING --------
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
-loggingDivider = "====================================================================================================="
+loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------

@@ -38,7 +38,7 @@ LogFile = config.Script01aFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-loggingDivider = "====================================================================================================="
+loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 

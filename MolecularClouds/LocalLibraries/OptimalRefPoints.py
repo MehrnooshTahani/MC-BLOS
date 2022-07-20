@@ -160,74 +160,38 @@ def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
     DataNoRef = DataNoRef.reset_index(drop=True)
     return DataNoRef
 
+#======================================================================================================================
+#Experimental Functions.
+#======================================================================================================================
 
-def stabilityCheckAlg2(DataNoRef):
-    '''
-    The following algorithm searches for the number of candidate reference points where the trend of calculated BLOS
-     values stabilizes
-        - The algorithm checks the values of adjacent pairs of BLOS values
-        - If the BLOS values are similar, ie their difference is within a given threshold, then this is called a
-        "run"
-        - The algorithm searches for the number of reference points where the longest run occurs
+#Minimum number of reference points needed to land in the ballpark of average Av off.
+def minRefRMOff(potentialRefPoints, validDev):
+    fiducialRM, _, fiducialStd, _ = MREF.getFiducialValues(potentialRefPoints)
+    minPoints = 0
+    for num in range(len(potentialRefPoints)):
+        minPoints = num
 
-    This algorithm is used on every BLOS point that was not used as a reference point.  The optimal number of
-    reference points is taken to be the number of reference points where the longest run occurs most often
+        candidateRefPoints = potentialRefPoints.head(num+1)
+        candidateRM, _, candidateRMStd, _ = MREF.getFiducialValues(candidateRefPoints)
+        if abs(candidateRM-fiducialRM) < abs(fiducialStd * validDev):
+            break
+    return minPoints+1
 
-    We repeat this algorithm over all potential threshold values
-    :param DataNoRef:
-    :return: Optimal_NumRefPoints: The minimal number of reference points needed before the longest stable run.
-    '''
-    #UpperLimit = max([max(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
-    #LowerLimit = min([min(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
-    UpperLimit = max([max(abs(list(DataNoRef.loc[number]))) for number in DataNoRef.index])
-    LowerLimit = min([min(abs(list(DataNoRef.loc[number]))) for number in DataNoRef.index])
-    thresholds = np.linspace(LowerLimit, UpperLimit, 500)
-
-    Optimal_NumRefPoints = []
-
-    for threshold in thresholds:
-
-        LongestRun_NumRefPoints = []
-        LongestRun_Length = []
-
-        # For every point within the region of interest that was not used as a reference point:
-        for index in range(len(DataNoRef)):
-            y = list(DataNoRef.loc[index])  # List of BLOS values for the given point
-            x = list(np.arange(1, len(y) + 1))  # List of number of reference points
-
-            # -------- STABILITY TREND ALGORITHM --------
-            run_length = 1  # To keep track of how many similar values we get in a row
-            on_a_run = 0  # To indicate if we are on a run (1) or not (0)
-            run_started = []  # To keep track of the number of reference points where the run started
-            run = []  # To keep track of the total length of each run
-
-            # For each pair of adjacent BLOS values:
-            for i in range(1, len(y)):
-                # Find the absolute difference in adjacent BLOS values
-                diff = abs(y[i] - y[i - 1])
-
-                if diff <= threshold:
-                    # If the difference is below the threshold, then we have started, or are in, a "run" of similar
-                    # values
-                    run_length += 1
-                    if on_a_run == 0:
-                        # We have started a new run
-                        on_a_run = 1
-                        run_started.append(x[i - 1])
-
-                if diff > threshold or i == len(y) - 1:
-                    # If the difference was not below the threshold, or, if it is the end of the list of BLOS values
-                    if on_a_run == 1:
-                        # then if we were on a run, it ends
-                        run.append(run_length)
-                        on_a_run = 0
-                        run_length = 1
-            # -------- STABILITY TREND ALGORITHM --------
-
-            if len(run) > 0:
-                # We want to find the number of reference points where the longest run occurred
-                ind_longestRun = np.where(np.array(run) == max(run))[0][0]
-                LongestRun_NumRefPoints.append(run_started[ind_longestRun])
-                LongestRun_Length.append(max(run))
-        Optimal_NumRefPoints.append(mode(LongestRun_NumRefPoints))
-    return Optimal_NumRefPoints
+#Minimum number of reference points needed to land in the ballpark of the average Av on.
+def minRefRMOn(MatchedRMPts, potRMPts, validDev):
+    #Minimum points
+    minPoints = 0
+    for num in range(len(potRMPts)):
+        minPoints = num
+        #Get the off RM
+        candidateRefPoints = potRMPts.head(num + 1)
+        candidateRM, _, candidateRMStd, _ = MREF.getFiducialValues(candidateRefPoints)
+        #Get the average remaining RM
+        remainingTable = MREF.removeMatchingPoints(MatchedRMPts, candidateRefPoints)
+        fiducialRM, _, fiducialStd, _ = MREF.getFiducialValues(remainingTable)  # MREF.getFiducialValues(MatchedRMPts)
+        #If the off RM is close to the average RM, break
+        if abs(candidateRM - fiducialRM) < abs(fiducialStd * validDev):
+            break
+    #Account for numbering from 1, or exclusive range max.
+    minPoints = minPoints+1
+    return minPoints

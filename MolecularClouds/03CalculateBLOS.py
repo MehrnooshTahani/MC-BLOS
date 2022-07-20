@@ -13,6 +13,7 @@ from LocalLibraries.CalculateB import CalculateB
 import LocalLibraries.MatchedRMExtinctionFunctions as MREF
 import LocalLibraries.config as config
 import LocalLibraries.PlotTemplates as pt
+
 import math
 
 import logging
@@ -49,10 +50,10 @@ def B2RGB(b):
 # -------- FUNCTION DEFINITION --------
 def B2G(b, alpha = 1):
     """
-    Takes BLOS values and assigns them a marker colour and size for use in plotting BLOS data
+    Takes BLOS values and assigns them the colour green and variable size for use in plotting BLOS data
 
     :param b: The BLOS value, or list of BLOS values
-    :return:  A tuple of (colour, size) corresponding to the rotation measure. Note "colour" is a tuple of (RBG,alpha)
+    :return:  A tuple of (colour, size) corresponding to the rotation measure. Note "colour" is a tuple of (RBG,alpha), where the RGB will always be green.
     """
     c = []  # Marker colour
     s = []  # Marker size

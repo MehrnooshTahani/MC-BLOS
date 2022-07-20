@@ -6,9 +6,7 @@ catalogue
     SkyCoord package if desired.  Code to accomplish this is left in comments throughout the file
 """
 import numpy as np
-import pandas as pd
-
-from . import ConversionLibrary as cl
+from MolecularClouds.LocalLibraries import ConversionLibrary as cl
 from astropy.coordinates import SkyCoord
 
 # -------- CLASS DEFINITION --------
@@ -34,47 +32,33 @@ class RMCatalog:
 
         Structure of the Taylor et al. (2009) Rotation Measure Catalogue
         --------------------------------------------------------------------------------
-        columns Format   Units       Quantity
+        columns  Format  Units   Quantity
         --------------------------------------------------------------------------------
-        1-  2   I2       h           Hour of Right Ascension (J2000)
-        4-  5   I2       min         Minute of Right Ascension (J2000)
-        7- 11   F5.2     s           Second of Right Ascension (J2000)
-        13- 16  F4.2     s           1-sigma error in Right Ascension
-        18- 20  I3       deg         Degree of Declination (J2000)
-        22- 23  I2       arcmin      Arcminute of Declination (J2000)
-        25- 29  F5.2     arcsec      Arcsecond of Declination (J2000)
-        31- 33  F3.1     arcsec      1-sigma error in Declination
-        35- 43  F9.4     deg         Galactic longitude
-        45- 52  F8.4     deg         Galactic latitude
-        54- 60  F7.1     mJy         NVSS integrated Stokes I flux density
-        62- 66  F5.1     mJy         1-sigma error in Stokes I flux density
-        68- 74  F7.2     mJy         Average peak polarized intensity
-        76- 80  F5.2     mJy         1-sigma error in polarized intensity
-        82- 87  F6.2     %           Percent polarization (1)
-        89- 93  F5.2     %           1-sigma error in m
-        95-100  F6.1     rad/m2      Rotation Measusure
-        102-105 F4.1     rad/m2      1-sigma error in RM
+          1-  2 I2      h       Hour of Right Ascension (J2000)
+          4-  5 I2      min     Minute of Right Ascension (J2000)
+          7- 11 F5.2    s       Second of Right Ascension (J2000)
+         13- 16 F4.2    s       1-sigma error in Right Ascension
+         18- 20 I3      deg     Degree of Declination (J2000)
+         22- 23 I2      arcmin  Arcminute of Declination (J2000)
+        25- 29 F5.2    arcsec  Arcsecond of Declination (J2000)
+        31- 33 F3.1    arcsec  1-sigma error in Declination
+        35- 43 F9.4    deg     Galactic longitude
+        45- 52 F8.4    deg     Galactic latitude
+        54- 60 F7.1    mJy     NVSS integrated Stokes I flux density
+        62- 66 F5.1    mJy     1-sigma error in Stokes I flux density
+        68- 74 F7.2    mJy     Average peak polarized intensity
+        76- 80 F5.2    mJy     1-sigma error in polarized intensity
+        82- 87 F6.2    %       Percent polarization (1)
+        89- 93 F5.2    %       1-sigma error in m
+        95-100 F6.1   rad/m2   Rotation Measusure
+        102-105 F4.1   rad/m2   1-sigma error in RM
         """
-        RMCatalogueData = pd.read_csv(filename, delim_whitespace=True)
 
-        raHours = RMCatalogueData["raHours"]
-        raMins = RMCatalogueData["raMins"]
-        raSecs = RMCatalogueData["raSecs"]
-        raErrSecs = RMCatalogueData["raErrSecs"]
-        decDegs = RMCatalogueData["decDegs"]
-        decArcmins = RMCatalogueData["decArcmins"]
-        decArcsecs = RMCatalogueData["decArcsecs"]
-        decErrArcsecs = RMCatalogueData["decErrArcsecs"]
-        longitudeDegs = RMCatalogueData["longitudeDegs"]
-        latitudeDegs = RMCatalogueData["latitudeDegs"]
-        nvssStokesIs = RMCatalogueData["nvssStokesIs"]
-        stokesIErrs = RMCatalogueData["stokesIErrs"]
-        AvePeakPIs = RMCatalogueData["AvePeakPIs"]
-        PIErrs = RMCatalogueData["PIErrs"]
-        polarizationPercents = RMCatalogueData["polarizationPercents"]
-        mErrPercents = RMCatalogueData["mErrPercents"]
-        rotationMeasures = RMCatalogueData["rotationMeasures"]
-        RMErrs = RMCatalogueData["RMErrs"]
+        raHours, raMins, raSecs, raErrSecs, decDegs, decArcmins, decArcsecs, decErrArcsecs, longitudeDegs, \
+            latitudeDegs, nvssStokesIs, stokesIErrs, AvePeakPIs, PIErrs, polarizationPercets, mErrPercents, \
+            rotationMeasures, RMErrs = np.loadtxt(filename, usecols=(0, 1, 2, 4, 5, 6, 7, 9, 10,
+                                                                     11, 12, 14, 15, 17, 18, 20,
+                                                                     21, 23), unpack=True)
 
         self.targetRAHours = []  # Hour component of right ascension in hr:min:sec
         self.targetRAMins = []  # Minute component of right ascension in hr:min:sec
@@ -147,7 +131,7 @@ class RMCatalog:
                 self.targetStokesIErrs.append(stokesIErrs[index])
                 self.targetAvePeakPIs.append(AvePeakPIs[index])
                 self.targetPIErrs.append(PIErrs[index])
-                self.targetPolarizationPercets.append(polarizationPercents[index])
+                self.targetPolarizationPercets.append(polarizationPercets[index])
                 self.targetMErrPercents.append(mErrPercents[index])
                 self.targetRotationMeasures.append(rotationMeasures[index])
                 self.targetRMErrs.append(RMErrs[index])

@@ -13,7 +13,7 @@ from LocalLibraries.RegionOfInterest import Region
 
 import LocalLibraries.config as config
 import LocalLibraries.PlotTemplates as pt
-import LocalLibraries.RMPlotLibrary as rmpl
+import LocalLibraries.PlotUtils as putil
 
 import logging
 
@@ -103,7 +103,7 @@ saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = config.BLOSvsNRef_ChosenPlo
 
 # -------- CONFIGURE LOGGING --------
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
-loggingDivider = "====================================================================================================="
+loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
@@ -157,7 +157,7 @@ RM = list(refPoints['Rotation_Measure(rad/m2)'])
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file
 x, y = cl.RADec2xy(Ra, Dec, wcs)
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
-c, s = rmpl.rm2RGB(RM)
+c, s = putil.p2RGB(RM)
 ax.scatter(x, y, marker='o', facecolor=c, s=s, edgecolors='black')
 # -------- PREPARE TO PLOT REFERENCE POINTS. --------
 
@@ -183,7 +183,7 @@ RMRej = list(RejectedRefPoints['Rotation_Measure(rad/m2)'])
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file
 xRej, yRej = cl.RADec2xy(RaRej, DecRej, wcs)
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
-c, s = rmpl.rm2G(RMRej)
+c, s = putil.p2C(RMRej, (1, 0, 1))
 ax.scatter(xRej, yRej, marker='o', facecolor=c, s=s, edgecolors='black')
 # -------- PREPARE TO PLOT REFERENCE POINTS. --------
 
@@ -199,7 +199,7 @@ marker3 = plt.scatter([], [], s=100, facecolor=(1, 1, 1, 0.7), edgecolor='black'
 marker4 = plt.scatter([], [], s=200, facecolor=(1, 1, 1, 0.7), edgecolor='black')
 marker5 = plt.scatter([], [], s=100, facecolor=(1, 0, 0, 0.7), edgecolor='black')
 marker6 = plt.scatter([], [], s=100, facecolor=(0, 0, 1, 0.7), edgecolor='black')
-marker7 = plt.scatter([], [], s=100, facecolor=(0, 1, 0, 0.7), edgecolor='black')
+marker7 = plt.scatter([], [], s=100, facecolor=(1, 0, 1, 0.7), edgecolor='black')
 legend_markers = [marker1, marker2, marker3, marker4, marker5, marker6, marker7]
 
 labels = [
@@ -209,7 +209,7 @@ labels = [
     str(200) + ' rad m' + r'$^{-2}$',
     'Negative RM',
     'Positive RM',
-    'Rejected Point']
+    'Rejected Off Point']
 
 legend = plt.legend(handles=legend_markers, labels=labels, scatterpoints=1)
 

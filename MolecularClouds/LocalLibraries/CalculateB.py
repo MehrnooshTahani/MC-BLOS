@@ -129,7 +129,9 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
     # -------- LOAD CONSTANT INFO FROM CONFIG --------
 
     # -------- LOAD ABUNDANCE DATA
-    Av, eAbundance = np.loadtxt(AvAbundancePath, usecols=(1, 2), unpack=True, skiprows=2)
+    AvAbundanceData = pd.read_csv(AvAbundancePath, delim_whitespace=True, skiprows=1)
+    Av = AvAbundanceData["Av"]
+    eAbundance = AvAbundanceData["e-"]
     # -------- LOAD ABUNDANCE DATA.
 
     eAbundanceMatched, indLayerOfInterest = findLayerOfInterest(Av, eAbundance, BLOSData['Scaled_Extinction'])

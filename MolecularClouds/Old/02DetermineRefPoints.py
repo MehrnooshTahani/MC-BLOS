@@ -75,7 +75,7 @@ MatchedRMExtincPath = os.path.join(config.dir_root, config.dir_fileOutput, cloud
 
 # -------- CONFIGURE LOGGING --------
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
-loggingDivider = "====================================================================================================="
+loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------

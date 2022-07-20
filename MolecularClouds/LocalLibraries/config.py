@@ -55,6 +55,7 @@ tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperatu
 
 #Logging Options
 logFormat = configStartSettings['Logging'].get('Format')
+logSectionDivider = configStartSettings['Logging'].get('Section Divider')
 # -------- DEFINE STARTING VARIABLES. --------
 
 # -------- DEFINE DIRECTORIES AND NAMES. --------

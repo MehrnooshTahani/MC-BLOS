@@ -47,7 +47,7 @@ LogFile = config.Script02bFile
 
 # -------- CONFIGURE LOGGING --------
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
-loggingDivider = "====================================================================================================="
+loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ FITS FILE --------
@@ -123,12 +123,12 @@ TotalNumPoints = len(MatchedRMExtinctionData)
 We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
 number of candidate reference points.
  '''
-Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef)
+Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOff(FilteredRefPoints, 1)]
 # -------- FIND OPTIMAL NUM REF POINTS --------
 # The number of reference points should be greater than 3 and less than half the total number of points
 minStablePoints = config.minStablePointNum
 maxFracPoints = config.maxFracPointNum
-Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if minStablePoints < value < maxFracPoints * TotalNumPoints]
+Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if minStablePoints <= value <= maxFracPoints * TotalNumPoints]
 if len(Optimal_NumRefPoints_Selection) < 1:
     logging.critical(loggingDivider)
     logging.critical("There is no optimal reference point information with the given parameters!")
@@ -209,6 +209,7 @@ However, we also want to include points which come after the chosen reference po
 The following selects all of the chosen reference points and then adds any of the potential reference points with
 extinction greater than the extinction of the last chosen reference point/
 '''
+#We ignore the last element ([:-1]) because the append adds it back in.
 RefPoints = chosenRefPoints[:-1].append(FilteredRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
@@ -222,7 +223,7 @@ yLower, yUpper = plt.ylim()
 plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color='black', label='Suggested optimal '
                                                                                                 'number of reference '
                                                                                                 'points')
-plt.legend(loc='center right', bbox_to_anchor=(1.1, 0.5), ncol=2, framealpha=1)
+#plt.legend(loc='center right', bbox_to_anchor=(1.1, 0.5), ncol=2, framealpha=1)
 
 plt.savefig(BLOSvsNRef_ChosenPlotFile)
 #plt.show()
