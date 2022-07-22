@@ -115,7 +115,7 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 
 # -------- CALCULATE BLOS --------
 BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-BLOSData.to_csv(BLOSPointsFile, index=False)
+BLOSData.to_csv(BLOSPointsFile, index=False, na_rep='nan')
 logging.info('Saving calculated magnetic field values to ' + BLOSPointsFile)
 print('Saving calculated magnetic field values to ' + BLOSPointsFile)
 # -------- CALCULATE BLOS. --------

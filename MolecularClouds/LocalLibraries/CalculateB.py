@@ -1,6 +1,8 @@
 """
 Contains the functions to calculate BLOS values.
 """
+import math
+
 import pandas as pd
 import numpy as np
 from . import config
@@ -26,7 +28,9 @@ def electronColumnDensity(Av, eAbundance, indLayerOfInterest, ScaledExtinction):
     for i, val in enumerate(indLayerOfInterest):
         # Temporary value
         tempSumAvSubXe = 0
-        if val != 0:
+        if math.isnan(val):
+            tempSumAvSubXe = math.nan
+        elif val != 0:
             for index3 in range(1, val):
                 tempSumAvSubXe = tempSumAvSubXe + ((Av[index3] - Av[index3 - 1]) * eAbundance[index3])
             # Interpolate:
@@ -61,10 +65,13 @@ def findLayerOfInterest(Av, eAbundance, scaledExtinction):
          extinction value. Since Av is a list ordered from least to greatest, this corresponds to the first location 
          where Av is greater than half the scaled extinction value 
         '''
-
-        ind = np.where(Av >= scaledExtinction[i] / 2)[0][0]
-        indLayerOfInterest.append(ind)
-        eAbundanceMatched.append(eAbundance[ind])
+        try:
+            ind = np.where(Av >= scaledExtinction[i] / 2)[0][0]
+            indLayerOfInterest.append(ind)
+            eAbundanceMatched.append(eAbundance[ind])
+        except:
+            indLayerOfInterest.append(math.nan)
+            eAbundanceMatched.append(math.nan)
 
     return eAbundanceMatched, indLayerOfInterest
     # -------- FIND THE LAYER OF INTEREST. --------

@@ -18,38 +18,43 @@ configStartSettings = ConfigParser()
 configStartSettings['Cloud'] = {
     'Cloud': 'Oriona',
     }
-configStartSettings['Judgement'] = {
-    'Fill Missing Interp Data': 'Nan',
-    'Use Filled Values in RM Matching': False,
-
-    'Interpolate Bad Extinction Values': True,
-    'Interpolate Region': 'Local',
+configStartSettings['Judgement - Extinction Map'] = {
+    'Fill Initial Nan Data': 'Nan',
+    'Use Filled Values in RM-Extinction Matching': False,
+    'Interpolate Non-Physical (Negative) Extinction': True,
+    'Interpolate Area': 'Local',
     'Interpolation Method': 'linear',
-
-    'Off Disk Latitude': 15.,
-    'On Disk Galactic Extinction Threshold': 2.,
-    'On Disk Anti-Galactic Extinction Threshold': 1.5,
-    'Off Disk Extinction Threshold': 1.,
-
+}
+configStartSettings['Judgement - Off Points Av Threshold'] = {
+    'Off-Disk Latitude': 15.,
+    'On-Disk Galactic Extinction Threshold': 2.,
+    'On-Disk Anti-Galactic Extinction Threshold': 1.5,
+    'Off-Disk Extinction Threshold': 1.,
+}
+configStartSettings['Judgement - Off Points too Near/Far Cloud'] = {
     'Near High Extinction Multiplier': 2,
     'Far High Extinction Multiplier': 28,
     'High Extinction Threshold Multiplier': 5,
     'Use Near High Extinction Exclusion': True,
     'Use Far High Extinction Exclusion': True,
-
+}
+configStartSettings['Judgement - Anomalous Off RM Values'] = {
     'Anomalous Values Standard Deviation': 3.,
     'Use Anomalous Values Exclusion': True,
-
-    'Use Minimum Stable Points': True,
-    'Minimum Stable Points to be Selected': 3,
-
+}
+configStartSettings['Judgement - Optimal Reference Points'] = {
+    'Find Optimal Reference Points': True,
+    'Minimum Reference Points to be Selected': 3,
     'Max Fraction Reference Points': 0.5,
-
+}
+configStartSettings['Judgement - Cloud Quadrant Sampling'] = {
     'Use Minimum Quadrant Sampling': True,
     'Minimum Points Per Quadrant': 1,
-
     'Weighting Scheme': 'None'
     }
+configStartSettings['Judgement - Uncertainty Calculations'] = {
+    'Use Nans in Uncertainty Calculations': False
+}
 configStartSettings['Plotting Options'] = {
     'Adjust Text Positions': True,
 

@@ -126,20 +126,20 @@ number of candidate reference points.
 Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOff(FilteredRefPoints, 1)]
 # -------- FIND OPTIMAL NUM REF POINTS --------
 # The number of reference points should be greater than 3 and less than half the total number of points
-minStablePoints = config.minStablePointNum
+minStablePoints = config.minRefPts
 maxFracPoints = config.maxFracPointNum
 Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if minStablePoints <= value <= maxFracPoints * TotalNumPoints]
 if len(Optimal_NumRefPoints_Selection) < 1:
     logging.critical(loggingDivider)
     logging.critical("There is no optimal reference point information with the given parameters!")
-    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minStablePointNum))
+    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
     logging.critical("In the config, the maxinum fraction of points selected by the stability trend algorithm is: {}.".format(config.maxFracPointNum))
     logging.critical("This corresponds to a maximum number of points: {}".format(maxFracPoints * TotalNumPoints))
     logging.critical("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
     logging.critical("This analysis will fail.")
 
     print("There is no optimal reference point information with the given parameters!")
-    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minStablePointNum))
+    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
     print("In the config, the maxinum fraction of points selected by the stability trend algorithm is: {}.".format(config.maxFracPointNum))
     print("This corresponds to a maximum number of points: {}".format(maxFracPoints * TotalNumPoints))
     print("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
@@ -148,7 +148,7 @@ OptimalNumRefPoints_from_AllPotentialRefPoints = orp.mode(Optimal_NumRefPoints_S
 # -------- FIND OPTIMAL NUM REF POINTS --------
 
 # -------- Solidify reference points. --------
-chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.useStableMinimum else [i for i in range(len(FilteredRefPoints.index))]
+chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.UseOptRefPts else [i for i in range(len(FilteredRefPoints.index))]
 chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 
 # -------- SORT REF POINTS INTO THESE REGIONS. --------

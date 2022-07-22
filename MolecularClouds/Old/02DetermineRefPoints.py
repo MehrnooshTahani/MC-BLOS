@@ -497,7 +497,7 @@ logging.info("consider raising your extinction threshold in your start settings 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
 OptimalNumRefPoints_from_AllPotentialRefPoints = FindOptimalRefPoints(regionOfInterest, AllPotentialRefPoints, saveFigurePath_BLOSvsNRef_AllPotentialRefPoints)
 # -------- Solidify reference points. --------
-chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.useStableMinimum else [i for i in range(len(AllPotentialRefPoints.index))]
+chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.UseOptRefPts else [i for i in range(len(AllPotentialRefPoints.index))]
 #chosenRefPoints = AllPotentialRefPoints #If we ignore the algorithm.
 chosenRefPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 

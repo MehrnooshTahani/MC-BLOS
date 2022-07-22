@@ -11,36 +11,35 @@ configStartSettings.read('configStartSettings.ini')
 cloud = configStartSettings['Cloud'].get('Cloud')
 
 #Judgement
-fillMissingExtinct = configStartSettings['Judgement'].get('Fill Missing Interp Data')
-useFillExtinct = configStartSettings['Judgement'].getboolean('Use Filled Values in RM Matching')
+fillMissingExtinct = configStartSettings['Judgement - Extinction Map'].get('Fill Initial Nan Data')
+useFillExtinct = configStartSettings['Judgement - Extinction Map'].getboolean('Use Filled Values in RM-Extinction Matching')
+doInterpExtinct = configStartSettings['Judgement - Extinction Map'].getboolean('Interpolate Negative Extinction Values')
+interpRegion = configStartSettings['Judgement - Extinction Map'].get('Interpolate Area')
+interpMethod = configStartSettings['Judgement - Extinction Map'].get('Interpolation Method')
 
-doInterpExtinct = configStartSettings['Judgement'].getboolean('Interpolate Negative Extinction Values')
-interpRegion = configStartSettings['Judgement'].get('Interpolate Region')
-interpMethod = configStartSettings['Judgement'].get('Interpolation Method')
+offDiskLatitude = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Latitude')
+onDiskAvGalacticThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('On-Disk Galactic Extinction Threshold')
+onDiskAvAntiGalacticThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('On-Disk Anti-Galactic Extinction Threshold')
+offDiskAvThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Extinction Threshold')
 
-offDiskLatitude = configStartSettings['Judgement'].getfloat('Off Disk Latitude')
-onDiskAvGalacticThresh = configStartSettings['Judgement'].getfloat('On Disk Galactic Extinction Threshold')
-onDiskAvAntiGalacticThresh = configStartSettings['Judgement'].getfloat('On Disk Anti-Galactic Extinction Threshold')
-offDiskAvThresh = configStartSettings['Judgement'].getfloat('Off Disk Extinction Threshold')
+nearExtinctionMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getint('Near High Extinction Multiplier')
+farExtinctionMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getint('Far High Extinction Multiplier')
+highExtinctionThreshMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getfloat('High Extinction Threshold Multiplier')
+useNearExtinctionRemove = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getboolean('Use Near High Extinction Exclusion')
+useFarExtinctionRemove = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getboolean('Use Far High Extinction Exclusion')
 
-nearExtinctionMultiplier = configStartSettings['Judgement'].getint('Near High Extinction Multiplier')
-farExtinctionMultiplier = configStartSettings['Judgement'].getint('Far High Extinction Multiplier')
-highExtinctionThreshMultiplier = configStartSettings['Judgement'].getfloat('High Extinction Threshold Multiplier')
-useNearExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Near High Extinction Exclusion')
-useFarExtinctionRemove = configStartSettings['Judgement'].getboolean('Use Far High Extinction Exclusion')
+anomalousSTDNum = configStartSettings['Judgement - Anomalous Off RM Values'].getfloat('Anomalous Values Standard Deviation')
+useAnomalousSTDNumRemove = configStartSettings['Judgement - Anomalous Off RM Values'].getboolean('Use Anomalous Values Exclusion')
 
-anomalousSTDNum = configStartSettings['Judgement'].getfloat('Anomalous Values Standard Deviation')
-useAnomalousSTDNumRemove = configStartSettings['Judgement'].getboolean('Use Anomalous Values Exclusion')
+UseOptRefPts = configStartSettings['Judgement - Optimal Reference Points'].getboolean('Find Optimal Reference Points')
+minRefPts = configStartSettings['Judgement - Optimal Reference Points'].getint('Minimum Reference Points to be Selected')
+maxFracPointNum = configStartSettings['Judgement - Optimal Reference Points'].getfloat('Max Fraction Reference Points')
 
-useStableMinimum = configStartSettings['Judgement'].getboolean('Use Minimum Stable Points')
-minStablePointNum = configStartSettings['Judgement'].getint('Minimum Stable Points to be Selected')
+useQuadrantEnforce = configStartSettings['Judgement - Cloud Quadrant Sampling'].getboolean('Use Minimum Quadrant Sampling')
+minPointsPerQuadrant = configStartSettings['Judgement - Cloud Quadrant Sampling'].getint('Minimum Points Per Quadrant')
+weightingScheme = configStartSettings['Judgement - Cloud Quadrant Sampling'].get('Weighting Scheme')
 
-maxFracPointNum = configStartSettings['Judgement'].getfloat('Max Fraction Reference Points')
-
-useQuadrantEnforce = configStartSettings['Judgement'].getboolean('Use Minimum Quadrant Sampling')
-minPointsPerQuadrant = configStartSettings['Judgement'].getint('Minimum Points Per Quadrant')
-
-weightingScheme = configStartSettings['Judgement'].get('Weighting Scheme')
+useUncertaintyNans = configStartSettings['Judgement - Uncertainty Calculations'].getboolean("Use Nans in Uncertainty Calculations")
 
 #Plotting Options
 textFix = configStartSettings['Plotting Options'].getboolean('Adjust Text Positions')

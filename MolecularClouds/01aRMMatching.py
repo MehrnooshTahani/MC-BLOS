@@ -305,27 +305,27 @@ if len(RMValue) < 2:
     print("As such, there is insufficient data to perform this analysis.")
     print("Please select a larger region or obtain a denser RM Catalogue.")
 
-elif len(RMValue) < config.minStablePointNum:
+elif len(RMValue) < config.minRefPts:
     logging.critical(loggingDivider)
     logging.critical("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minStablePointNum))
+    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
     logging.critical("As such, there is insufficient data to perform this analysis.")
     logging.critical("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
 
     print("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minStablePointNum))
+    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
     print("As such, there is insufficient data to perform this analysis.")
     print("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
 
-elif len(RMValue) < 2*config.minStablePointNum:
+elif len(RMValue) < 2*config.minRefPts:
     logging.critical(loggingDivider)
     logging.critical("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minStablePointNum))
+    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
     logging.critical("Since some points will be excluded, there may be insufficient data to perform this analysis.")
     logging.critical("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
 
     print("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minStablePointNum))
+    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
     print("Since some points will be excluded, there may be insufficient data to perform this analysis.")
     print("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
 

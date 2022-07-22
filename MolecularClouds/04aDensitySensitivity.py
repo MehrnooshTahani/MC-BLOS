@@ -51,17 +51,16 @@ for value in percent:
     AvAbundanceName = 'Av_T0_n' + value
     AvAbundancePath = regionOfInterest.AvFileDir + os.sep + AvAbundanceName + '.out'
     saveFilePath = CloudDensSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
-    try:
-        B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-        B.to_csv(saveFilePath, index=False)
-    except:
-        logging.warning("Error! The following percentage change could not be calculated: {}".format(value))
-        print("Error! The following percentage change could not be calculated: {}".format(value))
+    B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+    B.to_csv(saveFilePath, index=False, na_rep='nan')
+    if B.isnull().values.any():
+        logging.warning("Error! The following percentage change has invalid values: {}".format(value))
+        print("Error! The following percentage change has invalid values: {}".format(value))
         errPercent.append(value)
 
 if len(errPercent) > 0:
     logging.info('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following density changes have not been calculated due to an error.')
+    logging.warning('Warning: The following density changes have invalid values.')
     logging.warning('{}'.format(errPercent))
     logging.warning('Please review the results.')
     logging.info('-------------------------------------------------------------------------------')

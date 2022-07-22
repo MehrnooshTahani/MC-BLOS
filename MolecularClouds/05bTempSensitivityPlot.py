@@ -39,15 +39,14 @@ B = list(InitialBData['Magnetic_Field(uG)'])
 p = [5, 10, 20]  # Percents of the input temperature
 percent = ['-{}'.format(i) for i in p[::-1]] + ['0'] + ['+{}'.format(i) for i in p]
 
-# ---- Test to see if the files exist.
+# ---- Test to see if the files have nan value issues.
 errPercent = []
 errPercentFiles = []
 for i, value in enumerate(percent):
     AvAbundanceName = 'Av_T' + value + '_n0'
     BScaledFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
-    try:
-        _ = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
-    except:
+    BScaledDens = pd.read_csv(BScaledFilePath)
+    if BScaledDens.isnull().values.any() and not config.useUncertaintyNans:
         errPercent.append(value)
         errPercentFiles.append(BScaledFilePath)
 
@@ -55,11 +54,11 @@ percent = [item for item in percent if item not in errPercent]
 
 if len(errPercentFiles) > 0:
     logging.warning('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following data have not been loaded due to an error.')
+    logging.warning('Warning: The following data have not been used due to a nan value as per config settings.')
     logging.warning('{}'.format(errPercentFiles))
     logging.warning('Please review the results.')
     logging.warning('-------------------------------------------------------------------------------')
-# ---- Test to see if the files exist.
+# ---- Test to see if the files have nan value issues.
 
 # Each row is a BLOS point, each column is the BLOS value corresponding to each percent of the input density
 AllBScaled = np.zeros([len(B), len(percent)])
