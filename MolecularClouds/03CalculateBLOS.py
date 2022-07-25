@@ -116,8 +116,10 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 # -------- CALCULATE BLOS --------
 BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
 BLOSData.to_csv(BLOSPointsFile, index=False, na_rep='nan')
-logging.info('Saving calculated magnetic field values to ' + BLOSPointsFile)
-print('Saving calculated magnetic field values to ' + BLOSPointsFile)
+
+message = 'Saving calculated magnetic field values to ' + BLOSPointsFile
+logging.info(message)
+print(message)
 # -------- CALCULATE BLOS. --------
 
 # =====================================================================================================================
@@ -150,8 +152,6 @@ plt.scatter(x, y, s=size, facecolor=color, marker='o', linewidth=.5, edgecolors=
 
 # ---- Annotate the BLOS Points
 pt.labelPoints(ax, n, x, y, textFix = config.textFix)
-#for i, txt in enumerate(n):
-#    ax.annotate(txt, (x[i], y[i]), size=9, color='w')
 # ---- Annotate the BLOS Points.
 
 # -------- PREPARE TO PLOT REF BLOS POINTS --------
@@ -179,8 +179,6 @@ plt.scatter(xRef, yRef, s=sizeRef, facecolor=colorRef, marker='o', linewidth=.5,
 
 # ---- Annotate the BLOS Points
 pt.labelPoints(ax, Refn, xRef, yRef, color = 'magenta', textFix=config.textFix)
-#for i, txt in enumerate(Refn):
-#    ax.annotate(txt, (xRef[i], yRef[i]), size=9, color='w')
 # ---- Annotate the BLOS Points.
 
 # ---- Style the main axes and their grid
@@ -264,6 +262,7 @@ ax.text(0.02, 0.98, offPointsText, transform=ax.transAxes, fontsize=10, vertical
 plt.savefig(BLOSPointsPlotFile)
 plt.close()
 # ---- Display or save the figure.
-logging.info('Saving BLOS figure to ' + BLOSPointsPlotFile)
-print('Saving BLOS figure to ' + BLOSPointsPlotFile)
+message = 'Saving BLOS figure to ' + BLOSPointsPlotFile
+logging.info(message)
+print(message)
 # -------- CREATE A FIGURE - BLOS POINT MAP. --------

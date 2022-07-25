@@ -13,7 +13,7 @@ cloudName = config.cloud
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- MAKE DIRECTORIES FOR THE REGION OF INTEREST --------
-# Check if there is a FileOutput directory already; if not make one
+# Check if there is a file output directory already; if not make one
 #   - this will house the results for all regions of interest
 os.chdir(config.dir_root)
 InHome = os.listdir(config.dir_root)
@@ -37,15 +37,18 @@ if cloudName.lower() not in InFileOutput:
 
 # ---- CONFIGURE LOGGING
 saveScriptLogPath = config.Script00File
-print(saveScriptLogPath)
 logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
 # ---- CONFIGURE LOGGING
 
 # ---- LOG RESULTS
-logging.info('Folder \'' + cloudName + '\' with sub-folders: \'' + config.dir_plots + '\', \'' + config.dir_logs + '\', \'' + config.dir_densitySensitivity + '\', and \'' + config.dir_temperatureSensitivity + '\''
-                            ' created in {}'.format(os.path.join(config.dir_root, config.dir_fileOutput)))
-print('Folder \'' + cloudName + '\' with sub-folders: \'' + config.dir_plots + '\', \'' + config.dir_logs + '\', \'' + config.dir_densitySensitivity + '\', and \'' + config.dir_temperatureSensitivity + '\''
-                            ' created in {}'.format(os.path.join(config.dir_root, config.dir_fileOutput)))
+message = 'Folder \'' + cloudName + '\' with sub-folders: \'' \
+          + config.dir_plots + '\', \'' \
+          + config.dir_logs + '\', \'' \
+          + config.dir_densitySensitivity + '\', and \'' \
+          + config.dir_temperatureSensitivity + '\'' \
+          + ' created in {}'.format(os.path.join(config.dir_root, config.dir_fileOutput))
+logging.info(message)
+print(message)
 # ---- LOG RESULTS
 
 # -------- MAKE DIRECTORIES FOR THE REGION OF INTEREST. --------

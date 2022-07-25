@@ -104,6 +104,8 @@ frame.set_alpha(0.4)
 # ---- Style the legend.
 
 plt.savefig(MatchedRMExtinctPlotFile, bbox_inches='tight')
-print('Saving RM Matching figure to ' + MatchedRMExtinctPlotFile)
-logging.info('Saving RM Matching figure to ' + MatchedRMExtinctPlotFile)
+
+message = 'Saving RM Matching figure to ' + MatchedRMExtinctPlotFile
+print(message)
+logging.info(message)
 # -------- CREATE A FIGURE. --------

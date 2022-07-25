@@ -23,16 +23,16 @@ onDiskAvAntiGalacticThresh = configStartSettings['Judgement - Off Points Av Thre
 offDiskAvThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Extinction Threshold')
 
 nearExtinctionMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getint('Near High Extinction Multiplier')
-farExtinctionMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getint('Far High Extinction Multiplier')
+farExtinctionMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getint('Far From High Extinction Multiplier')
 highExtinctionThreshMultiplier = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getfloat('High Extinction Threshold Multiplier')
 useNearExtinctionRemove = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getboolean('Use Near High Extinction Exclusion')
 useFarExtinctionRemove = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getboolean('Use Far High Extinction Exclusion')
 
-anomalousSTDNum = configStartSettings['Judgement - Anomalous Off RM Values'].getfloat('Anomalous Values Standard Deviation')
-useAnomalousSTDNumRemove = configStartSettings['Judgement - Anomalous Off RM Values'].getboolean('Use Anomalous Values Exclusion')
+anomalousSTDNum = configStartSettings['Judgement - Anomalous Off RM Values'].getfloat('Anomalous Values Standard Deviation (Greater Than or Equal To)')
+useAnomalousSTDNumRemove = configStartSettings['Judgement - Anomalous Off RM Values'].getboolean('Use Anomalous Value Removal')
 
-UseOptRefPts = configStartSettings['Judgement - Optimal Reference Points'].getboolean('Find Optimal Reference Points')
-minRefPts = configStartSettings['Judgement - Optimal Reference Points'].getint('Minimum Reference Points to be Selected')
+UseOptRefPoints = configStartSettings['Judgement - Optimal Reference Points'].getboolean('Find Optimal Reference Points')
+minRefPoints = configStartSettings['Judgement - Optimal Reference Points'].getint('Minimum Reference Points to be Selected')
 maxFracPointNum = configStartSettings['Judgement - Optimal Reference Points'].getfloat('Max Fraction Reference Points')
 
 useQuadrantEnforce = configStartSettings['Judgement - Cloud Quadrant Sampling'].getboolean('Use Minimum Quadrant Sampling')
@@ -69,13 +69,13 @@ dir_logs = configDirectoryAndNames['Output File Locations'].get('Logs')
 dir_densitySensitivity = configDirectoryAndNames['Output File Locations'].get('Density Sensitivity')
 dir_temperatureSensitivity = configDirectoryAndNames['Output File Locations'].get('Temperature Sensitivity')
 #Output Files
-file_rmMapping = configDirectoryAndNames['Output Files'].get('RM Mapping')
-file_RMExtinctionMatch = configDirectoryAndNames['Output Files'].get('RM-Extinction Matching')
-file_RMExtinctionFiltered = configDirectoryAndNames['Output Files'].get('RM-Extinction Filtering')
+file_rmMapping = configDirectoryAndNames['Output Files'].get('RM Map')
+file_RMExtinctionMatch = configDirectoryAndNames['Output Files'].get('Matched RM-Extinction')
+file_RMExtinctionFiltered = configDirectoryAndNames['Output Files'].get('Filtered RM-Extinction')
 
-file_RMExtinctionNearRej = configDirectoryAndNames['Output Files'].get('Near High-Extinction Rejected RM-Extinction')
-file_RMExtinctionFarRej = configDirectoryAndNames['Output Files'].get('Far High-Extinction Rejected RM-Extinction')
-file_RMExtinctionAnomRej = configDirectoryAndNames['Output Files'].get('Anomalous Rejected RM-Extinction')
+file_RMExtinctionNearRej = configDirectoryAndNames['Output Files'].get('Rejected Near High-Extinction RM-Extinction')
+file_RMExtinctionFarRej = configDirectoryAndNames['Output Files'].get('Rejected Far High-Extinction RM-Extinction')
+file_RMExtinctionAnomRej = configDirectoryAndNames['Output Files'].get('Rejected Anomalous RM-Extinction')
 file_RMExtinctionRej = configDirectoryAndNames['Output Files'].get('Rejected RM-Extinction')
 file_RMExtinctionRemaining = configDirectoryAndNames['Output Files'].get('Remaining RM-Extinction')
 

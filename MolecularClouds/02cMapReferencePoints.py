@@ -67,9 +67,10 @@ def refPointPlot(titleFragment, saveFragment, cloudName, refPoints, hdu, regionO
     plt.close()
     # ---- Display or save the figure.
     # ---- Log info
-    print('Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap)
+    message = 'Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap
     logging.info(loggingDivider)
-    logging.info('Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap)
+    logging.info(message)
+    print(message)
     # ---- Log info
     # -------- CREATE A FIGURE - REF POINTS MAP. --------
 

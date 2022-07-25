@@ -1,5 +1,5 @@
 '''
-Contains common plots or plot elements utilized in various scripts
+Contains common plots or plot elements utilized in various scriPoints
 '''
 
 import matplotlib.pyplot as plt

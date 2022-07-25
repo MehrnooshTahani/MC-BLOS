@@ -44,6 +44,7 @@ BLOSUncertaintyFile = config.BLOSUncertaintyFile
 
 # -------- CONFIGURE LOGGING --------
 LogFile = config.Script06File
+loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
@@ -99,15 +100,14 @@ for densPercent in DensPercent:
         break
 
 if len(errDensPercent) > 0:
-    logging.info('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following density changes percentages (+-) were not used to calculate the uncertainty.')
-    logging.warning('{}'.format(errDensPercent))
-    logging.warning('A percentage change file associated with the percentage has a nan value.')
-    logging.warning('The config policy on using nan values in uncertainty calculations is set to: {}.'.format(
-        config.useUncertaintyNans))
-    logging.warning('Ex. 50 means that at least one of -50 or 50 percent changes have an error.')
-    logging.warning('Please review the results.')
-    logging.info('-------------------------------------------------------------------------------')
+    messages = ['Warning: The following density changes percentages (+-) were not used to calculate the uncertainty.',
+                '{}'.format(errDensPercent),
+                'A percentage change file associated with the percentage has a nan value.',
+                'The config policy on using nan values in uncertainty calculations is set to: {}.'.format(config.useUncertaintyNans),
+                'Ex. 50 means that at least one of -50 or 50 percent changes have an error.',
+                'Please review the results.']
+    logging.warning(loggingDivider)
+    map(logging.warning, messages)
 
 errTempPercent = []
 for tempPercent in TempPercent:
@@ -125,26 +125,26 @@ for tempPercent in TempPercent:
         break
 
 if len(errTempPercent) > 0:
-    logging.info('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following temperature changes percentages (+-) were not used to calculate the uncertainty.')
-    logging.warning('{}'.format(errTempPercent))
-    logging.warning('A percentage change file associated with the percentage has a nan value.')
-    logging.warning('The config policy on using nan values in uncertainty calculations is set to: {}.'.format(
-        config.useUncertaintyNans))
-    logging.warning('Ex. 20 means that at least one of -20 or 20 percent changes have an error.')
-    logging.warning('Please review the results.')
-    logging.info('-------------------------------------------------------------------------------')
+    messages = ['Warning: The following temperature changes percentages (+-) were not used to calculate the uncertainty.',
+                '{}'.format(errTempPercent),
+                'A percentage change file associated with the percentage has a nan value.',
+                'The config policy on using nan values in uncertainty calculations is set to: {}.'.format(config.useUncertaintyNans),
+                'Ex. 20 means that at least one of -20 or 20 percent changes have an error.',
+                'Please review the results.']
+    logging.warning(loggingDivider)
+    map(logging.warning, messages)
 
 if BChemDensDecrease is None or BChemDensIncrease is None or BChemTempDecrease is None or BChemTempIncrease is None:
-    logging.info('-------------------------------------------------------------------------------')
-    logging.warning(
-        'Warning: There is insufficient data to calculate the uncertainty with!')
-    logging.warning('Make sure the last two scripts (5, 6) were run before this script.')
-    logging.warning('This script will fail.')
-    logging.warning('Please review the results.')
-    logging.info('-------------------------------------------------------------------------------')
+    messages = ['Warning: There is insufficient data to calculate the uncertainty with!',
+                'Make sure the last two scriPoints (5, 6) were run before this script.',
+                'This script will fail.',
+                'Please review the results.',]
+    logging.warning(loggingDivider)
+    map(logging.warning, messages)
 
+#Find the uncertainty for each row of data.
 for index in range(len(BData)):
+    #Identify the uncertainty.
     upperDeltaBExt, lowerDeltaBExt = extinctionChemUncertainties(
         BData['Magnetic_Field(uG)'][index], BData['BField_of_Min_Extinction'][index],
         BData['BField_of_Max_Extinction'][index])
@@ -154,11 +154,12 @@ for index in range(len(BData)):
         BData['Magnetic_Field(uG)'][index], BChemTempIncrease[index], BChemTempDecrease[index])
     # Calculate uncertainties
     BUpperUncertainty = round(((TotalRMErrStDevinB[index]) ** 2 + upperDeltaBExt ** 2 + upperDeltaBChemDens ** 2 + upperDeltaBChemTemp ** 2) ** (1 / 2), 0)
-    BUpperUncertainty = TotalRMErrStDevinB[index] if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] < 0 else BUpperUncertainty
-    BTotalUpperUncertainty.append("{0:.0f}".format(BUpperUncertainty))
-
     BLowerUncertainty = round(((TotalRMErrStDevinB[index]) ** 2 + lowerDeltaBExt ** 2 + lowerDeltaBChemDens ** 2 + lowerDeltaBChemTemp ** 2) ** (1 / 2), 0)
+    #Avoid overestimating the uncertainty. The propagated uncertainty
+    BUpperUncertainty = TotalRMErrStDevinB[index] if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] < 0 else BUpperUncertainty
     BLowerUncertainty = TotalRMErrStDevinB[index] if abs(BLowerUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] > 0 else BLowerUncertainty
+    #Append the uncertainty to the list.
+    BTotalUpperUncertainty.append("{0:.0f}".format(BUpperUncertainty))
     BTotalLowerUncertainty.append("{0:.0f}".format(BLowerUncertainty))
 
 FinalBLOSResults['TotalUpperBUncertainty'] = BTotalUpperUncertainty
@@ -167,7 +168,7 @@ FinalBLOSResults['TotalLowerBUncertainty'] = BTotalLowerUncertainty
 
 # -------- SAVE FINAL BLOS RESULTS --------
 FinalBLOSResults.to_csv(BLOSUncertaintyFile, index=False, na_rep='nan')
-
-logging.info('Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile)
-print('Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile)
+message = 'Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile
+logging.info(message)
+print(message)
 # -------- SAVE FINAL BLOS RESULTS --------

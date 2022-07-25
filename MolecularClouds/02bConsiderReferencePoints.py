@@ -98,16 +98,17 @@ quadrantsUndersampled = quadrantsUndersampled + 1 if Q4Less else quadrantsUnders
 # -------- Calculate Results. --------
 
 # -------- OUTPUT RESULTS. --------
+messages = ["The filtered reference points, sorted by quadrant, are:",
+            "Q1: {}".format(Q1),
+            "Q2: {}".format(Q2),
+            "Q3: {}".format(Q3),
+            "Q4: {}".format(Q4),
+            "As defined in the starting configuration, a quadrant does not have enough points sampled if there are less than {} points in the quadrant chosen.".format(minSamples),
+            "Warning: {} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples),
+            "If 1 or more quadrants have insufficient points sampled at this stage,",
+            "consider raising your extinction threshold in your start settings configuration and trying again!"]
 logging.info(loggingDivider)
-logging.info("The filtered reference points, sorted by quadrant, are:")
-logging.info("Q1: {}".format(Q1))
-logging.info("Q2: {}".format(Q2))
-logging.info("Q3: {}".format(Q3))
-logging.info("Q4: {}".format(Q4))
-logging.info("As defined in the starting configuration, a quadrant does not have enough points sampled if there are less than {} points in the quadrant chosen.".format(minSamples))
-logging.info("Warning: {} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples))
-logging.info("If 1 or more quadrants have insufficient points sampled at this stage,")
-logging.info("consider raising your extinction threshold in your start settings configuration and trying again!")
+map(logging.info, messages)
 # -------- OUTPUT RESULTS. --------
 
 #============================================================================================================
@@ -126,29 +127,24 @@ number of candidate reference points.
 Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOff(FilteredRefPoints, 1)]
 # -------- FIND OPTIMAL NUM REF POINTS --------
 # The number of reference points should be greater than 3 and less than half the total number of points
-minStablePoints = config.minRefPts
+minStablePoints = config.minRefPoints
 maxFracPoints = config.maxFracPointNum
 Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if minStablePoints <= value <= maxFracPoints * TotalNumPoints]
 if len(Optimal_NumRefPoints_Selection) < 1:
+    messages = ["There is no optimal reference point information with the given parameters!"
+                "In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPoints),
+                "In the config, the maxinum fraction of points selected by the stability trend algorithm is: {}.".format(config.maxFracPointNum),
+                "This corresponds to a maximum number of points: {}".format(maxFracPoints * TotalNumPoints),
+                "Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.",
+                "This analysis will fail."]
     logging.critical(loggingDivider)
-    logging.critical("There is no optimal reference point information with the given parameters!")
-    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
-    logging.critical("In the config, the maxinum fraction of points selected by the stability trend algorithm is: {}.".format(config.maxFracPointNum))
-    logging.critical("This corresponds to a maximum number of points: {}".format(maxFracPoints * TotalNumPoints))
-    logging.critical("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
-    logging.critical("This analysis will fail.")
-
-    print("There is no optimal reference point information with the given parameters!")
-    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
-    print("In the config, the maxinum fraction of points selected by the stability trend algorithm is: {}.".format(config.maxFracPointNum))
-    print("This corresponds to a maximum number of points: {}".format(maxFracPoints * TotalNumPoints))
-    print("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
-    print("This analysis will fail.")
+    map(logging.critical, messages)
+    map(print, messages)
 OptimalNumRefPoints_from_AllPotentialRefPoints = orp.mode(Optimal_NumRefPoints_Selection)
 # -------- FIND OPTIMAL NUM REF POINTS --------
 
 # -------- Solidify reference points. --------
-chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.UseOptRefPts else [i for i in range(len(FilteredRefPoints.index))]
+chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.UseOptRefPoints else [i for i in range(len(FilteredRefPoints.index))]
 chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
 
 # -------- SORT REF POINTS INTO THESE REGIONS. --------
@@ -180,21 +176,22 @@ chosenRefPoints_After_Quadrants_Num = [i for i in range(minSamples)] if config.u
 chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_After_Quadrants_Num].sort_values('Extinction_Value')
 
 # ---- Log info
+messages = ['By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
+      'total number of reference points ({}):'.format(len(FilteredRefPoints)),
+            "Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_Num]),
+            "Next, minimum quadrant sampling is accounted for.",
+            "The chosen reference points, sorted by quadrant, are:",
+            "Q1: {}".format(Q1c),
+            "Q2: {}".format(Q2c),
+            "Q3: {}".format(Q3c),
+            "Q4: {}".format(Q4c),
+            "Additional points are taken until quadrants which could meet the minimum sampling criteria set in the configuration start settings,",
+            "but do not from the stability-recommended points, meet the minimum sampling criteria.",
+            "Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_After_Quadrants_Num]),
+            "Given this information, the remaining table is \n {}.".format(chosenRefPoints),
+            'Please review the BLOS trend stability plot at {}.'.format(BLOSvsNRef_AllPotRefPointsPlot)]
 logging.info(loggingDivider)
-logging.info('By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
-      'total number of reference points ({}):'.format(len(FilteredRefPoints)))
-logging.info("Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_Num]))
-logging.info("Next, minimum quadrant sampling is accounted for.")
-logging.info("The chosen reference points, sorted by quadrant, are:")
-logging.info("Q1: {}".format(Q1c))
-logging.info("Q2: {}".format(Q2c))
-logging.info("Q3: {}".format(Q3c))
-logging.info("Q4: {}".format(Q4c))
-logging.info("Additional points are taken until quadrants which could meet the minimum sampling criteria set in the configuration start settings,")
-logging.info("but do not from the stability-recommended points, meet the minimum sampling criteria.")
-logging.info("Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_After_Quadrants_Num]))
-logging.info("Given this information, the remaining table is \n {}.".format(chosenRefPoints))
-logging.info('Please review the BLOS trend stability plot at {}.'.format(BLOSvsNRef_AllPotRefPointsPlot))
+map(logging.info, messages)
 # ---- Log info
 
 # -------- Solidify reference points. --------
@@ -284,17 +281,19 @@ referenceData['Reference RM Std'] = [refRMStd]
 referenceData['Reference Extinction'] = [refExtinc]
 referenceData.to_csv(ChosenRefDataFile, index=False)
 
+message = 'Reference values were saved to {}'.format(ChosenRefDataFile)
 logging.info(loggingDivider)
-logging.info('Reference values were saved to {}'.format(ChosenRefDataFile))
-print('Reference values were saved to {}'.format(ChosenRefDataFile))
+logging.info(message)
+print(message)
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------
 
 # -------- SAVE REFERENCE POINTS  --------
 chosenRefPoints.to_csv(ChosenRefPointFile, index=False)
 
+message = 'Chosen reference points were saved to {}'.format(ChosenRefPointFile)
 logging.info(loggingDivider)
-logging.info('Chosen reference points were saved to {}'.format(ChosenRefPointFile))
-print('Chosen reference points were saved to {}'.format(ChosenRefPointFile))
+logging.info(message)
+print(message)
 # -------- SAVE REFERENCE POINTS. --------
 
 #============================================================================================================

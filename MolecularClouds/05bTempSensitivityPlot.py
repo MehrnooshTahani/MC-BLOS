@@ -27,6 +27,7 @@ BTempSensPlot = config.BTempSensPlot
 
 # -------- CONFIGURE LOGGING --------
 LogFile = config.Script05bFile
+loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
@@ -53,11 +54,12 @@ for i, value in enumerate(percent):
 percent = [item for item in percent if item not in errPercent]
 
 if len(errPercentFiles) > 0:
-    logging.warning('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following data have not been used due to a nan value as per config settings.')
-    logging.warning('{}'.format(errPercentFiles))
-    logging.warning('Please review the results.')
-    logging.warning('-------------------------------------------------------------------------------')
+    messages = ['Warning: The following data have not been used due to a nan value as per config settings.',
+                '{}'.format(errPercentFiles),
+                'Please review the results.']
+    logging.warning(loggingDivider)
+    map(logging.warning, messages)
+
 # ---- Test to see if the files have nan value issues.
 
 # Each row is a BLOS point, each column is the BLOS value corresponding to each percent of the input density
@@ -107,6 +109,7 @@ plt.legend(loc='upper center', ncol=2)
 # plt.show()
 plt.savefig(BTempSensPlot)
 # ---- Display or save the figure.
-logging.info('Saving temp sensitivity figure to ' + BTempSensPlot)
-print('Saving temp sensitivity figure to ' + BTempSensPlot)
+message = 'Saving temp sensitivity figure to ' + BTempSensPlot
+logging.info(message)
+print(message)
 # -------- CREATE A FIGURE. --------

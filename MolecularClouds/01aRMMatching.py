@@ -12,7 +12,6 @@ from astropy.wcs import WCS
 import numpy as np
 import pandas as pd
 import math
-import matplotlib.pyplot as plt
 
 from LocalLibraries.RMCatalog import RMCatalog
 from LocalLibraries.RegionOfInterest import Region
@@ -22,7 +21,6 @@ from LocalLibraries.util import getBoxBounds
 import LocalLibraries.ConversionLibrary as cl
 import LocalLibraries.RefJudgeLib as rjl
 
-import os
 import logging
 
 # -------- CHOOSE THE REGION OF INTEREST --------
@@ -51,12 +49,12 @@ wcs = WCS(hdu.header)
 # -------- PREPROCESS FITS DATA TYPE. --------
 data = rjl.deepCopy(hdu.data)
 
-# Identify where there is no data
-nodata = np.isnan(data)
-
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
     data = data / config.VExtinct_2_Hcol
+
+# Identify where there is no data
+nodata = np.isnan(data)
 
 # Obtain data bounds
 boxXMin = regionOfInterest.xmin
@@ -77,7 +75,7 @@ elif config.fillMissingExtinct == 'Interpolate':
 else:
     data[nodata] = math.nan
 
-#Refresh the nodata situation depending on config decision.
+#Refresh the nodata situation depending on config decision on whether or not filled values can be used for matching.
 if config.useFillExtinct:
     nodata = np.isnan(data)
 
@@ -90,17 +88,19 @@ if config.doInterpExtinct and config.interpRegion == 'All':
     data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], config.interpMethod) #This step is computationally costly. It may be omitted if it is taking too long.
     baddata[ymin:ymax, xmin:xmax] = False
 
+messages = ["The Region Fits File Data Type is: {}".format(regionOfInterest.fitsDataType),
+            "The bounds of the region of interest in the fits file are:",
+            "xmin: {}".format(xmin),
+            "xmax: {}".format(xmax),
+            "ymin: {}".format(ymin),
+            "ymax: {}".format(ymax),
+            "Missing (Nan) data is set to (according to the config): {}".format(config.fillMissingExtinct),
+            "Missing (Nan) data is used for matching RM Extinctions (according to the config): {}".format(config.useFillExtinct),
+            "Non-Physical (Negative) data is to be interpolated (according to the config): {}".format(config.doInterpExtinct),
+            "Non-Physical (Negative) data is to be interpolated (according to the config): {}".format(config.interpMethod)]
+
 logging.info(loggingDivider)
-logging.info("The Region Fits File Data Type is: {}".format(regionOfInterest.fitsDataType))
-logging.info("The bounds of the region of interest in the fits file are:")
-logging.info("xmin: {}".format(xmin))
-logging.info("xmax: {}".format(xmax))
-logging.info("ymin: {}".format(ymin))
-logging.info("ymax: {}".format(ymax))
-logging.info("Missing (Nan) data is set to (according to the config): {}".format(config.fillMissingExtinct))
-logging.info("Missing (Nan) data is used for matching RM Extinctions (according to the config): {}".format(config.useFillExtinct))
-logging.info("Non-Physical (Negative) data is to be interpolated (according to the config): {}".format(config.doInterpExtinct))
-logging.info("Non-Physical (Negative) data is to be interpolated (according to the config): {}".format(config.interpMethod))
+map(logging.info, messages)
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -112,18 +112,14 @@ rmData = RMCatalog(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.
 
 # -------- CHECK THAT THERE'S ENOUGH POINTS IN THE FILE. --------
 if len(rmData.targetRotationMeasures) < 2:
+    messages = ["Less than 2 Rotation Measures have been LOADED for the given region.",
+                "This technique requires at least one on-position, and at least one off-position.",
+                "As such, there is insufficient data to perform this analysis.",
+                "Please select a larger region or obtain a denser RM Catalogue."
+                "This script will abort."]
     logging.critical(loggingDivider)
-    logging.critical("Less than 2 Rotation Measures have been LOADED for the given region.")
-    logging.critical("This technique requires at least one on-position, and at least one off-position.")
-    logging.critical("As such, there is insufficient data to perform this analysis.")
-    logging.critical("Please select a larger region or obtain a denser RM Catalogue.")
-    logging.critical("This script will abort.")
-
-    print("Less than 2 Rotation Measures have been LOADED for the given region.")
-    print("This technique requires at least one on-position, and at least one off-position.")
-    print("As such, there is insufficient data to perform this analysis.")
-    print("Please select a larger region or obtain a denser RM Catalogue.")
-    print("This script will abort.")
+    map( logging.critical, messages)
+    map(print, messages)
     exit()
 # -------- CHECK THAT THERE'S ENOUGH POINTS IN THE FILE. --------
 
@@ -153,11 +149,12 @@ if (ExtinctionResolutionDegs > RMResolutionDegs):
 else:
     NDelt = np.ceil(RMResolutionDegs/ExtinctionResolutionDegs)
 
+messages = ["The uncertainty/resolution of the RM Catalogue for the given region (in degrees) is: {}".format(RMResolutionDegs),
+            "The uncertainty/resolution of the Extinction map for the given region (in degrees) is: {}".format(ExtinctionResolutionDegs),
+            "Given this, the number of extinction map pixels needed to cover the uncertainty in rotation measures is: {}".format(NDelt),
+            "This will be used to find the uncertainties later on."]
 logging.info(loggingDivider)
-logging.info("The uncertainty/resolution of the RM Catalogue for the given region (in degrees) is: {}".format(RMResolutionDegs))
-logging.info("The uncertainty/resolution of the Extinction map for the given region (in degrees) is: {}".format(ExtinctionResolutionDegs))
-logging.info("Given this, the number of extinction map pixels needed to cover the uncertainty in rotation measures is: {}".format(NDelt))
-logging.info("This will be used to find the uncertainties later on.")
+map(logging.info, messages)
 # -------- DEFINE THE ERROR RANGE. --------
 
 # -------- DEFINE PARAMETERS --------
@@ -292,42 +289,33 @@ for index in range(len(rmData.targetRotationMeasures)):
 
 # -------- MATCH ROTATION MEASURES AND EXTINCTION VALUES. --------
 
-# -------- CHECK THAT THERE'S ENOUGH POINTS MATCHED. --------
+# -------- CHECK THAT THERE'S ENOUGH POINTS MATCHED. ISSUE WARNINGS IF KEY INDICATORS ARE FAILED. --------
 if len(RMValue) < 2:
+    messages = ["Less than 2 Rotation Measures have been MATCHED for the given region.",
+               "This technique requires at least one on-position, and at least one off-position.",
+               "As such, there is insufficient data to perform this analysis.",
+               "Please select a larger region or obtain a denser RM Catalogue."]
     logging.critical(loggingDivider)
-    logging.critical("Less than 2 Rotation Measures have been MATCHED for the given region.")
-    logging.critical("This technique requires at least one on-position, and at least one off-position.")
-    logging.critical("As such, there is insufficient data to perform this analysis.")
-    logging.critical("Please select a larger region or obtain a denser RM Catalogue.")
+    map( logging.critical, messages)
+    map(print, messages)
 
-    print("Less than 2 Rotation Measures have been MATCHED for the given region.")
-    print("This technique requires at least one on-position, and at least one off-position.")
-    print("As such, there is insufficient data to perform this analysis.")
-    print("Please select a larger region or obtain a denser RM Catalogue.")
-
-elif len(RMValue) < config.minRefPts:
+elif len(RMValue) < config.minRefPoints:
+    messages = ["Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)),
+                "In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPoints),
+                "As such, there is insufficient data to perform this analysis.",
+                "Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements."]
     logging.critical(loggingDivider)
-    logging.critical("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
-    logging.critical("As such, there is insufficient data to perform this analysis.")
-    logging.critical("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
+    map( logging.critical, messages)
+    map(print, messages)
 
-    print("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
-    print("As such, there is insufficient data to perform this analysis.")
-    print("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
-
-elif len(RMValue) < 2*config.minRefPts:
+elif len(RMValue) < 2*config.minRefPoints:
+    messages = ["Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)),
+                "In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPoints),
+                "Since some points will be excluded, there may be insufficient data to perform this analysis.",
+                "Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements."]
     logging.critical(loggingDivider)
-    logging.critical("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    logging.critical("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
-    logging.critical("Since some points will be excluded, there may be insufficient data to perform this analysis.")
-    logging.critical("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
-
-    print("Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)))
-    print("In the config, the minimum number of points selected by the stability trend algorithm is: {}".format(config.minRefPts))
-    print("Since some points will be excluded, there may be insufficient data to perform this analysis.")
-    print("Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.")
+    map( logging.critical, messages)
+    map(print, messages)
 
 # -------- CHECK THAT THERE'S ENOUGH POINTS MATCHED. --------
 
@@ -345,12 +333,8 @@ matchedRMExtinct = pd.DataFrame(data, columns=columns)
 matchedRMExtinct.index.name = 'ID#'
 matchedRMExtinct.to_csv(MatchedRMExtinctFile)
 # -------- WRITE TO A FILE. --------
+messages = ['Within the specified region of interest, a total of {} rotation measure points were matched to visual extinction values.'.format(len(Identifier)),
+            'Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile)]
 logging.info(loggingDivider)
-logging.info('Within the specified region of interest, a total of {} rotation measure points were matched '
-      'to visual extinction values.'.format(len(Identifier)))
-logging.info('Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile))
-
-print()
-print('Within the specified region of interest, a total of {} rotation measure points were matched '
-      'to visual extinction values.'.format(len(Identifier)))
-print('Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile))
+map(logging.info, messages)
+map(print, messages)

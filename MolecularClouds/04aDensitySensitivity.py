@@ -28,6 +28,7 @@ CloudDensSensDir = config.CloudDensSensDir
 
 # -------- CONFIGURE LOGGING --------
 LogFile = config.Script04aFile
+loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
@@ -54,17 +55,22 @@ for value in percent:
     B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
     B.to_csv(saveFilePath, index=False, na_rep='nan')
     if B.isnull().values.any():
-        logging.warning("Error! The following percentage change has invalid values: {}".format(value))
-        print("Error! The following percentage change has invalid values: {}".format(value))
         errPercent.append(value)
 
-if len(errPercent) > 0:
-    logging.info('-------------------------------------------------------------------------------')
-    logging.warning('Warning: The following density changes have invalid values.')
-    logging.warning('{}'.format(errPercent))
-    logging.warning('Please review the results.')
-    logging.info('-------------------------------------------------------------------------------')
+        message = "Error! The following percentage change has invalid (nan) values: {}".format(value)
+        logging.warning(message)
+        print(message)
 
-logging.info('Saving calculated magnetic field values in the folder: ' + CloudDensSensDir)
-print('Saving calculated magnetic field values in the folder: ' + CloudDensSensDir)
+if len(errPercent) > 0:
+    messages = [loggingDivider,
+                'Warning: The following density changes have invalid values.',
+                '{}'.format(errPercent),
+                'Please review the results.',
+                loggingDivider]
+    map(logging.warning, messages)
+    map(print, messages)
+
+message = 'Saving calculated magnetic field values in the folder: ' + CloudDensSensDir
+logging.info(message)
+print(message)
 # -------- CALCULATE BLOS AS A FUNCTION OF PERCENT OF THE INPUT DENSITY. --------

@@ -89,14 +89,16 @@ elif abs(GalLatDeg) < config.offDiskLatitude:
 else:
     Av_threshold = config.offDiskAvThresh
 # ---- Log info
+messages = ['Potential reference points with a matched extinction value less than the extinction threshold set in the starting settings configuration are considered candidates.',
+            '\t-For clouds that appear near the disk and towards the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvGalacticThresh),
+            '\t-For clouds that appear near the disk and away from the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvAntiGalacticThresh),
+            '\t-For clouds that appear off the disk, an appropriate threshold value is {}.'.format(config.offDiskAvThresh),
+            "{}'s absolute calculated latitude is: {}".format(cloudName, abs(GalLatDeg)),
+            "The selected threshold latitude (from the starting settings config) is: {}".format(config.offDiskLatitude),
+            "Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold)]
+
 logging.info(loggingDivider)
-logging.info('Potential reference points with a matched extinction value less than the extinction threshold set in the starting settings configuration are considered candidates.')
-logging.info('\t-For clouds that appear near the disk and towards the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvGalacticThresh))
-logging.info('\t-For clouds that appear near the disk and away from the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvAntiGalacticThresh))
-logging.info('\t-For clouds that appear off the disk, an appropriate threshold value is {}.'.format(config.offDiskAvThresh))
-logging.info("{}'s absolute calculated latitude is: {}".format(cloudName, abs(GalLatDeg)))
-logging.info("The selected threshold latitude (from the starting settings config) is: {}".format(config.offDiskLatitude))
-logging.info("Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold))
+map(logging.info, messages)
 # ---- Log info
 # -------- LOAD THE THRESHOLD EXTINCTION. --------
 
@@ -140,10 +142,11 @@ PotRefPoints += listIndRefPoints
 RejectedReferencePoints += []
 
 # ---- Log info
+messages = ['Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints),
+            "The IDs of the selected points are: {}".format([i+1 for i in PotRefPoints]),
+            "The following are all the potential reference points: \n {}".format(AllPotentialRefPoints)]
 logging.info(loggingDivider)
-logging.info('Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints))
-logging.info("The IDs of the selected points are: {}".format([i+1 for i in PotRefPoints]))
-logging.info("The following are all the potential reference points: \n {}".format(AllPotentialRefPoints))
+map(logging.info, messages)
 # ---- Log info
 #======================================================================================================================
 
@@ -196,18 +199,19 @@ FarRejectedRefPoints.to_csv(FarRejectedRefPointsFile)
 # ---- Record the points rejected for what reason, and what points remain as potential reference points.
 
 # ---- Log info
+messages = ['We will now check if any of the potential reference points are near a region of high extinction.',
+            "\t-A close region around the point has been defined to the configuration-selected {} pixels".format(NDeltNear),
+            "\t-A far region around the point has been defined to the configuration-selected {} pixels".format(NDeltFar),
+            "\t-A region of high extinction has been defined to the configuration-selected Av={}".format(highExtinctionThreshold),
+            'The potential reference point(s) {} are near a region of high extinction'.format([i+1 for i in nearHighExtinctionRegion]),
+            'The potential reference point(s) {} are far from a region of high extinction'.format([i+1 for i in farHighExtinctionRegion]),
+            'As per configuration settings, near points will be removed: {}'.format(config.useNearExtinctionRemove),
+            'As per configuration settings, far points will be removed: {}'.format(config.useFarExtinctionRemove),
+            'As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints),
+            'Near High Extinction Rejected Points data was saved to {}'.format(NearRejectedRefPointsFile),
+            'Far from High Extinction Rejected Points data was saved to {}'.format(FarRejectedRefPointsFile)]
 logging.info(loggingDivider)
-logging.info('We will now check if any of the potential reference points are near a region of high extinction.')
-logging.info("\t-A close region around the point has been defined to the configuration-selected {} pixels".format(NDeltNear))
-logging.info("\t-A far region around the point has been defined to the configuration-selected {} pixels".format(NDeltFar))
-logging.info("\t-A region of high extinction has been defined to the configuration-selected Av={}".format(highExtinctionThreshold))
-logging.info('The potential reference point(s) {} are near a region of high extinction'.format([i+1 for i in nearHighExtinctionRegion]))
-logging.info('The potential reference point(s) {} are far from a region of high extinction'.format([i+1 for i in farHighExtinctionRegion]))
-logging.info('As per configuration settings, near points will be removed: {}'.format(config.useNearExtinctionRemove))
-logging.info('As per configuration settings, far points will be removed: {}'.format(config.useFarExtinctionRemove))
-logging.info('As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints))
-logging.info('Near High Extinction Rejected Points data was saved to {}'.format(NearRejectedRefPointsFile))
-logging.info('Far from High Extinction Rejected Points data was saved to {}'.format(FarRejectedRefPointsFile))
+map(logging.info, messages)
 # ---- Log info
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION. --------
@@ -240,14 +244,14 @@ PotRefPoints = [item for item in PotRefPoints if item not in anomalousReject]
 AnomalousRejectedRefPoints = AllPotentialRefPoints.loc[anomalousReject].sort_values('Extinction_Value')
 AnomalousRejectedRefPoints.to_csv(AnomRejRefPointFile)
 # ---- Log info
+messages = ['We will now check if any of the potential reference points have anomalous rotation measure values.',
+            "\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit),
+            'As per configuration settings, anomalous points will be removed: {}'.format(config.useAnomalousSTDNumRemove),
+            'The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex),
+            'As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints),
+            'Anomalous Rejected Points data was saved to {}'.format(AnomRejRefPointFile)]
 logging.info(loggingDivider)
-logging.info('We will now check if any of the potential reference points have anomalous rotation measure values.')
-logging.info("\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or"
-                                   " rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit))
-logging.info('As per configuration settings, anomalous points will be removed: {}'.format(config.useAnomalousSTDNumRemove))
-logging.info('The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex))
-logging.info('As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints))
-logging.info('Anomalous Rejected Points data was saved to {}'.format(AnomRejRefPointFile))
+map(logging.info, messages)
 # ---- Log info
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES. --------
 
@@ -258,8 +262,9 @@ RejectedRefPoints = AllPotentialRefPoints.loc[RejectedReferencePoints].sort_valu
 RemainingRefPoints = AllPotentialRefPoints.loc[PotRefPoints].sort_values('Extinction_Value')
 RejectedRefPoints.to_csv(RejRefPointFile)
 RemainingRefPoints.to_csv(RemainingRefPointsFile)
-logging.info('Rejected Reference Points data was saved to {}'.format(RejRefPointFile))
-logging.info('Remaining Reference Points data was saved to {}'.format(RemainingRefPointsFile))
+messages = ['Rejected Reference Points data was saved to {}'.format(RejRefPointFile),
+            'Remaining Reference Points data was saved to {}'.format(RemainingRefPointsFile)]
+map(logging.info, messages)
 # -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
 
 #======================================================================================================================
@@ -275,26 +280,28 @@ FilteredRMExtincPoints.to_csv(FilteredRMExtincPath)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
 if len(FilteredRMExtincPoints.index) < 1:
+    messages = ["Less than one potential reference points are left after filtering!",
+                "No further analysis can be done, and all future scriPoints will error.",
+                "Consider adjusting your judgement criteria in the config.",
+                "Alternatively, consider getting more rotation measure data!"]
     logging.critical(loggingDivider)
-    logging.critical("Less than one potential reference points are left after filtering!")
-    logging.critical("No further analysis can be done, and all future scripts will error.")
-    logging.critical("Consider adjusting your judgement criteria in the config.")
-    logging.critical("Alternatively, consider getting more rotation measure data!")
+    map(logging.critical, messages)
 
 elif len(FilteredRMExtincPoints.index) == len(MatchedRMExtinctionData.index):
+    messages = ["All matched RM-Extinction points remain after filtering!",
+                "This will cause issues with stability trend analysis.",
+                "Consider limiting how many points can be taken as off positions.",
+                "This can be adjusted in the configs (Max Fraction Reference Points).",
+                "Alternatively, consider getting more rotation measure data."]
     logging.critical(loggingDivider)
-    logging.critical("All matched RM-Extinction points remain after filtering!")
-    logging.critical("This will cause issues with stability trend analysis.")
-    logging.critical("Consider limiting how many points can be taken as off positions.")
-    logging.critical("This can be adjusted in the configs (Max Fraction Reference Points).")
-    logging.critical("Alternatively, consider getting more rotation measure data.")
+    map(logging.critical, messages)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
-
+messages = ["The Remaining Reference Points will be:",
+            PotRefPoints,
+            "The Remaining data is thus:",
+            FilteredRMExtincPoints,
+            'Remaining data was saved to {}'.format(FilteredRMExtincPath)]
 logging.info(loggingDivider)
-logging.info("The Remaining Reference Points will be:")
-logging.info(PotRefPoints)
-logging.info("The Remaining data is thus:")
-logging.info(FilteredRMExtincPoints)
-logging.info('Remaining data was saved to {}'.format(FilteredRMExtincPath))
+map(logging.info, messages)
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------

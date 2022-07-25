@@ -178,17 +178,17 @@ def minRefRMOff(potentialRefPoints, validDev):
     return minPoints+1
 
 #Minimum number of reference points needed to land in the ballpark of the average Av on.
-def minRefRMOn(MatchedRMPts, potRMPts, validDev):
+def minRefRMOn(MatchedRMPoints, potRMPoints, validDev):
     #Minimum points
     minPoints = 0
-    for num in range(len(potRMPts)):
+    for num in range(len(potRMPoints)):
         minPoints = num
         #Get the off RM
-        candidateRefPoints = potRMPts.head(num + 1)
+        candidateRefPoints = potRMPoints.head(num + 1)
         candidateRM, _, candidateRMStd, _ = MREF.getFiducialValues(candidateRefPoints)
         #Get the average remaining RM
-        remainingTable = MREF.removeMatchingPoints(MatchedRMPts, candidateRefPoints)
-        fiducialRM, _, fiducialStd, _ = MREF.getFiducialValues(remainingTable)  # MREF.getFiducialValues(MatchedRMPts)
+        remainingTable = MREF.removeMatchingPoints(MatchedRMPoints, candidateRefPoints)
+        fiducialRM, _, fiducialStd, _ = MREF.getFiducialValues(remainingTable)  # MREF.getFiducialValues(MatchedRMPoints)
         #If the off RM is close to the average RM, break
         if abs(candidateRM - fiducialRM) < abs(fiducialStd * validDev):
             break

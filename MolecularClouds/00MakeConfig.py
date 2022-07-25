@@ -13,7 +13,7 @@ The format of the code below is config['config section'] = {
 }
 '''
 
-# -------- DEFINE STARTING VARIABLES. --------
+# -------- CONFIG FILE: STARTING VARIABLES. --------
 configStartSettings = ConfigParser()
 configStartSettings['Cloud'] = {
     'Cloud': 'Oriona',
@@ -33,14 +33,14 @@ configStartSettings['Judgement - Off Points Av Threshold'] = {
 }
 configStartSettings['Judgement - Off Points too Near/Far Cloud'] = {
     'Near High Extinction Multiplier': 2,
-    'Far High Extinction Multiplier': 28,
+    'Far From High Extinction Multiplier': 28,
     'High Extinction Threshold Multiplier': 5,
     'Use Near High Extinction Exclusion': True,
-    'Use Far High Extinction Exclusion': True,
+    'Use Far High Extinction Exclusion': False,
 }
 configStartSettings['Judgement - Anomalous Off RM Values'] = {
-    'Anomalous Values Standard Deviation': 3.,
-    'Use Anomalous Values Exclusion': True,
+    'Anomalous Values Standard Deviation (Greater Than or Equal To)': 3.,
+    'Use Anomalous Value Removal': True,
 }
 configStartSettings['Judgement - Optimal Reference Points'] = {
     'Find Optimal Reference Points': True,
@@ -72,9 +72,9 @@ configStartSettings['Logging'] = {
 }
 with open('configStartSettings.ini', 'w') as output_file:
     configStartSettings.write(output_file)
-# -------- DEFINE STARTING VARIABLES. --------
+# -------- CONFIG FILE: STARTING VARIABLES. --------
 
-# -------- DEFINE DIRECTORIES AND NAMES. --------
+# -------- CONFIG FILE: DIRECTORIES AND NAMES. --------
 configDirectoryAndNames = ConfigParser()
 
 configDirectoryAndNames['Output File Locations'] = {
@@ -87,19 +87,19 @@ configDirectoryAndNames['Output File Locations'] = {
     }
 
 configDirectoryAndNames['Output Files'] = {
-    'RM Mapping': 'RMMapping.png',
+    'RM Map': 'RMMap',
 
-    'RM-Extinction Matching': 'MatchedRMExtinction.csv',
-    'RM-Extinction Filtering': 'FilteredRMExtinction.csv',
+    'Matched RM-Extinction': 'MatchedRMExtinction.csv',
+    'Filtered RM-Extinction': 'FilteredRMExtinction.csv',
 
-    'Near High-Extinction Rejected RM-Extinction': 'NearHighExtRej.csv',
-    'Far High-Extinction Rejected RM-Extinction': 'FarHighExtRej.csv',
-    'Anomalous Rejected RM-Extinction': 'AnomRej.csv',
+    'Rejected Near High-Extinction RM-Extinction': 'NearHighExtRej.csv',
+    'Rejected Far High-Extinction RM-Extinction': 'FarHighExtRej.csv',
+    'Rejected Anomalous RM-Extinction': 'AnomRej.csv',
     'Rejected RM-Extinction': 'Rejected.csv',
     'Remaining RM-Extinction': 'Remaining.csv',
 
     'All Potential Reference Points': 'AllPotentialRefPoints.csv',
-    'Selected Reference Points': 'RefPoints.csv',
+    'Selected Reference Points': 'SelectedRefPoints.csv',
     'Reference Data': 'ReferenceData.csv',
 
     'BLOS Point Data': 'BLOSPoints.csv',
@@ -123,9 +123,9 @@ configDirectoryAndNames['Input Files'] = {
 
 with open('configDirectoryAndNames.ini', 'w') as output_file:
     configDirectoryAndNames.write(output_file)
-# -------- DEFINE DIRECTORIES AND NAMES. --------
+# -------- CONFIG FILE: DIRECTORIES AND NAMES. --------
 
-# -------- DEFINE CONSTANTS. --------
+# -------- CONFIG FILE: CONSTANTS. --------
 configConstants = ConfigParser()
 
 configConstants['Conversion Factors'] = {
@@ -135,9 +135,9 @@ configConstants['Conversion Factors'] = {
 
 with open('configConstants.ini', 'w') as output_file:
     configConstants.write(output_file)
-# -------- DEFINE CONSTANTS. --------
+# -------- CONFIG FILE: CONSTANTS. --------
 
-# -------- DEFINE EXAMPLE REGION. --------
+# -------- TEMPLATE: EXAMPLE REGION. --------
 cloudInfoExport = ConfigParser()
 cloudInfoExport['Cloud Info'] = {
     'distance': 0,
@@ -166,4 +166,4 @@ cloudInfoExport['Cloud Info'] = {
 }
 with open('cloudTemplate.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)
-# -------- DEFINE EXAMPLE REGION. --------
+# -------- TEMPLATE: EXAMPLE REGION. --------
