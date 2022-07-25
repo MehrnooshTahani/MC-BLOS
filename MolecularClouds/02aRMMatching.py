@@ -100,7 +100,8 @@ messages = ["The Region Fits File Data Type is: {}".format(regionOfInterest.fits
             "Non-Physical (Negative) data is to be interpolated (according to the config): {}".format(config.interpMethod)]
 
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -154,7 +155,8 @@ messages = ["The uncertainty/resolution of the RM Catalogue for the given region
             "Given this, the number of extinction map pixels needed to cover the uncertainty in rotation measures is: {}".format(NDelt),
             "This will be used to find the uncertainties later on."]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # -------- DEFINE THE ERROR RANGE. --------
 
 # -------- DEFINE PARAMETERS --------
@@ -336,5 +338,6 @@ matchedRMExtinct.to_csv(MatchedRMExtinctFile)
 messages = ['Within the specified region of interest, a total of {} rotation measure points were matched to visual extinction values.'.format(len(Identifier)),
             'Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile)]
 logging.info(loggingDivider)
-map(logging.info, messages)
-map(print, messages)
+for message in messages:
+    logging.info(message)
+    print(message)

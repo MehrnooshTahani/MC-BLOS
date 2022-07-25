@@ -58,8 +58,9 @@ if len(errPercentFiles) > 0:
                 '{}'.format(errPercentFiles),
                 'Please review the results.']
     logging.warning(loggingDivider)
-    map(logging.warning, messages)
-    map(print, messages)
+    for message in messages:
+        logging.warning(message)
+        print(message)
 # ---- Test to see if the files have nan value issues.
 
 # Each row is a BLOS point, each column is the BLOS value corresponding to each percent of the input density

@@ -107,7 +107,9 @@ if len(errDensPercent) > 0:
                 'Ex. 50 means that at least one of -50 or 50 percent changes have an error.',
                 'Please review the results.']
     logging.warning(loggingDivider)
-    map(logging.warning, messages)
+    for message in messages:
+        logging.warning(message)
+        print(message)
 
 errTempPercent = []
 for tempPercent in TempPercent:
@@ -132,7 +134,9 @@ if len(errTempPercent) > 0:
                 'Ex. 20 means that at least one of -20 or 20 percent changes have an error.',
                 'Please review the results.']
     logging.warning(loggingDivider)
-    map(logging.warning, messages)
+    for message in messages:
+        logging.warning(message)
+        print(message)
 
 if BChemDensDecrease is None or BChemDensIncrease is None or BChemTempDecrease is None or BChemTempIncrease is None:
     messages = ['Warning: There is insufficient data to calculate the uncertainty with!',
@@ -140,7 +144,9 @@ if BChemDensDecrease is None or BChemDensIncrease is None or BChemTempDecrease i
                 'This script will fail.',
                 'Please review the results.',]
     logging.warning(loggingDivider)
-    map(logging.warning, messages)
+    for message in messages:
+        logging.warning(message)
+        print(message)
 
 #Find the uncertainty for each row of data.
 for index in range(len(BData)):

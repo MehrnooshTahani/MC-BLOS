@@ -98,7 +98,8 @@ messages = ['Potential reference points with a matched extinction value less tha
             "Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold)]
 
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # ---- Log info
 # -------- LOAD THE THRESHOLD EXTINCTION. --------
 
@@ -146,7 +147,8 @@ messages = ['Based on the threshold extinction of {}, a total of {} potential re
             "The IDs of the selected points are: {}".format([i+1 for i in PotRefPoints]),
             "The following are all the potential reference points: \n {}".format(AllPotentialRefPoints)]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # ---- Log info
 #======================================================================================================================
 
@@ -211,7 +213,8 @@ messages = ['We will now check if any of the potential reference points are near
             'Near High Extinction Rejected Points data was saved to {}'.format(NearRejectedRefPointsFile),
             'Far from High Extinction Rejected Points data was saved to {}'.format(FarRejectedRefPointsFile)]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # ---- Log info
 
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS ARE NEAR A REGION OF HIGH EXTINCTION. --------
@@ -251,7 +254,8 @@ messages = ['We will now check if any of the potential reference points have ano
             'As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints),
             'Anomalous Rejected Points data was saved to {}'.format(AnomRejRefPointFile)]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # ---- Log info
 # -------- CHECK TO SEE IF ANY POTENTIAL POINTS HAVE ANOMALOUS RM VALUES. --------
 
@@ -264,7 +268,8 @@ RejectedRefPoints.to_csv(RejRefPointFile)
 RemainingRefPoints.to_csv(RemainingRefPointsFile)
 messages = ['Rejected Reference Points data was saved to {}'.format(RejRefPointFile),
             'Remaining Reference Points data was saved to {}'.format(RemainingRefPointsFile)]
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
 
 #======================================================================================================================
@@ -285,7 +290,9 @@ if len(FilteredRMExtincPoints.index) < 1:
                 "Consider adjusting your judgement criteria in the config.",
                 "Alternatively, consider getting more rotation measure data!"]
     logging.critical(loggingDivider)
-    map(logging.critical, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
 
 elif len(FilteredRMExtincPoints.index) == len(MatchedRMExtinctionData.index):
     messages = ["All matched RM-Extinction points remain after filtering!",
@@ -294,7 +301,9 @@ elif len(FilteredRMExtincPoints.index) == len(MatchedRMExtinctionData.index):
                 "This can be adjusted in the configs (Max Fraction Reference Points).",
                 "Alternatively, consider getting more rotation measure data."]
     logging.critical(loggingDivider)
-    map(logging.critical, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
 messages = ["The Remaining Reference Points will be:",
@@ -303,5 +312,6 @@ messages = ["The Remaining Reference Points will be:",
             FilteredRMExtincPoints,
             'Remaining data was saved to {}'.format(FilteredRMExtincPath)]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------

@@ -1,11 +1,11 @@
 import subprocess
-scriPoints = ["00MakeDir.py",
-           "01aRMMatching.py","01bRMMapping.py",
-           "02aFilterReferencePoints.py","02bConsiderReferencePoints.py","02cMapReferencePoints.py",
-           "03CalculateBLOS.py",
-           "04aDensitySensitivity.py","04bDensitySensitivityPlot.py",
-           "05aTempSensitivity.py","05bTempSensitivityPlot.py",
-           "06UncertaintyAnalysis.py"]
+scriPoints = ["01MakeDir.py",
+           "02aRMMatching.py","02bRMMapping.py",
+           "03aFilterReferencePoints.py","02bConsiderReferencePoints.py","03cMapReferencePoints.py",
+           "04CalculateBLOS.py",
+           "05aDensitySensitivity.py","05bDensitySensitivityPlot.py",
+           "06aTempSensitivity.py","06bTempSensitivityPlot.py",
+           "07UncertaintyAnalysis.py"]
 for script in scriPoints:
     print("===========================================================")
     print("Script: {}".format(script))

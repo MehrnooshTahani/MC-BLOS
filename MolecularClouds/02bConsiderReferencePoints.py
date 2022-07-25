@@ -108,7 +108,8 @@ messages = ["The filtered reference points, sorted by quadrant, are:",
             "If 1 or more quadrants have insufficient points sampled at this stage,",
             "consider raising your extinction threshold in your start settings configuration and trying again!"]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # -------- OUTPUT RESULTS. --------
 
 #============================================================================================================
@@ -138,8 +139,9 @@ if len(Optimal_NumRefPoints_Selection) < 1:
                 "Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements.",
                 "This analysis will fail."]
     logging.critical(loggingDivider)
-    map(logging.critical, messages)
-    map(print, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
 OptimalNumRefPoints_from_AllPotentialRefPoints = orp.mode(Optimal_NumRefPoints_Selection)
 # -------- FIND OPTIMAL NUM REF POINTS --------
 
@@ -191,7 +193,8 @@ messages = ['By analyzing the stability of calculated BLOS values as a function 
             "Given this information, the remaining table is \n {}.".format(chosenRefPoints),
             'Please review the BLOS trend stability plot at {}.'.format(BLOSvsNRef_AllPotRefPointsPlot)]
 logging.info(loggingDivider)
-map(logging.info, messages)
+for message in messages:
+    logging.info(message)
 # ---- Log info
 
 # -------- Solidify reference points. --------

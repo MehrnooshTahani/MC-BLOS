@@ -58,7 +58,8 @@ if len(errPercentFiles) > 0:
                 '{}'.format(errPercentFiles),
                 'Please review the results.']
     logging.warning(loggingDivider)
-    map(logging.warning, messages)
+    for message in messages:
+        logging.warning(message)
 
 # ---- Test to see if the files have nan value issues.
 
