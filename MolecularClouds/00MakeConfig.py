@@ -66,6 +66,9 @@ configStartSettings['Plotting Options'] = {
     'Temperature Plot Minimum Extinction': 0.5,
     'Temperature Plot Maximum Extinction': 1.5,
 }
+configStartSettings['Data Presentation'] = {
+    'Separator': '\\t',
+}
 configStartSettings['Logging'] = {
     'Format': '%%(name)s - %%(levelname)s - %%(asctime)s - %%(message)s',
     'Section Divider': "====================================================================================================="
@@ -87,7 +90,7 @@ configDirectoryAndNames['Output File Locations'] = {
     }
 
 configDirectoryAndNames['Output Files'] = {
-    'RM Map': 'RMMap',
+    'RM Map': 'RMMap.png',
 
     'Matched RM-Extinction': 'MatchedRMExtinction.csv',
     'Filtered RM-Extinction': 'FilteredRMExtinction.csv',
@@ -118,7 +121,7 @@ configDirectoryAndNames['Input File Locations'] = {
 
 configDirectoryAndNames['Input Files'] = {
     #'RM Catalogue Resolution (Degrees)': 0.0125,
-    'RM Catalogue': 'RMCatalogue.txt'
+    'RM Catalogue': 'catalog.dat'
     }
 
 with open('configDirectoryAndNames.ini', 'w') as output_file:

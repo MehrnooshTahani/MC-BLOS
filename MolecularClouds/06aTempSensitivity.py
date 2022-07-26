@@ -27,16 +27,16 @@ CloudTempSensDir = config.CloudTempSensDir
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-LogFile = config.Script05aFile
+LogFile = config.Script06aFile
 loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
-MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile)
-RefPointTable = pd.read_csv(ChosenRefPointFile)
+MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
+RefPointTable = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
 RemainingTable = MREF.removeMatchingPoints(MatchedRMExtinctTable, RefPointTable)
-RefData = pd.read_csv(ChosenRefDataFile)
+RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
 fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
@@ -53,7 +53,7 @@ for value in percent:
     AvAbundancePath = regionOfInterest.AvFileDir + os.sep + AvAbundanceName + '.out'
     saveFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
     B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-    B.to_csv(saveFilePath, index=False, na_rep='nan')
+    B.to_csv(saveFilePath, index=False, na_rep='nan', sep=config.dataSeparator)
     if B.isnull().values.any():
         errPercent.append(value)
 

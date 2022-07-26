@@ -32,7 +32,7 @@ regionOfInterest = Region(cloudName)
 RMCatalogPath = config.DataRMCatalogFile
 
 MatchedRMExtinctFile = config.MatchedRMExtinctionFile
-LogFile = config.Script01aFile
+LogFile = config.Script02aFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
@@ -333,7 +333,7 @@ data = list(zip_longest(ExtinctionIndex_x, ExtinctionIndex_y, RMRa, RMDec, RMVal
                         fillvalue=''))
 matchedRMExtinct = pd.DataFrame(data, columns=columns)
 matchedRMExtinct.index.name = 'ID#'
-matchedRMExtinct.to_csv(MatchedRMExtinctFile)
+matchedRMExtinct.to_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 # -------- WRITE TO A FILE. --------
 messages = ['Within the specified region of interest, a total of {} rotation measure points were matched to visual extinction values.'.format(len(Identifier)),
             'Matched visual extinction and rotation measure data were saved to {}'.format(MatchedRMExtinctFile)]

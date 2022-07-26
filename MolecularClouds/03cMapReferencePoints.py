@@ -92,7 +92,7 @@ RemainingRefPointsPath = config.RemainingRefPointFile
 # ---- Input Files
 
 # ---- Output Files
-saveScriptLogPath = config.Script02cFile
+saveScriptLogPath = config.Script03cFile
 saveFigureDir_RefPointMap = config.CloudPlotsDir
 
 saveQuadrantFigurePath = config.QuadrantDivisionPlotFile #Todo?
@@ -120,15 +120,15 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-AllPotentialRefPoints = pd.read_csv(AllPotRefPointsFile)
+AllPotentialRefPoints = pd.read_csv(AllPotRefPointsFile, sep=config.dataSeparator)
 
-NearRejectedRefPoints = pd.read_csv(NearRejectedRefPointsPath)
-FarRejectedRefPoints = pd.read_csv(FarRejectedRefPointsPath)
-AnomalousRejectedRefPoints = pd.read_csv(AnomalousRejectedRefPointsPath)
-RejectedRefPoints = pd.read_csv(RejectedRefPointsPath)
-RemainingRefPoints = pd.read_csv(RemainingRefPointsPath)
+NearRejectedRefPoints = pd.read_csv(NearRejectedRefPointsPath, sep=config.dataSeparator)
+FarRejectedRefPoints = pd.read_csv(FarRejectedRefPointsPath, sep=config.dataSeparator)
+AnomalousRejectedRefPoints = pd.read_csv(AnomalousRejectedRefPointsPath, sep=config.dataSeparator)
+RejectedRefPoints = pd.read_csv(RejectedRefPointsPath, sep=config.dataSeparator)
+RemainingRefPoints = pd.read_csv(RemainingRefPointsPath, sep=config.dataSeparator)
 
-chosenRefPoints = pd.read_csv(ChosenRefPointFile)
+chosenRefPoints = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 #======================================================================================================================
 refPointPlot("All Potential ", "AllPotentialRefPoints", cloudName, AllPotentialRefPoints, hdu, regionOfInterest)

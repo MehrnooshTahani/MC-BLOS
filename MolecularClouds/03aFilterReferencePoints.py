@@ -34,7 +34,7 @@ MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 # ---- Output Files
 AllPotRefPointsPath = config.AllPotRefPointFile
 
-LogFile = config.Script02aFile
+LogFile = config.Script03aFile
 
 NearRejectedRefPointsFile = config.NearExtinctRefPointFile
 FarRejectedRefPointsFile = config.FarExtinctRefPointFile
@@ -65,7 +65,7 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile)
+MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # -------- LOAD THE THRESHOLD EXTINCTION --------
@@ -135,7 +135,7 @@ listIndRefPoints = [i for i in range(numAllRefPoints)]
 
 # ---- SAVE REFERENCE POINT DATA AS A TABLE
 if AllPotRefPointsPath is not None:
-    AllPotentialRefPoints.to_csv(AllPotRefPointsPath, index=False)
+    AllPotentialRefPoints.to_csv(AllPotRefPointsPath, index=False, sep=config.dataSeparator)
 # ---- SAVE REFERENCE POINT DATA AS A TABLE.
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
 
@@ -196,8 +196,8 @@ PotRefPoints = [item for item in PotRefPoints if item not in farHighExtinctRejec
 NearRejectedRefPoints = AllPotentialRefPoints.loc[nearHighExtinctReject].sort_values('Extinction_Value')
 FarRejectedRefPoints = AllPotentialRefPoints.loc[farHighExtinctReject].sort_values('Extinction_Value')
 
-NearRejectedRefPoints.to_csv(NearRejectedRefPointsFile)
-FarRejectedRefPoints.to_csv(FarRejectedRefPointsFile)
+NearRejectedRefPoints.to_csv(NearRejectedRefPointsFile, sep=config.dataSeparator)
+FarRejectedRefPoints.to_csv(FarRejectedRefPointsFile, sep=config.dataSeparator)
 # ---- Record the points rejected for what reason, and what points remain as potential reference points.
 
 # ---- Log info
@@ -245,7 +245,7 @@ RejectedReferencePoints += anomalousReject
 PotRefPoints = [item for item in PotRefPoints if item not in anomalousReject]
 
 AnomalousRejectedRefPoints = AllPotentialRefPoints.loc[anomalousReject].sort_values('Extinction_Value')
-AnomalousRejectedRefPoints.to_csv(AnomRejRefPointFile)
+AnomalousRejectedRefPoints.to_csv(AnomRejRefPointFile, sep=config.dataSeparator)
 # ---- Log info
 messages = ['We will now check if any of the potential reference points have anomalous rotation measure values.',
             "\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit),
@@ -264,8 +264,8 @@ for message in messages:
 # -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
 RejectedRefPoints = AllPotentialRefPoints.loc[RejectedReferencePoints].sort_values('Extinction_Value')
 RemainingRefPoints = AllPotentialRefPoints.loc[PotRefPoints].sort_values('Extinction_Value')
-RejectedRefPoints.to_csv(RejRefPointFile)
-RemainingRefPoints.to_csv(RemainingRefPointsFile)
+RejectedRefPoints.to_csv(RejRefPointFile, sep=config.dataSeparator)
+RemainingRefPoints.to_csv(RemainingRefPointsFile, sep=config.dataSeparator)
 messages = ['Rejected Reference Points data was saved to {}'.format(RejRefPointFile),
             'Remaining Reference Points data was saved to {}'.format(RemainingRefPointsFile)]
 for message in messages:
@@ -281,7 +281,7 @@ maxRefPoints = int(round(len(MatchedRMExtinctionData.index) * config.maxFracPoin
 if len(chosenRefPoints_Num) > maxRefPoints: chosenRefPoints_Num = chosenRefPoints_Num[:maxRefPoints]
 
 FilteredRMExtincPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value').reset_index()
-FilteredRMExtincPoints.to_csv(FilteredRMExtincPath)
+FilteredRMExtincPoints.to_csv(FilteredRMExtincPath, sep=config.dataSeparator)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
 if len(FilteredRMExtincPoints.index) < 1:

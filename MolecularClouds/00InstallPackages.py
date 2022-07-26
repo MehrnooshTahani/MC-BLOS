@@ -7,7 +7,8 @@ packages = ['numpy',
             'astropy',
             'pandas',
             'matplotlib',
-            'adjusttext']
+            'adjusttext',
+            'requests']
 commands = [[sys.executable, '-m', 'pip', 'install', package] for package in packages]
 subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=True)
 for command in commands:

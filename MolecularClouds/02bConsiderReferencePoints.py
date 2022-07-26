@@ -40,7 +40,7 @@ BLOSvsNRef_AllPotRefPointsPlot = config.BLOSvsNRef_AllPlotFile
 BLOSvsNRef_ChosenPlotFile = config.BLOSvsNRef_ChosenPlotFile
 
 DataNoRefPath = config.DataNoRefFile
-LogFile = config.Script02bFile
+LogFile = config.Script03bFile
 # ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------
@@ -63,11 +63,11 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
-MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile)
+MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
-FilteredRefPoints = pd.read_csv(FilteredRMExtinctFile)
+FilteredRefPoints = pd.read_csv(FilteredRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
 
 #============================================================================================================
@@ -116,7 +116,7 @@ for message in messages:
 
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
 DataNoRef = orp.findTrendData(FilteredRefPoints, MatchedRMExtinctionData, regionOfInterest)
-DataNoRef.to_csv(DataNoRefPath)
+DataNoRef.to_csv(DataNoRefPath, sep=config.dataSeparator)
 
 fig = orp.stabilityTrendGraph(DataNoRef)
 plt.savefig(BLOSvsNRef_AllPotRefPointsPlot)
@@ -282,7 +282,7 @@ referenceData['Reference RM AvgErr'] = [refAvgErr]
 # Standard error of the sampled mean:
 referenceData['Reference RM Std'] = [refRMStd]
 referenceData['Reference Extinction'] = [refExtinc]
-referenceData.to_csv(ChosenRefDataFile, index=False)
+referenceData.to_csv(ChosenRefDataFile, index=False, sep=config.dataSeparator)
 
 message = 'Reference values were saved to {}'.format(ChosenRefDataFile)
 logging.info(loggingDivider)
@@ -291,7 +291,7 @@ print(message)
 # -------- CALCULATE AND SAVE REFERENCE VALUES. --------
 
 # -------- SAVE REFERENCE POINTS  --------
-chosenRefPoints.to_csv(ChosenRefPointFile, index=False)
+chosenRefPoints.to_csv(ChosenRefPointFile, index=False, sep=config.dataSeparator)
 
 message = 'Chosen reference points were saved to {}'.format(ChosenRefPointFile)
 logging.info(loggingDivider)

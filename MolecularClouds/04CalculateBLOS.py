@@ -84,7 +84,7 @@ MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 #Output Files
 BLOSPointsFile = config.BLOSPointsFile
 BLOSPointsPlotFile = config.BLOSPointsPlot
-LogFile = config.Script03File
+LogFile = config.Script04File
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
@@ -92,10 +92,10 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ REFERENCE POINT TABLE --------
-MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile)
-RefPointTable = pd.read_csv(ChosenRefPointFile)
+MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
+RefPointTable = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
 RemainingPointTable = MREF.removeMatchingPoints(MatchedRMExtinctTable, RefPointTable)
-RefData = pd.read_csv(ChosenRefDataFile)
+RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
 fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
@@ -115,7 +115,7 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 
 # -------- CALCULATE BLOS --------
 BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-BLOSData.to_csv(BLOSPointsFile, index=False, na_rep='nan')
+BLOSData.to_csv(BLOSPointsFile, index=False, na_rep='nan', sep=config.dataSeparator)
 
 message = 'Saving calculated magnetic field values to ' + BLOSPointsFile
 logging.info(message)

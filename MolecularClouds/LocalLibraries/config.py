@@ -52,6 +52,10 @@ tempPlotNumPoints = configStartSettings['Plotting Options'].getint('Temperature 
 tempPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Minimum Extinction')
 tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Maximum Extinction')
 
+#Data Presentation
+dataSeparator = configStartSettings['Data Presentation'].get('Separator')
+dataSeparator = bytes(dataSeparator, "utf-8").decode("unicode_escape")
+
 #Logging Options
 logFormat = configStartSettings['Logging'].get('Format')
 logSectionDivider = configStartSettings['Logging'].get('Section Divider')
@@ -146,18 +150,18 @@ BLOSPointsPlot = os.path.join(CloudPlotsDir, file_BLOSPointFig)
 BDensSensPlot = os.path.join(CloudPlotsDir, 'BDensitySensitivity.png')
 BTempSensPlot = os.path.join(CloudPlotsDir, 'BTemperatureSensitivity.png')
 
-Script00File = os.path.join(CloudLogsDir, "00.txt")
-Script01aFile = os.path.join(CloudLogsDir, "01a.txt")
-Script01bFile = os.path.join(CloudLogsDir, "01b.txt")
+Script01File = os.path.join(CloudLogsDir, "01.txt")
 Script02aFile = os.path.join(CloudLogsDir, "02a.txt")
 Script02bFile = os.path.join(CloudLogsDir, "02b.txt")
-Script02cFile = os.path.join(CloudLogsDir, "02c.txt")
-Script03File = os.path.join(CloudLogsDir, "03.txt")
-Script04aFile = os.path.join(CloudLogsDir, "04a.txt")
-Script04bFile = os.path.join(CloudLogsDir, "04b.txt")
-Script05aFile = os.path.join(CloudLogsDir, "05a.txt")
-Script05bFile = os.path.join(CloudLogsDir, "05b.txt")
-Script06File = os.path.join(CloudLogsDir, "06.txt")
+Script03aFile = os.path.join(CloudLogsDir, "03a.txt")
+Script03bFile = os.path.join(CloudLogsDir, "03b.txt")
+Script03cFile = os.path.join(CloudLogsDir, "03c.txt")
+Script04File = os.path.join(CloudLogsDir, "04.txt")
+Script05aFile = os.path.join(CloudLogsDir, "04a.txt")
+Script05bFile = os.path.join(CloudLogsDir, "04b.txt")
+Script06aFile = os.path.join(CloudLogsDir, "06a.txt")
+Script06bFile = os.path.join(CloudLogsDir, "06b.txt")
+Script07File = os.path.join(CloudLogsDir, "07.txt")
 # -------- DEFINE DIRECTORIES/FILE STRUCTURE. --------
 
 # -------- DEFINE CONSTANTS. --------

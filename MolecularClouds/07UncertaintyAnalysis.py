@@ -43,13 +43,13 @@ BLOSUncertaintyFile = config.BLOSUncertaintyFile
 # -------- DEFINE FILES AND PATHS --------
 
 # -------- CONFIGURE LOGGING --------
-LogFile = config.Script06File
+LogFile = config.Script07File
 loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- READ BLOS DATA--------
-BData = pd.read_csv(BLOSPointsFile)
+BData = pd.read_csv(BLOSPointsFile, sep=config.dataSeparator)
 # -------- READ BLOS DATA. --------
 
 # -------- CREATE A TABLE FOR THE UNCERTAINTY DATA --------
@@ -88,8 +88,8 @@ errDensPercent = []
 for densPercent in DensPercent:
     BData_DensityIncreasePath = os.path.join(CloudDensSensDir, "B_Av_T0_n+{}.txt".format(densPercent))
     BData_DensityDecreasePath = os.path.join(CloudDensSensDir, "B_Av_T0_n-{}.txt".format(densPercent))
-    BData_DensityIncrease = pd.read_csv(BData_DensityIncreasePath)
-    BData_DensityDecrease = pd.read_csv(BData_DensityDecreasePath)
+    BData_DensityIncrease = pd.read_csv(BData_DensityIncreasePath, sep=config.dataSeparator)
+    BData_DensityDecrease = pd.read_csv(BData_DensityDecreasePath, sep=config.dataSeparator)
 
     BChemDensIncrease = list(BData_DensityIncrease['Magnetic_Field(uG)'])
     BChemDensDecrease = list(BData_DensityDecrease['Magnetic_Field(uG)'])
@@ -115,8 +115,8 @@ errTempPercent = []
 for tempPercent in TempPercent:
     BData_TempIncreasePath = os.path.join(CloudTempSensDir, "B_Av_T+{}_n0.txt".format(tempPercent))
     BData_TempDecreasePath = os.path.join(CloudTempSensDir, "B_Av_T-{}_n0.txt".format(tempPercent))
-    BData_TempIncrease = pd.read_csv(BData_TempIncreasePath)
-    BData_TempDecrease = pd.read_csv(BData_TempDecreasePath)
+    BData_TempIncrease = pd.read_csv(BData_TempIncreasePath, sep=config.dataSeparator)
+    BData_TempDecrease = pd.read_csv(BData_TempDecreasePath, sep=config.dataSeparator)
 
     BChemTempIncrease = list(BData_TempIncrease['Magnetic_Field(uG)'])
     BChemTempDecrease = list(BData_TempDecrease['Magnetic_Field(uG)'])
@@ -173,7 +173,7 @@ FinalBLOSResults['TotalLowerBUncertainty'] = BTotalLowerUncertainty
 # -------- CALCULATE UNCERTAINTIES. --------
 
 # -------- SAVE FINAL BLOS RESULTS --------
-FinalBLOSResults.to_csv(BLOSUncertaintyFile, index=False, na_rep='nan')
+FinalBLOSResults.to_csv(BLOSUncertaintyFile, index=False, na_rep='nan', sep=config.dataSeparator)
 message = 'Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile
 logging.info(message)
 print(message)

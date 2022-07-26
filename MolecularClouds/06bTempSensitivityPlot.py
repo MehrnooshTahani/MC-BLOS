@@ -26,13 +26,13 @@ BTempSensPlot = config.BTempSensPlot
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-LogFile = config.Script05bFile
+LogFile = config.Script06bFile
 loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- EXTRACT ORIGINAL BLOS VALUES --------
-InitialBData = pd.read_csv(TempBT0n0File)
+InitialBData = pd.read_csv(TempBT0n0File, sep=config.dataSeparator)
 B = list(InitialBData['Magnetic_Field(uG)'])
 # -------- EXTRACT ORIGINAL BLOS VALUES. --------
 
@@ -46,7 +46,7 @@ errPercentFiles = []
 for i, value in enumerate(percent):
     AvAbundanceName = 'Av_T' + value + '_n0'
     BScaledFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
-    BScaledDens = pd.read_csv(BScaledFilePath)
+    BScaledDens = pd.read_csv(BScaledFilePath, sep=config.dataSeparator)
     if BScaledDens.isnull().values.any() and not config.useUncertaintyNans:
         errPercent.append(value)
         errPercentFiles.append(BScaledFilePath)
@@ -69,7 +69,7 @@ AllBScaled = np.zeros([len(B), len(percent)])
 for i, value in enumerate(percent):
     AvAbundanceName = 'Av_T' + value + '_n0'
     BScaledFilePath = CloudTempSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
-    BScaledTemp = list(pd.read_csv(BScaledFilePath)['Magnetic_Field(uG)'])
+    BScaledTemp = list(pd.read_csv(BScaledFilePath, sep=config.dataSeparator)['Magnetic_Field(uG)'])
     AllBScaled[:, i] = BScaledTemp[:]
 # -------- EXTRACT BLOS FOR EACH PERCENT OF THE INPUT DENSITY. -------
 
