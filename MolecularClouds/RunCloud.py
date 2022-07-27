@@ -10,6 +10,7 @@ for i in range(1, len(sys.argv)):
     configStartSettings = ConfigParser()
     configStartSettings.read('configStartSettings.ini')
     #Cloud
+    origCloud = configStartSettings['Cloud']['Cloud']
     configStartSettings['Cloud']['Cloud'] = sys.argv[i]
 
     with open('configStartSettings.ini', 'w') as output_file:
@@ -17,3 +18,8 @@ for i in range(1, len(sys.argv)):
 
     script = "Run.py"
     subprocess.run(["python", script], shell=True)
+
+    #Restore to original settings.
+    configStartSettings['Cloud']['Cloud'] = origCloud
+    with open('configStartSettings.ini', 'w') as output_file:
+        configStartSettings.write(output_file)

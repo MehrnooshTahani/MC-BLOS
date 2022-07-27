@@ -38,6 +38,9 @@ BLOSPointsFile = config.BLOSPointsFile
 
 CloudDensSensDir = config.CloudDensSensDir
 CloudTempSensDir = config.CloudTempSensDir
+
+DensVaryFileTemplate = config.BDensSensFile
+TempVaryTemplate = config.BTempSensFile
 #Output Files
 BLOSUncertaintyFile = config.BLOSUncertaintyFile
 # -------- DEFINE FILES AND PATHS --------
@@ -86,8 +89,8 @@ TempPercent = TempPercent[::-1]
 
 errDensPercent = []
 for densPercent in DensPercent:
-    BData_DensityIncreasePath = os.path.join(CloudDensSensDir, "B_Av_T0_n+{}.txt".format(densPercent))
-    BData_DensityDecreasePath = os.path.join(CloudDensSensDir, "B_Av_T0_n-{}.txt".format(densPercent))
+    BData_DensityIncreasePath = DensVaryFileTemplate.format("+{}".format(densPercent))
+    BData_DensityDecreasePath = DensVaryFileTemplate.format("-{}".format(densPercent))
     BData_DensityIncrease = pd.read_csv(BData_DensityIncreasePath, sep=config.dataSeparator)
     BData_DensityDecrease = pd.read_csv(BData_DensityDecreasePath, sep=config.dataSeparator)
 
@@ -113,8 +116,8 @@ if len(errDensPercent) > 0:
 
 errTempPercent = []
 for tempPercent in TempPercent:
-    BData_TempIncreasePath = os.path.join(CloudTempSensDir, "B_Av_T+{}_n0.txt".format(tempPercent))
-    BData_TempDecreasePath = os.path.join(CloudTempSensDir, "B_Av_T-{}_n0.txt".format(tempPercent))
+    BData_TempIncreasePath = TempVaryTemplate.format("+{}".format(tempPercent))
+    BData_TempDecreasePath = TempVaryTemplate.format("-{}".format(tempPercent))
     BData_TempIncrease = pd.read_csv(BData_TempIncreasePath, sep=config.dataSeparator)
     BData_TempDecrease = pd.read_csv(BData_TempDecreasePath, sep=config.dataSeparator)
 
@@ -140,7 +143,7 @@ if len(errTempPercent) > 0:
 
 if BChemDensDecrease is None or BChemDensIncrease is None or BChemTempDecrease is None or BChemTempIncrease is None:
     messages = ['Warning: There is insufficient data to calculate the uncertainty with!',
-                'Make sure the last two scriPoints (5, 6) were run before this script.',
+                'Make sure the last two scripts (5, 6) were run before this script.',
                 'This script will fail.',
                 'Please review the results.',]
     logging.warning(loggingDivider)

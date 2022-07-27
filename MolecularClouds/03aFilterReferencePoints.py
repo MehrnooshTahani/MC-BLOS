@@ -286,7 +286,7 @@ FilteredRMExtincPoints.to_csv(FilteredRMExtincPath, sep=config.dataSeparator)
 # ---- Check if the number of points left after filtering is good for further analysis.
 if len(FilteredRMExtincPoints.index) < 1:
     messages = ["Less than one potential reference points are left after filtering!",
-                "No further analysis can be done, and all future scriPoints will error.",
+                "No further analysis can be done, and all future scripts will error.",
                 "Consider adjusting your judgement criteria in the config.",
                 "Alternatively, consider getting more rotation measure data!"]
     logging.critical(loggingDivider)

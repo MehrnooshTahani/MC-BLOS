@@ -20,7 +20,7 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
 CloudDensSensDir = config.CloudDensSensDir
-DensBT0n0File = config.DensBT0n0File
+DensVaryFileTemplate = config.BDensSensFile
 #Output Files
 BDensSensPlotFile = config.BDensSensPlot
 # -------- DEFINE FILES AND PATHS. --------
@@ -32,7 +32,8 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 # -------- CONFIGURE LOGGING --------
 
 # -------- EXTRACT ORIGINAL BLOS VALUES --------
-InitialBData = pd.read_csv(DensBT0n0File, sep=config.dataSeparator)
+InitPath = DensVaryFileTemplate.format(0) #DensBT0n0File
+InitialBData = pd.read_csv(InitPath, sep=config.dataSeparator)
 B = list(InitialBData['Magnetic_Field(uG)'])
 # -------- EXTRACT ORIGINAL BLOS VALUES. --------
 
@@ -44,8 +45,7 @@ percent = ['-{}'.format(i) for i in p[::-1]] + ['0'] + ['+{}'.format(i) for i in
 errPercent = []
 errPercentFiles = []
 for i, value in enumerate(percent):
-    AvAbundanceName = 'Av_T0_n' + value
-    BScaledFilePath = CloudDensSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
+    BScaledFilePath = DensVaryFileTemplate.format(value)
     BScaledTemp = pd.read_csv(BScaledFilePath, sep=config.dataSeparator)
     if BScaledTemp.isnull().values.any() and not config.useUncertaintyNans:
         errPercent.append(value)
@@ -67,8 +67,7 @@ if len(errPercentFiles) > 0:
 AllBScaled = np.zeros([len(B), len(percent)])
 
 for i, value in enumerate(percent):
-    AvAbundanceName = 'Av_T0_n' + value
-    BScaledFilePath = CloudDensSensDir + os.sep + 'B_' + AvAbundanceName + '.txt'
+    BScaledFilePath = BScaledFilePath = DensVaryFileTemplate.format(value)
     BScaledTemp = list(pd.read_csv(BScaledFilePath, sep=config.dataSeparator)['Magnetic_Field(uG)'])
     AllBScaled[:, i] = BScaledTemp[:]
 # -------- EXTRACT BLOS FOR EACH PERCENT OF THE INPUT DENSITY. -------

@@ -19,10 +19,13 @@ configStartSettings['Cloud'] = {
     'Cloud': 'Oriona',
     }
 configStartSettings['Judgement - Extinction Map'] = {
+    '# = Fill Initial Nan Data: What to interpret missing values in the extinction map as. Valid values include Zero, Average, Inf, Interpolate, Nan': '',
     'Fill Initial Nan Data': 'Nan',
     'Use Filled Values in RM-Extinction Matching': False,
     'Interpolate Non-Physical (Negative) Extinction': True,
+    '# = Interpolate Area: What areas of the extinction map to interpolate. Valid values include Local, All. Local only interpolates a matched point with nan values and its surroundings, whilst All interpolates the entire map for all of its nan values. Warning: All can be very costly!': '',
     'Interpolate Area': 'Local',
+    '# = Interpolation Method: How the interpolation should be done. Valid values include nearest, linear, cubic': '',
     'Interpolation Method': 'linear',
 }
 configStartSettings['Judgement - Off Points Av Threshold'] = {
@@ -50,6 +53,7 @@ configStartSettings['Judgement - Optimal Reference Points'] = {
 configStartSettings['Judgement - Cloud Quadrant Sampling'] = {
     'Use Minimum Quadrant Sampling': True,
     'Minimum Points Per Quadrant': 1,
+    '# = Weighting Scheme: How the RMoff values should be weighted. Valid values include None, Quadrant': '',
     'Weighting Scheme': 'None'
     }
 configStartSettings['Judgement - Uncertainty Calculations'] = {
@@ -70,7 +74,9 @@ configStartSettings['Data Presentation'] = {
     'Separator': '\\t',
 }
 configStartSettings['Logging'] = {
+    '# = Format: How each line of log info should be prefixed. See https://docs.python.org/3/library/logging.html#formatter-objects for more details.': '',
     'Format': '%%(name)s - %%(levelname)s - %%(asctime)s - %%(message)s',
+    '# = Section Divider: The line that divides logging information within a script. ': '',
     'Section Divider': "====================================================================================================="
 }
 with open('configStartSettings.ini', 'w') as output_file:
@@ -80,49 +86,72 @@ with open('configStartSettings.ini', 'w') as output_file:
 # -------- CONFIG FILE: DIRECTORIES AND NAMES. --------
 configDirectoryAndNames = ConfigParser()
 
-configDirectoryAndNames['Output File Locations'] = {
+configDirectoryAndNames['Output Directories'] = {
     'Root': os.path.abspath(os.getcwd()),
     'File Output': 'FileOutput',
     'Plots': 'Plots',
     'Logs': 'Logs',
     'Density Sensitivity': 'DensitySensitivity',
     'Temperature Sensitivity': 'TemperatureSensitivity'
-    }
-
-configDirectoryAndNames['Output Files'] = {
+}
+configDirectoryAndNames['Output Files - Point Matching'] = {
     'RM Map': 'RMMap.png',
-
-    'Matched RM-Extinction': 'MatchedRMExtinction.csv',
-    'Filtered RM-Extinction': 'FilteredRMExtinction.csv',
-
+    'Matched RM-Extinction': 'MatchedRMExtinction.csv'
+}
+configDirectoryAndNames['Output Files - Point Filtering'] = {
     'Rejected Near High-Extinction RM-Extinction': 'NearHighExtRej.csv',
     'Rejected Far High-Extinction RM-Extinction': 'FarHighExtRej.csv',
     'Rejected Anomalous RM-Extinction': 'AnomRej.csv',
     'Rejected RM-Extinction': 'Rejected.csv',
     'Remaining RM-Extinction': 'Remaining.csv',
-
+    'Filtered RM-Extinction': 'FilteredRMExtinction.csv'
+}
+configDirectoryAndNames['Output Files - Reference Points'] = {
     'All Potential Reference Points': 'AllPotentialRefPoints.csv',
     'Selected Reference Points': 'SelectedRefPoints.csv',
-    'Reference Data': 'ReferenceData.csv',
+    'Optimal Reference Points': 'DataNoRef.csv',
+    'Optimal Reference Points Stability Plot': 'BLOS_vs_NRef_AllPotentialRefPoints.png',
+    'Chosen Reference Points Stability Plot': 'BLOS_vs_NRef_ChosenRefPoints.png',
+    'Chosen Reference Points Quadrant Plot': 'QuadrantDivisionPlot.png',
+    'Reference Data': 'ReferenceData.csv'
+}
+configDirectoryAndNames['Output Files - BLOS Uncertainties'] = {
+    'BLOS Density Uncertainty Data': 'B_Av_T0_n{}.csv',
+    'BLOS Density Uncertainty Plot': 'BDensitySensitivity.png',
 
+    'BLOS Temperature Uncertainty Data': 'B_Av_T{}_n0.csv',
+    'BLOS Temperature Uncertainty Plot': 'BTemperatureSensitivity.png'
+}
+configDirectoryAndNames['Output Files - BLOS Final'] = {
     'BLOS Point Data': 'BLOSPoints.csv',
     'BLOS Point Figure': 'BLOSPointMap.png',
     'BLOS Uncertainties': 'FinalBLOSResults.csv',
-
-    'Optimal Reference Points': 'DataNoRef.csv'
-    }
-
-configDirectoryAndNames['Input File Locations'] = {
+}
+configDirectoryAndNames['Output Files - Logs'] = {
+    '01': '01.txt',
+    '02a': '02a.txt',
+    '02b': '02b.txt',
+    '03a': '03a.txt',
+    '03b': '03b.txt',
+    '03c': '03c.txt',
+    '04': '04.txt',
+    '05a': '05a.txt',
+    '05b': '05b.txt',
+    '06a': '06a.txt',
+    '06b': '06b.txt',
+    '07': '07.txt',
+}
+configDirectoryAndNames['Input Directories'] = {
     'Input Data': 'Data',
     'Cloud Parameter Data': 'CloudParameters',
     'Chemical Abundance Data': 'ChemicalAbundance',
-    'RM Catalogue Data': 'RMCatalogue'
-    }
-
+    'RM Catalogue Data': 'RMCatalog'
+}
 configDirectoryAndNames['Input Files'] = {
     #'RM Catalogue Resolution (Degrees)': 0.0125,
-    'RM Catalogue': 'catalog.dat'
-    }
+    'RM Catalogue': 'catalog.dat',
+    'AvAbundance Template': 'Av_T{}_n{}.out'
+}
 
 with open('configDirectoryAndNames.ini', 'w') as output_file:
     configDirectoryAndNames.write(output_file)
@@ -167,6 +196,6 @@ cloudInfoExport['Cloud Info'] = {
     'decDegMax': 0,
     'decDegMin': 0,
 }
-with open('cloudTemplate.ini', 'w') as output_file:
+with open('Data\CloudParameters\\0- cloudTemplate.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)
 # -------- TEMPLATE: EXAMPLE REGION. --------

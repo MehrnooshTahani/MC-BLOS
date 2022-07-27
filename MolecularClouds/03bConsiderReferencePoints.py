@@ -246,7 +246,7 @@ refAvgErr = 0.0
 refRMStd = 0.0
 refExtinc = 0.0
 
-if config.weightingScheme == "Quadrant Balance":
+if config.weightingScheme == "Quadrant":
     perQuadrantWeight = 100000000 #Arbitrarily large number for weighting.
     chosenPoints = []
     weightPoints = []

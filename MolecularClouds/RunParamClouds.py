@@ -11,6 +11,9 @@ if len(sys.argv) < 3:
 configName = sys.argv[1]
 configStartSettings = ConfigParser()
 configStartSettings.read(configName)
+
+configOriginalSettings = ConfigParser()
+configOriginalSettings.read('configStartSettings.ini')
 with open('configStartSettings.ini', 'w') as output_file:
     configStartSettings.write(output_file)
 
@@ -31,3 +34,6 @@ configFolderSettings.read('configDirectoryAndNames.ini')
 outputFolder = os.path.join(configFolderSettings['Output File Locations']['root'], configFolderSettings['Output File Locations']['file output'])
 outputFolderRenamed = os.path.join(configFolderSettings['Output File Locations']['root'], configFolderSettings['Output File Locations']['file output'] + configName)
 os.rename(outputFolder, outputFolderRenamed)
+#Restore original settings.
+with open('configStartSettings.ini', 'w') as output_file:
+    configOriginalSettings.write(output_file)
