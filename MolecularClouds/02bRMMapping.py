@@ -27,7 +27,7 @@ MatchedRMExtinctPlotFile = config.MatchedRMExtinctionPlotFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-LogFile = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config.dir_logs, "Script1bLog.txt")
+LogFile = config.Script02bFile
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 

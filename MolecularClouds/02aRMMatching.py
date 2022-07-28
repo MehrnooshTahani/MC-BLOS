@@ -104,8 +104,9 @@ if len(rmData.targetRotationMeasures) < 2:
                 "Please select a larger region or obtain a denser RM Catalogue."
                 "This script will abort."]
     logging.critical(loggingDivider)
-    map( logging.critical, messages)
-    map(print, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
     exit()
 # -------- CHECK THAT THERE'S ENOUGH POINTS IN THE FILE. --------
 
@@ -282,8 +283,9 @@ if len(RMValue) < 2:
                "As such, there is insufficient data to perform this analysis.",
                "Please select a larger region or obtain a denser RM Catalogue."]
     logging.critical(loggingDivider)
-    map( logging.critical, messages)
-    map(print, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
 
 elif len(RMValue) < config.minRefPoints:
     messages = ["Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)),
@@ -291,8 +293,9 @@ elif len(RMValue) < config.minRefPoints:
                 "As such, there is insufficient data to perform this analysis.",
                 "Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements."]
     logging.critical(loggingDivider)
-    map( logging.critical, messages)
-    map(print, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
 
 elif len(RMValue) < 2*config.minRefPoints:
     messages = ["Less than {} Rotation Measures have been MATCHED for the given region.".format(len(RMValue)),
@@ -300,8 +303,9 @@ elif len(RMValue) < 2*config.minRefPoints:
                 "Since some points will be excluded, there may be insufficient data to perform this analysis.",
                 "Please select a larger region, obtain a denser RM Catalogue, or adjust your stability trend requirements."]
     logging.critical(loggingDivider)
-    map( logging.critical, messages)
-    map(print, messages)
+    for message in messages:
+        logging.critical(message)
+        print(message)
 
 # -------- CHECK THAT THERE'S ENOUGH POINTS MATCHED. --------
 
