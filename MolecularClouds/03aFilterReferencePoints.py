@@ -52,16 +52,10 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
-# -------- READ FITS FILE --------
-hdulist = fits.open(regionOfInterest.fitsFilePath)
-hdu = hdulist[0]
-wcs = WCS(hdu.header)
-# -------- READ FITS FILE. --------
-
 # -------- PREPROCESS FITS DATA TYPE. --------
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    hdu.data = hdu.data / config.VExtinct_2_Hcol
+    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
@@ -159,7 +153,7 @@ cloudDistance = regionOfInterest.distance  # [pc]
 cloudJeansLength = regionOfInterest.jeanslength  # [pc]
 minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
 
-degPerPix = abs(hdu.header['CDELT1'])
+degPerPix = abs(regionOfInterest.hdu.header['CDELT1'])
 minDiff_pix = minDiff / degPerPix
 NDeltNear = config.nearExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
 NDeltFar = config.farExtinctionMultiplier * math.ceil(minDiff_pix)  # Round up
@@ -176,9 +170,9 @@ for i in list(AllPotentialRefPoints.index):
     px = AllPotentialRefPoints['Extinction_Index_x'][i]
     py = AllPotentialRefPoints['Extinction_Index_y'][i]
     # ---- Find the extinction range for the given point
-    if rjl.nearHighExtinction(px, py, hdu.data, NDeltNear, highExtinctionThreshold):
+    if rjl.nearHighExtinction(px, py, regionOfInterest.hdu.data, NDeltNear, highExtinctionThreshold):
         nearHighExtinctionRegion.append(i)
-    if not rjl.nearHighExtinction(px, py, hdu.data, NDeltFar, highExtinctionThreshold):
+    if not rjl.nearHighExtinction(px, py, regionOfInterest.hdu.data, NDeltFar, highExtinctionThreshold):
         farHighExtinctionRegion.append(i)
     # ---- Find the extinction range for the given point.
 # -------- For each potential reference point.

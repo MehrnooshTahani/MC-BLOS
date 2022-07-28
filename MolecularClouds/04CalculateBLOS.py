@@ -99,23 +99,17 @@ RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
 fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
-# -------- READ FITS FILE --------
-hdulist = fits.open(regionOfInterest.fitsFilePath)
-hdu = hdulist[0]
-wcs = WCS(hdu.header)
-# -------- READ FITS FILE. --------
-
 # -------- PREPROCESS FITS DATA TYPE. --------
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    hdu.data = hdu.data / config.VExtinct_2_Hcol
+    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # =====================================================================================================================
 
 # -------- CALCULATE BLOS --------
 BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-BLOSData.to_csv(BLOSPointsFile, index=False, na_rep='nan', sep=config.dataSeparator)
+BLOSData.to_csv(BLOSPointsFile, index=False, na_rep=config.missingDataRep, sep=config.dataSeparator)
 
 message = 'Saving calculated magnetic field values to ' + BLOSPointsFile
 logging.info(message)
@@ -134,16 +128,16 @@ BLOS = list(BLOSData['Magnetic_Field(uG)'])
 #
 # -------- CREATE A FIGURE - BLOS POINT MAP --------
 fig = plt.figure(figsize=(12, 10), dpi=120, facecolor='w', edgecolor='k')
-ax = fig.add_subplot(111, projection=wcs)
+ax = fig.add_subplot(111, projection=regionOfInterest.wcs)
 
 plt.title(r'$\rm{B}_{LOS}$' + ' in the '+cloudName+' region\n\n\n', fontsize=12, linespacing=1)
-im = plt.imshow(hdu.data, origin='lower', cmap='BrBG', interpolation='nearest')
+im = plt.imshow(regionOfInterest.hdu.data, origin='lower', cmap='BrBG', interpolation='nearest')
 
 # ---- Convert Ra and Dec of points into pixel values of the fits file
 x = []  # x pixel coordinate
 y = []  # y pixel coordinate
 for i in range(len(Ra)):
-    pixelRow, pixelColumn = wcs.wcs_world2pix(Ra[i], Dec[i], 0)
+    pixelRow, pixelColumn = regionOfInterest.wcs.wcs_world2pix(Ra[i], Dec[i], 0)
     x.append(pixelRow)
     y.append(pixelColumn)
 # ---- Convert Ra and Dec of points into pixel values of the fits file.
@@ -170,7 +164,7 @@ RefBLOS = list(RefBLOSData['Magnetic_Field(uG)'])
 xRef = []  # x pixel coordinate
 yRef = []  # y pixel coordinate
 for i in range(len(RefRa)):
-    pixelRow, pixelColumn = wcs.wcs_world2pix(RefRa[i], RefDec[i], 0)
+    pixelRow, pixelColumn = regionOfInterest.wcs.wcs_world2pix(RefRa[i], RefDec[i], 0)
     xRef.append(pixelRow)
     yRef.append(pixelColumn)
 # ---- Convert Ra and Dec of points into pixel values of the fits file.

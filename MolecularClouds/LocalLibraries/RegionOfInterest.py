@@ -4,9 +4,11 @@ The zeroth stage of the BLOSMapping method is to define regions of interest.
 
 """
 import os
-from sys import exit
+from astropy.io import fits
+from astropy.wcs import WCS
 from configparser import ConfigParser
 from . import config as config
+from . import util as util
 
 class Region:
     def __init__(self, regionName):
@@ -28,11 +30,17 @@ class Region:
         self.fitsFilePath = os.path.join(config.dir_root, config.dir_data, cloudParams['Cloud Info'].get('fitsFileName'))
         self.fitsDataType = cloudParams['Cloud Info'].get('fitsDataType')
 
+        # Read Fits File
+        self.hdulist = fits.open(self.fitsFilePath)
+        self.hdu = self.hdulist[0]
+        self.wcs = WCS(self.hdu.header)
+
         # Pixel limits of the region of interest in the fits file:
-        self.xmin = cloudParams['Cloud Info'].getfloat('xmin')
-        self.xmax = cloudParams['Cloud Info'].getfloat('xmax')
-        self.ymin = cloudParams['Cloud Info'].getfloat('ymin')
-        self.ymax = cloudParams['Cloud Info'].getfloat('ymax')
+        xmin = cloudParams['Cloud Info'].getfloat('xmin')
+        xmax = cloudParams['Cloud Info'].getfloat('xmax')
+        ymin = cloudParams['Cloud Info'].getfloat('ymin')
+        ymax = cloudParams['Cloud Info'].getfloat('ymax')
+        self.xmin, self.xmax, self.ymin, self.ymax = util.getBoxBounds(self.hdu.data, xmin, xmax, ymin, ymax)
 
         # Path to the fiducial extinction and electron abundance for the region of interest:
         self.n0 = cloudParams['Cloud Info'].get('n0')
@@ -43,6 +51,16 @@ class Region:
         self.AvFilePath = os.path.join(self.AvFileDir, 'Av_T0_n0.out')
 
         # Boundaries of the region of interest:
+        raMin, raMax, decMin, decMax = util.getRaDecMinSec(xmin, xmax, ymin, ymax, self.wcs)
+        self.raHoursMax = raMax.h
+        self.raMinsMax = raMax.m
+        self.raSecMax = raMax.s
+        self.raHoursMin = raMin.h
+        self.raMinsMin = raMin.m
+        self.raSecMin = raMin.s
+        self.decDegMax = decMax
+        self.decDegMin = decMin
+        '''
         self.raHoursMax = cloudParams['Cloud Info'].getfloat('raHoursmax')
         self.raMinsMax = cloudParams['Cloud Info'].getfloat('raMinsMax')
         self.raSecMax = cloudParams['Cloud Info'].getfloat('raSecMax')
@@ -51,7 +69,7 @@ class Region:
         self.raSecMin = cloudParams['Cloud Info'].getfloat('raSecMin')
         self.decDegMax = cloudParams['Cloud Info'].getfloat('decDegMax')
         self.decDegMin = cloudParams['Cloud Info'].getfloat('decDegMin')
-
+        '''
 
 '''
 TEMPLATE (with defaults)

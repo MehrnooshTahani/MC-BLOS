@@ -20,7 +20,7 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
 CloudTempSensDir = config.CloudTempSensDir
-TempVaryTemplate = config.BTempSensFile
+TempVaryTemplate = config.template_BTempSensName
 #Output Files
 BTempSensPlot = config.BTempSensPlot
 # -------- DEFINE FILES AND PATHS. --------

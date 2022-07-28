@@ -32,7 +32,7 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title):
     Ra = list(refPoints['Ra(deg)'])
     Dec = list(refPoints['Dec(deg)'])
     # ---- Convert Ra and Dec of reference points into pixel values of the fits file
-    x, y = cl.RADec2xy(Ra, Dec, wcs)
+    x, y = cl.RADec2xy(Ra, Dec, regionOfInterest.wcs)
     # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
     # -------- PREPARE TO PLOT REFERENCE POINTS. --------
 
@@ -107,16 +107,10 @@ logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logF
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
-# -------- READ FITS FILE --------
-hdulist = fits.open(regionOfInterest.fitsFilePath)
-hdu = hdulist[0]
-wcs = WCS(hdu.header)
-# -------- READ FITS FILE. --------
-
 # -------- PREPROCESS FITS DATA TYPE. --------
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    hdu.data = hdu.data / config.VExtinct_2_Hcol
+    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
@@ -131,13 +125,13 @@ RemainingRefPoints = pd.read_csv(RemainingRefPointsPath, sep=config.dataSeparato
 chosenRefPoints = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 #======================================================================================================================
-refPointPlot("All Potential ", "AllPotentialRefPoints", cloudName, AllPotentialRefPoints, hdu, regionOfInterest)
-refPointPlot("Near-High Extinction Rejected ", "NearExtinctRejectedRefPoints", cloudName, NearRejectedRefPoints, hdu, regionOfInterest)
-refPointPlot("Far from High Extinction Rejected ", "FarExtinctRejectedRefPoints", cloudName, FarRejectedRefPoints, hdu, regionOfInterest)
-refPointPlot("Anomalous RM Rejected ", "AnomalousRMRejectedRefPoints", cloudName, AnomalousRejectedRefPoints, hdu, regionOfInterest)
-refPointPlot("All Rejected ", "AllRejectedRefPoints", cloudName, RejectedRefPoints, hdu, regionOfInterest)
-refPointPlot("All Remaining ", "AllRemainingRefPoints", cloudName, RemainingRefPoints, hdu, regionOfInterest)
-refPointPlot("All Chosen ", "ChosenRefPoints", cloudName, chosenRefPoints, hdu, regionOfInterest)
+refPointPlot("All Potential ", "AllPotentialRefPoints", cloudName, AllPotentialRefPoints, regionOfInterest.hdu, regionOfInterest)
+refPointPlot("Near-High Extinction Rejected ", "NearExtinctRejectedRefPoints", cloudName, NearRejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
+refPointPlot("Far from High Extinction Rejected ", "FarExtinctRejectedRefPoints", cloudName, FarRejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
+refPointPlot("Anomalous RM Rejected ", "AnomalousRMRejectedRefPoints", cloudName, AnomalousRejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
+refPointPlot("All Rejected ", "AllRejectedRefPoints", cloudName, RejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
+refPointPlot("All Remaining ", "AllRemainingRefPoints", cloudName, RemainingRefPoints, regionOfInterest.hdu, regionOfInterest)
+refPointPlot("All Chosen ", "ChosenRefPoints", cloudName, chosenRefPoints, regionOfInterest.hdu, regionOfInterest)
 #======================================================================================================================
 # -------- PREPARE TO PLOT REMAINING AND REJECTED REFERENCE POINTS --------
 refPoints = RemainingRefPoints
@@ -146,7 +140,7 @@ farExtRefPoints = FarRejectedRefPoints
 anomRefPoints = AnomalousRejectedRefPoints
 RejectedRefPoints = RejectedRefPoints
 
-fig, ax = pt.extinctionPlot(hdu, regionOfInterest)
+fig, ax = pt.extinctionPlot(regionOfInterest.hdu, regionOfInterest)
 title = 'All Potential Reference Points Sorted in the ' + cloudName + ' region\n'
 plt.title(title, fontsize=12, y=1.08)
 
@@ -156,7 +150,7 @@ Ra = list(refPoints['Ra(deg)'])
 Dec = list(refPoints['Dec(deg)'])
 RM = list(refPoints['Rotation_Measure(rad/m2)'])
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file
-x, y = cl.RADec2xy(Ra, Dec, wcs)
+x, y = cl.RADec2xy(Ra, Dec, regionOfInterest.wcs)
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
 c, s = putil.p2RGB(RM)
 ax.scatter(x, y, marker='o', facecolor=c, s=s, edgecolors='black')
@@ -182,7 +176,7 @@ RaRej = list(RejectedRefPoints['Ra(deg)'])
 DecRej = list(RejectedRefPoints['Dec(deg)'])
 RMRej = list(RejectedRefPoints['Rotation_Measure(rad/m2)'])
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file
-xRej, yRej = cl.RADec2xy(RaRej, DecRej, wcs)
+xRej, yRej = cl.RADec2xy(RaRej, DecRej, regionOfInterest.wcs)
 # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
 c, s = putil.p2C(RMRej, (1, 0, 1))
 ax.scatter(xRej, yRej, marker='o', facecolor=c, s=s, edgecolors='black')

@@ -1,4 +1,5 @@
 import math
+from astropy.coordinates import SkyCoord
 '''
 Contains miscellaneous utility functions not yet sorted into other libraries.
 '''
@@ -25,3 +26,20 @@ def getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax):
     if not math.isnan(boxYMax) and boxYMax < ymax:
         ymax = int(boxYMax)
     return xmin, xmax, ymin, ymax
+
+def getRaDecMinSec(xmin, xmax, ymin, ymax, wcs):
+    bottomLeft = SkyCoord.from_pixel(xmin, ymin, wcs)
+    bottomRight = SkyCoord.from_pixel(xmax, ymin, wcs)
+    topLeft = SkyCoord.from_pixel(xmin, ymax, wcs)
+    topRight = SkyCoord.from_pixel(xmax, ymax, wcs)
+    coords = [bottomLeft, bottomRight, topLeft, topRight]
+    coordsRa = [coord.icrs.ra.hms for coord in coords]
+
+    coordRaMin = min(coordsRa)
+    coordRaMax = max(coordsRa)
+
+    coordsDec = [coord.icrs.dec.degree for coord in coords]
+    coordDecMin = min(coordsDec)
+    coordDecMax = max(coordsDec)
+
+    return coordRaMin, coordRaMax, coordDecMin, coordDecMax

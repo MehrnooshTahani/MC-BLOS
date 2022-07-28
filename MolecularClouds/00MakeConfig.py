@@ -71,7 +71,10 @@ configStartSettings['Plotting Options'] = {
     'Temperature Plot Maximum Extinction': 1.5,
 }
 configStartSettings['Data Presentation'] = {
+    '# = What to separate data with. In a csv this is usually \',\'.': '',
     'Separator': '\\t',
+    '# = What to represent missing data with. Usually nan or nothing at all': '',
+    'Missing Data': 'nan'
 }
 configStartSettings['Logging'] = {
     '# = Format: How each line of log info should be prefixed. See https://docs.python.org/3/library/logging.html#formatter-objects for more details.': '',
@@ -172,21 +175,23 @@ with open('configConstants.ini', 'w') as output_file:
 # -------- TEMPLATE: EXAMPLE REGION. --------
 cloudInfoExport = ConfigParser()
 cloudInfoExport['Cloud Info'] = {
+    '# = Physical line-of-sight distances in parsec': '',
     'distance': 0,
     'cloudJeansLength': 1,
-
+    '# = Name of the fits file with the map corresponding to the region': '',
     'fitsFileName': '',
     'fitsDataType': 'HydrogenColumnDensity',
-
+    '# = Pixels in the fits file corresponding to the region': '',
     'xmin': math.nan,
     'xmax': math.nan,
     'ymin': math.nan,
     'ymax': math.nan,
-
+    '# = Chemical code parameters for the cloud': '',
     'n0': '',
     'T0': '',
-    'G0': '',
-
+    'G0': ''
+    '''
+    '# = ': '',
     'raHoursMax': 0,
     'raMinsMax': 0,
     'raSecMax': 0,
@@ -194,7 +199,8 @@ cloudInfoExport['Cloud Info'] = {
     'raMinsMin': 0,
     'raSecMin': 0,
     'decDegMax': 0,
-    'decDegMin': 0,
+    'decDegMin': 0
+    '''
 }
 with open('Data\CloudParameters\\0- cloudTemplate.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)

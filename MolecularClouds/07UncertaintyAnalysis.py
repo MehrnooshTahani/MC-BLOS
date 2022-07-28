@@ -1,7 +1,6 @@
 """
 This is the seventh stage of the BLOSMapping method where the uncertainties in the BLOS values are calculated
 """
-import os
 import pandas as pd
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
@@ -10,6 +9,13 @@ import logging
 
 # -------- FUNCTION DEFINITION --------
 def extinctionChemUncertainties(B, BHigher, BLower):
+    '''
+    Finds the biggest difference between B and the input values.
+    :param B: The magnetic field
+    :param BHigher: The higher magnetic field variance
+    :param BLower: The lower magnetic field variance
+    :return: upperDelta, lowerDelta - the difference between B and the higher/lower of the three values.
+    '''
     if max(B, BHigher, BLower) == B:
         BLowerValue = min(BHigher, BLower)
         BHigherValue = B
@@ -26,7 +32,6 @@ def extinctionChemUncertainties(B, BHigher, BLower):
     return upperDelta, lowerDelta
 # -------- FUNCTION DEFINITION. --------
 
-
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
 regionOfInterest = Region(cloudName)
@@ -36,11 +41,8 @@ regionOfInterest = Region(cloudName)
 #Input Files
 BLOSPointsFile = config.BLOSPointsFile
 
-CloudDensSensDir = config.CloudDensSensDir
-CloudTempSensDir = config.CloudTempSensDir
-
-DensVaryFileTemplate = config.BDensSensFile
-TempVaryTemplate = config.BTempSensFile
+DensVaryNameTemplate = config.template_BDensSensName
+TempVaryNameTemplate = config.template_BTempSensName
 #Output Files
 BLOSUncertaintyFile = config.BLOSUncertaintyFile
 # -------- DEFINE FILES AND PATHS --------
@@ -56,8 +58,7 @@ BData = pd.read_csv(BLOSPointsFile, sep=config.dataSeparator)
 # -------- READ BLOS DATA. --------
 
 # -------- CREATE A TABLE FOR THE UNCERTAINTY DATA --------
-cols = ['ID#', 'Ra(deg)', 'Dec(deg)', 'Extinction', 'Magnetic_Field(uG)',
-        'TotalUpperBUncertainty', 'TotalLowerBUncertainty']
+cols = ['ID#', 'Ra(deg)', 'Dec(deg)', 'Extinction', 'Magnetic_Field(uG)', 'TotalUpperBUncertainty', 'TotalLowerBUncertainty']
 FinalBLOSResults = pd.DataFrame(columns=cols)
 # -------- CREATE A TABLE FOR THE UNCERTAINTY DATA. --------
 
@@ -70,8 +71,7 @@ FinalBLOSResults['Extinction'] = BData['Extinction']
 FinalBLOSResults['Magnetic_Field(uG)'] = BData['Magnetic_Field(uG)']
 # -------- COPY OVER B DATA. --------
 
-TotalRMErrStDevinB = (BData['Magnetic_Field(uG)']) * (BData['TotalRMScaledErrWithStDev'] /
-                                                                         BData['Scaled_RM'])
+TotalRMErrStDevinB = (BData['Magnetic_Field(uG)']) * (BData['TotalRMScaledErrWithStDev'] /BData['Scaled_RM'])
 
 # -------- CALCULATE UNCERTAINTIES --------
 BTotalUpperUncertainty = []
@@ -89,8 +89,8 @@ TempPercent = TempPercent[::-1]
 
 errDensPercent = []
 for densPercent in DensPercent:
-    BData_DensityIncreasePath = DensVaryFileTemplate.format("+{}".format(densPercent))
-    BData_DensityDecreasePath = DensVaryFileTemplate.format("-{}".format(densPercent))
+    BData_DensityIncreasePath = DensVaryNameTemplate.format("+{}".format(densPercent))
+    BData_DensityDecreasePath = DensVaryNameTemplate.format("-{}".format(densPercent))
     BData_DensityIncrease = pd.read_csv(BData_DensityIncreasePath, sep=config.dataSeparator)
     BData_DensityDecrease = pd.read_csv(BData_DensityDecreasePath, sep=config.dataSeparator)
 
@@ -116,8 +116,8 @@ if len(errDensPercent) > 0:
 
 errTempPercent = []
 for tempPercent in TempPercent:
-    BData_TempIncreasePath = TempVaryTemplate.format("+{}".format(tempPercent))
-    BData_TempDecreasePath = TempVaryTemplate.format("-{}".format(tempPercent))
+    BData_TempIncreasePath = TempVaryNameTemplate.format("+{}".format(tempPercent))
+    BData_TempDecreasePath = TempVaryNameTemplate.format("-{}".format(tempPercent))
     BData_TempIncrease = pd.read_csv(BData_TempIncreasePath, sep=config.dataSeparator)
     BData_TempDecrease = pd.read_csv(BData_TempDecreasePath, sep=config.dataSeparator)
 
@@ -176,7 +176,7 @@ FinalBLOSResults['TotalLowerBUncertainty'] = BTotalLowerUncertainty
 # -------- CALCULATE UNCERTAINTIES. --------
 
 # -------- SAVE FINAL BLOS RESULTS --------
-FinalBLOSResults.to_csv(BLOSUncertaintyFile, index=False, na_rep='nan', sep=config.dataSeparator)
+FinalBLOSResults.to_csv(BLOSUncertaintyFile, index=False, na_rep=config.missingDataRep, sep=config.dataSeparator)
 message = 'Saving calculated magnetic field values and associated uncertainties to ' + BLOSUncertaintyFile
 logging.info(message)
 print(message)

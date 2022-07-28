@@ -17,7 +17,6 @@ from LocalLibraries.RMCatalog import RMCatalog
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 
-from LocalLibraries.util import getBoxBounds
 import LocalLibraries.ConversionLibrary as cl
 import LocalLibraries.RefJudgeLib as rjl
 
@@ -30,7 +29,6 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 RMCatalogPath = config.DataRMCatalogFile
-
 MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 LogFile = config.Script02aFile
 # -------- DEFINE FILES AND PATHS. --------
@@ -40,14 +38,8 @@ loggingDivider = config.logSectionDivider
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
-# -------- READ FITS FILE --------
-hdulist = fits.open(regionOfInterest.fitsFilePath)
-hdu = hdulist[0]
-wcs = WCS(hdu.header)
-# -------- READ FITS FILE. --------
-
 # -------- PREPROCESS FITS DATA TYPE. --------
-data = rjl.deepCopy(hdu.data)
+data = rjl.deepCopy(regionOfInterest.hdu.data)
 
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
@@ -57,11 +49,7 @@ if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
 nodata = np.isnan(data)
 
 # Obtain data bounds
-boxXMin = regionOfInterest.xmin
-boxXMax = regionOfInterest.xmax
-boxYMin = regionOfInterest.ymin
-boxYMax = regionOfInterest.ymax
-xmin, xmax, ymin, ymax = getBoxBounds(data, boxXMin, boxXMax, boxYMin, boxYMax)
+xmin, xmax, ymin, ymax = regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax #Shortened alias.
 
 # Set default data values for missing data.
 if config.fillMissingExtinct == 'Zero':
@@ -192,7 +180,7 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Location of the rotation measure
     rmRA = rmData.targetRaHourMinSecToDeg[index]
     rmDec = rmData.targetDecDegArcMinSecs[index]
-    py, px = wcs.world_to_array_index_values(rmRA, rmDec)  # Array indices of the rotation measure
+    py, px = regionOfInterest.wcs.world_to_array_index_values(rmRA, rmDec)  # Array indices of the rotation measure
     # ---- Location of the rotation measure.
 
     # ---- Skip the point if it violates a condition.
@@ -229,8 +217,8 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Match rotation measure to an extinction value
     ExtinctionIndex_x.append(int(px))
     ExtinctionIndex_y.append(int(py))
-    ExtinctionRa.append(wcs.wcs_pix2world(px, py, 0)[0])
-    ExtinctionDec.append(wcs.wcs_pix2world(px, py, 0)[1])
+    ExtinctionRa.append(regionOfInterest.wcs.wcs_pix2world(px, py, 0)[0])
+    ExtinctionDec.append(regionOfInterest.wcs.wcs_pix2world(px, py, 0)[1])
     ExtinctionValue.append(extinction)
     # ---- Match rotation measure to an extinction value.
 
@@ -262,7 +250,7 @@ for index in range(len(rmData.targetRotationMeasures)):
             # ---- Interpolate Missing Data
             extinction = data[pyy, pxx]
             extinction_temp.append(extinction)
-            xx, yy = wcs.wcs_pix2world(pxx, pyy, 0)
+            xx, yy = regionOfInterest.wcs.wcs_pix2world(pxx, pyy, 0)
             ra_temp.append(xx)
             dec_temp.append(yy)
     # ---- Cycle through extinction values within the error range.

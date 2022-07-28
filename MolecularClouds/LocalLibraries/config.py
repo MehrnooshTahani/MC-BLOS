@@ -55,6 +55,7 @@ tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperatu
 #Data Presentation
 dataSeparator = configStartSettings['Data Presentation'].get('Separator')
 dataSeparator = bytes(dataSeparator, "utf-8").decode("unicode_escape")
+missingDataRep = configStartSettings['Data Presentation'].get('Missing Data')
 
 #Logging Options
 logFormat = configStartSettings['Logging'].get('Format')
@@ -167,8 +168,8 @@ BLOSvsNRef_AllPlotFile = os.path.join(CloudPlotsDir, file_OptRefStabPlot)
 BLOSvsNRef_ChosenPlotFile = os.path.join(CloudPlotsDir, file_SelRefStabPlot)
 BLOSPointsPlot = os.path.join(CloudPlotsDir, file_BLOSPointFig)
 
-BDensSensFile = os.path.join(CloudDensSensDir, file_BLOSDensUncertaintyTemplate)
-BTempSensFile = os.path.join(CloudTempSensDir, file_BLOSTempUncertaintyTemplate)
+template_BDensSensName = os.path.join(CloudDensSensDir, file_BLOSDensUncertaintyTemplate)
+template_BTempSensName = os.path.join(CloudTempSensDir, file_BLOSTempUncertaintyTemplate)
 BDensSensPlot = os.path.join(CloudPlotsDir, file_BLOSDensUncertaintyPlot)
 BTempSensPlot = os.path.join(CloudPlotsDir, file_BLOSTempUncertaintyPlot)
 

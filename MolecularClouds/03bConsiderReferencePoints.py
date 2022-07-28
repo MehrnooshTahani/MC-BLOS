@@ -50,16 +50,10 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
-# -------- READ FITS FILE --------
-hdulist = fits.open(regionOfInterest.fitsFilePath)
-hdu = hdulist[0]
-wcs = WCS(hdu.header)
-# -------- READ FITS FILE. --------
-
 # -------- PREPROCESS FITS DATA TYPE. --------
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    hdu.data = hdu.data / config.VExtinct_2_Hcol
+    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
@@ -72,8 +66,8 @@ FilteredRefPoints = pd.read_csv(FilteredRMExtinctFile, sep=config.dataSeparator)
 
 #============================================================================================================
 # -------- FIND REGIONS TO SPLIT THE CLOUD INTO. --------
-cloudCenterX, cloudCenterY = rjl.findWeightedCenter(hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
-m, b = rjl.getDividingLine(hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
+cloudCenterX, cloudCenterY = rjl.findWeightedCenter(regionOfInterest.hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
+m, b = rjl.getDividingLine(regionOfInterest.hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
 mPerp, bPerp = rjl.getPerpendicularLine(cloudCenterX, cloudCenterY, m)
 # -------- FIND REGIONS TO SPLIT THE CLOUD INTO. --------
 

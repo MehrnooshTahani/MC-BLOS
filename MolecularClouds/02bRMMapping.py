@@ -34,16 +34,10 @@ LogFile = os.path.join(config.dir_root, config.dir_fileOutput, cloudName, config
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
-# -------- READ FITS FILE --------
-hdulist = fits.open(regionOfInterest.fitsFilePath)
-hdu = hdulist[0]
-wcs = WCS(hdu.header)
-# -------- READ FITS FILE. --------
-
 # -------- PREPROCESS FITS DATA TYPE. --------
 # If fitsDataType is column density, then convert to visual extinction
 if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    hdu.data = hdu.data / config.VExtinct_2_Hcol
+    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
 # -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
@@ -56,7 +50,7 @@ RMData = RMCatalog(RMCatalogFile, regionOfInterest.raHoursMax, regionOfInterest.
 # -------- PREPARE TO PLOT ROTATION MEASURES --------
 
 # ---- Convert Ra and Dec of RMs into pixel values of the fits file
-x, y = cl.RADec2xy(RMData.targetRaHourMinSecToDeg, RMData.targetDecDegArcMinSecs, wcs)
+x, y = cl.RADec2xy(RMData.targetRaHourMinSecToDeg, RMData.targetDecDegArcMinSecs, regionOfInterest.wcs)
 # ---- Convert Ra and Dec of RMs into pixel values of the fits file.
 
 # ---- Determine the color and size of the RM points on the plot.
@@ -70,7 +64,7 @@ color, size = putil.p2RGB(RMData.targetRotationMeasures)
 # ---- Generate a basic
 
 #Basic extinction plot given the region of interest and image.
-fig, ax = pt.extinctionPlot(hdu, regionOfInterest)
+fig, ax = pt.extinctionPlot(regionOfInterest.hdu, regionOfInterest)
 
 #Plot title
 plotTitle = 'Rotation Measure Data' + ' in the ' + cloudName + ' region\n'

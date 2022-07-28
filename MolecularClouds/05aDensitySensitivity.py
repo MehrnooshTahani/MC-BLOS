@@ -23,7 +23,7 @@ MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 RefPointFile = config.ChosenRefPointFile
 ChosenRefDataFile = config.ChosenRefDataFile
 
-DensVaryFileTemplate = config.BDensSensFile
+DensVaryFileTemplate = config.template_BDensSensName
 #Output Files
 CloudDensSensDir = config.CloudDensSensDir
 # -------- DEFINE FILES AND PATHS. --------
@@ -55,7 +55,7 @@ for value in percent:
     AvAbundancePath = os.path.join(regionOfInterest.AvFileDir, AvAbundanceFile)
     saveFilePath = DensVaryFileTemplate.format(value)
     B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
-    B.to_csv(saveFilePath, index=False, na_rep='nan', sep=config.dataSeparator)
+    B.to_csv(saveFilePath, index=False, na_rep=config.missingDataRep, sep=config.dataSeparator)
     if B.isnull().values.any():
         errPercent.append(value)
 

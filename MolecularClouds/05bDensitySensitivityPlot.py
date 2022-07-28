@@ -20,7 +20,7 @@ regionOfInterest = Region(cloudName)
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
 CloudDensSensDir = config.CloudDensSensDir
-DensVaryFileTemplate = config.BDensSensFile
+DensVaryFileTemplate = config.template_BDensSensName
 #Output Files
 BDensSensPlotFile = config.BDensSensPlot
 # -------- DEFINE FILES AND PATHS. --------
