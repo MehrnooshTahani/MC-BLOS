@@ -1,10 +1,6 @@
 import os
 
-import math
 import pandas as pd
-
-from astropy.wcs import WCS
-from astropy.io import fits
 
 import matplotlib.pyplot as plt
 

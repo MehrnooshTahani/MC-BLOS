@@ -6,9 +6,6 @@ The matched rotation measure data and extinction information are saved in a file
 """
 from itertools import zip_longest
 
-from astropy.io import fits
-from astropy.wcs import WCS
-
 import numpy as np
 import pandas as pd
 import math
@@ -130,7 +127,7 @@ RMResolutionDegs = max(raErr, decErr)
 ''' Configuration based
 RMResolutionDegs = config.resolution_RMCatalogue
 '''
-ExtinctionResolutionDegs = min(abs(hdu.header['CDELT1']), abs(hdu.header['CDELT2'])) #deg
+ExtinctionResolutionDegs = min(abs(regionOfInterest.hdu.header['CDELT1']), abs(regionOfInterest.hdu.header['CDELT2'])) #deg
 # It is 1 pixel at most if the extinction map has a lower resolution than the RM map.
 # #The maximum number of pixels which fit within the RM's resolution otherwise.
 if (ExtinctionResolutionDegs > RMResolutionDegs):
@@ -240,7 +237,6 @@ for index in range(len(rmData.targetRotationMeasures)):
             # ---- Skip Missing Data
             # ---- Interpolate Bad Data
             if baddata[pyy, pxx] and config.interpRegion == 'Local':
-                #Problem is probably interpolation over areas declared to be baddata...
                 xmin, xmax, ymin, ymax = rjl.getNullBox(pxx, pyy, data)
                 data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax],
                                                                             baddata[ymin:ymax,

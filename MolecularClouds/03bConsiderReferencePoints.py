@@ -1,13 +1,8 @@
 """
 This is the third stage of the BLOSMapping method where the reference points are determined
 """
-import os
-
 import pandas as pd
 import numpy as np
-
-from astropy.wcs import WCS
-from astropy.io import fits
 
 import matplotlib.pyplot as plt
 

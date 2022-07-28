@@ -8,6 +8,7 @@ This script initializes the default config files and their values.
 - Do not run this script if there are configuration files present and you wish to keep those values.
 
 The format of the code below is config['config section'] = {
+    '# = Comment': '',
     'key': value,
     'key': value
 }
@@ -202,6 +203,6 @@ cloudInfoExport['Cloud Info'] = {
     'decDegMin': 0
     '''
 }
-with open('Data\CloudParameters\\0- cloudTemplate.ini', 'w') as output_file:
+with open('Data\\CloudParameters\\0- cloudTemplate.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)
 # -------- TEMPLATE: EXAMPLE REGION. --------

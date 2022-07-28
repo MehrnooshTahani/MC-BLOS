@@ -60,17 +60,6 @@ class Region:
         self.raSecMin = raMin.s
         self.decDegMax = decMax
         self.decDegMin = decMin
-        '''
-        self.raHoursMax = cloudParams['Cloud Info'].getfloat('raHoursmax')
-        self.raMinsMax = cloudParams['Cloud Info'].getfloat('raMinsMax')
-        self.raSecMax = cloudParams['Cloud Info'].getfloat('raSecMax')
-        self.raHoursMin = cloudParams['Cloud Info'].getfloat('raHoursMin')
-        self.raMinsMin = cloudParams['Cloud Info'].getfloat('raMinsMin')
-        self.raSecMin = cloudParams['Cloud Info'].getfloat('raSecMin')
-        self.decDegMax = cloudParams['Cloud Info'].getfloat('decDegMax')
-        self.decDegMin = cloudParams['Cloud Info'].getfloat('decDegMin')
-        '''
-
 '''
 TEMPLATE (with defaults)
         elif regionName.lower() == CLOUDNAME:

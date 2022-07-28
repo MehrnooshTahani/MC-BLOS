@@ -6,9 +6,6 @@ of the region of interest.
 """
 import matplotlib.pyplot as plt
 
-from astropy.wcs import WCS
-from astropy.io import fits
-
 from LocalLibraries.RMCatalog import RMCatalog
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config

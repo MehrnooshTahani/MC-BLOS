@@ -7,8 +7,6 @@ import pandas as pd
 import numpy as np
 import math
 
-from astropy.wcs import WCS
-from astropy.io import fits
 from astropy.coordinates import SkyCoord
 
 import LocalLibraries.ConversionLibrary as cl
