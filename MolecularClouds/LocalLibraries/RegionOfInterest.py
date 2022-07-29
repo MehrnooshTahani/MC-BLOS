@@ -51,7 +51,7 @@ class Region:
         self.AvFilePath = os.path.join(self.AvFileDir, 'Av_T0_n0.out')
 
         # Boundaries of the region of interest:
-        raMin, raMax, decMin, decMax = util.getRaDecMinSec(xmin, xmax, ymin, ymax, self.wcs)
+        raMin, raMax, decMin, decMax = util.getRaDecMinSec(self.xmin, self.xmax, self.ymin, self.ymax, self.wcs)
         self.raHoursMax = raMax.h
         self.raMinsMax = raMax.m
         self.raSecMax = raMax.s
