@@ -45,12 +45,6 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
-# -------- PREPROCESS FITS DATA TYPE. --------
-# If fitsDataType is column density, then convert to visual extinction
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
-# -------- PREPROCESS FITS DATA TYPE. --------
-
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
@@ -60,18 +54,18 @@ FilteredRefPoints = pd.read_csv(FilteredRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
 
 #============================================================================================================
-# -------- FIND REGIONS TO SPLIT THE CLOUD INTO. --------
+# -------- SORT THE AVAILABLE POINTS INTO QUADRANTS RELATIVE TO THE CLOUD, TO ENSURE EVEN SAMPLING --------
+# ---- Find the lines which divide the cloud into quadrants.
 cloudCenterX, cloudCenterY = rjl.findWeightedCenter(regionOfInterest.hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
 m, b = rjl.getDividingLine(regionOfInterest.hdu.data, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
 mPerp, bPerp = rjl.getPerpendicularLine(cloudCenterX, cloudCenterY, m)
-# -------- FIND REGIONS TO SPLIT THE CLOUD INTO. --------
+# ---- Find the lines which divide the cloud into quadrants.
 
-# -------- SORT REF POINTS INTO THESE REGIONS. --------
+# ---- Sort the points into those quadrants.
 Q1, Q2, Q3, Q4 = rjl.sortQuadrants(list(FilteredRefPoints.index), FilteredRefPoints['Extinction_Index_x'], FilteredRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
-# ---- Sort into quadrant
-# -------- SORT REF POINTS INTO THESE REGIONS. --------
+# ---- Sort the points into those quadrants.
 
-# -------- Calculate Results. --------
+# ---- Calculate Results. (They will be used in a later stage)
 minSamples = config.minPointsPerQuadrant
 Q1Less = len(Q1) < minSamples
 Q2Less = len(Q2) < minSamples
@@ -83,10 +77,9 @@ quadrantsUndersampled = quadrantsUndersampled + 1 if Q1Less else quadrantsUnders
 quadrantsUndersampled = quadrantsUndersampled + 1 if Q2Less else quadrantsUndersampled
 quadrantsUndersampled = quadrantsUndersampled + 1 if Q3Less else quadrantsUndersampled
 quadrantsUndersampled = quadrantsUndersampled + 1 if Q4Less else quadrantsUndersampled
+# ---- Calculate Results.
 
-# -------- Calculate Results. --------
-
-# -------- OUTPUT RESULTS. --------
+# ---- Log results
 messages = ["The filtered reference points, sorted by quadrant, are:",
             "Q1: {}".format(Q1),
             "Q2: {}".format(Q2),
@@ -99,23 +92,30 @@ messages = ["The filtered reference points, sorted by quadrant, are:",
 logging.info(loggingDivider)
 for message in messages:
     logging.info(message)
-# -------- OUTPUT RESULTS. --------
-
+# ---- Log results
+# -------- SORT THE AVAILABLE POINTS INTO QUADRANTS RELATIVE TO THE CLOUD, TO ENSURE EVEN SAMPLING --------
 #============================================================================================================
-
-# -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS USING "ALL POTENTIAL REFERENCE POINTS" --------
+# -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS --------
+# ---- Find the trend data
 DataNoRef = orp.findTrendData(FilteredRefPoints, MatchedRMExtinctionData, regionOfInterest)
 DataNoRef.to_csv(DataNoRefPath, sep=config.dataSeparator)
+# ---- Find the trend data
 
+# ---- Plot the trend data
 fig = orp.stabilityTrendGraph(DataNoRef)
 plt.savefig(BLOSvsNRef_AllPotRefPointsPlot)
+# ---- Plot the trend data
+
+# ---- Total number of points
 TotalNumPoints = len(MatchedRMExtinctionData)
+# ---- Total number of points
+
 '''
 We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
 number of candidate reference points.
  '''
 Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOff(FilteredRefPoints, 1)]
-# -------- FIND OPTIMAL NUM REF POINTS --------
+# -------- Find the optimal number of reference points using the trend data
 # The number of reference points should be greater than 3 and less than half the total number of points
 minStablePoints = config.minRefPoints
 maxFracPoints = config.maxFracPointNum
@@ -132,21 +132,29 @@ if len(Optimal_NumRefPoints_Selection) < 1:
         logging.critical(message)
         print(message)
 OptimalNumRefPoints_from_AllPotentialRefPoints = orp.mode(Optimal_NumRefPoints_Selection)
-# -------- FIND OPTIMAL NUM REF POINTS --------
+# -------- Find the optimal number of reference points using the trend data
 
-# -------- Solidify reference points. --------
+# -------- Solidify reference points.
 chosenRefPoints_Num = [i for i in range(OptimalNumRefPoints_from_AllPotentialRefPoints)] if config.UseOptRefPoints else [i for i in range(len(FilteredRefPoints.index))]
 chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value')
+# -------- Solidify reference points.
 
-# -------- SORT REF POINTS INTO THESE REGIONS. --------
+# -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS --------
+#======================================================================================================================
+# -------- ENSURE CHOSEN OPTIMAL NUMBER OF POINTS SAMPLES THE QUADRANTS FAIRLY --------
+# ---- Sort chosen ref points into quadrants
 Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'], chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
-# -------- SORT REF POINTS INTO THESE REGIONS. --------
+# ---- Sort chosen ref points into quadrants
 
+# ---- Check to see which quadrants are undersampled as a result of the optimal selection of points
+# A region is undersampled if it no longer makes the minimum samples criteria but previously could.
 Q1Undersampled = len(Q1c) < minSamples and not Q1Less
 Q2Undersampled = len(Q2c) < minSamples and not Q2Less
 Q3Undersampled = len(Q3c) < minSamples and not Q3Less
 Q4Undersampled = len(Q4c) < minSamples and not Q4Less
+# ---- Check to see which quadrants are undersampled as a result of the optimal selection of points
 
+# ---- Fix the undersampled quadrants by sampling more points until the quadrant has enough points
 minSamples = []
 if Q1Undersampled:
     for i in range(min(len(Q1)-len(Q1c), config.minPointsPerQuadrant-len(Q1c))):
@@ -162,9 +170,12 @@ if Q4Undersampled:
         minSamples.append(Q4[i])
 minSamples = max(minSamples) if len(minSamples) > 0 else max(chosenRefPoints_Num)
 minSamples = minSamples+1 #Account for the index shift.
+# ---- Fix the undersampled quadrants by sampling more points until the quadrant has enough points
 
+# ---- Solidify ref points
 chosenRefPoints_After_Quadrants_Num = [i for i in range(minSamples)] if config.useQuadrantEnforce else chosenRefPoints_Num
 chosenRefPoints = FilteredRefPoints.loc[chosenRefPoints_After_Quadrants_Num].sort_values('Extinction_Value')
+# ---- Solidify ref points
 
 # ---- Log info
 messages = ['By analyzing the stability of calculated BLOS values as a function of number of reference points from 1 to the '
@@ -185,9 +196,7 @@ logging.info(loggingDivider)
 for message in messages:
     logging.info(message)
 # ---- Log info
-
-# -------- Solidify reference points. --------
-
+# -------- ENSURE CHOSEN OPTIMAL NUMBER OF POINTS SAMPLES THE QUADRANTS FAIRLY --------
 #======================================================================================================================
 
 # -------- REASSESS STABILITY --------
@@ -198,15 +207,15 @@ However, we also want to include points which come after the chosen reference po
 The following selects all of the chosen reference points and then adds any of the potential reference points with
 extinction greater than the extinction of the last chosen reference point/
 '''
+# ---- Check the trend data of the chosen reference points
 #We ignore the last element ([:-1]) because the append adds it back in.
 RefPoints = chosenRefPoints[:-1].append(FilteredRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
-
 DataNoRef = orp.findTrendData(RefPoints, MatchedRMExtinctionData, regionOfInterest)
+# ---- Check the trend data of the chosen reference points
 
-# -------- CREATE A FIGURE --------
-
+# ---- Create a figure
 fig = orp.stabilityTrendGraph(DataNoRef)
 yLower, yUpper = plt.ylim()
 plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color='black', label='Suggested optimal '
@@ -216,12 +225,14 @@ plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color
 
 plt.savefig(BLOSvsNRef_ChosenPlotFile)
 #plt.show()
-plt.close()
+#plt.close()
+# ---- Create a figure
 
+# ---- Log info
 logging.info(loggingDivider)
 logging.info('Saving the BLOS stability reassessment figure to ' + BLOSvsNRef_ChosenPlotFile)
+# ---- Log info
 
-# -------- CREATE A FIGURE. --------
 # -------- REASSESS STABILITY. --------
 
 #======================================================================================================================
@@ -256,7 +267,6 @@ else:
 # -------- DETERMINE WEIGHTING SCHEME --------
 
 # -------- CALCULATE AND SAVE REFERENCE VALUES --------
-
 logging.info(loggingDivider)
 logging.info("The chosen point weighting scheme is: {}".format(config.weightingScheme))
 
@@ -287,5 +297,3 @@ logging.info(loggingDivider)
 logging.info(message)
 print(message)
 # -------- SAVE REFERENCE POINTS. --------
-
-#============================================================================================================

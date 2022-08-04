@@ -103,12 +103,6 @@ logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logF
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
-# -------- PREPROCESS FITS DATA TYPE. --------
-# If fitsDataType is column density, then convert to visual extinction
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
-# -------- PREPROCESS FITS DATA TYPE. --------
-
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 AllPotentialRefPoints = pd.read_csv(AllPotRefPointsFile, sep=config.dataSeparator)
 

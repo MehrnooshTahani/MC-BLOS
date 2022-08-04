@@ -1,3 +1,6 @@
+'''
+Runs all the steps of the analysis utilizing the configuration file at hand.
+'''
 import subprocess
 scripts = ["01MakeDir.py",
            "02aRMMatching.py","02bRMMapping.py",
@@ -10,4 +13,3 @@ for script in scripts:
     print("===========================================================")
     print("Script: {}".format(script))
     subprocess.run(["python", script], shell=True)
-#subprocess.run(["python", "00MakeConfig.py"], shell=True)

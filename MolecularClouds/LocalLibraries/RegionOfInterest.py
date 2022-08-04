@@ -1,27 +1,27 @@
 """
-The zeroth stage of the BLOSMapping method is to define regions of interest.
+The regions of interest class loads in the data from the regions of interest files as well as all derrivative data.
  - The boundaries and parameters defined here will be used throughout the analysis
-
 """
 import os
 from astropy.io import fits
 from astropy.wcs import WCS
+
 from configparser import ConfigParser
+
 from . import config as config
 from . import util as util
 
 class Region:
     def __init__(self, regionName):
-
+        # -------- Load the region data file, and raise an error if it doesn't exist. --------
         cloudParams = ConfigParser()
-        regionDataFileLoc = os.path.join(config.dir_root, config.dir_data, config.dir_cloudParameters, regionName.lower() + '.ini')
-
+        regionDataFileLoc = os.path.join(config.DataCloudParamsDir, regionName.lower() + '.ini')
         if not os.path.exists(regionDataFileLoc):
-            print("The region file has not been found!")
-            raise NameError("Region data file for given region name: {} not found! Check Data/CloudParameters to ensure it exists.".format(regionName))
-
+            message = "Region data file for given region name: {} not found! Check {} to ensure it exists.".format(regionName, config.DataCloudParamsDir)
+            raise NameError(message)
         cloudParams.read(regionDataFileLoc)
-        """ Load Region Data """
+
+        # -------- Load Region Data --------
         # Distance to the region of interest:
         self.distance = cloudParams['Cloud Info'].getfloat('distance')  # CHECK THIS [pc]
         self.jeanslength = cloudParams['Cloud Info'].getfloat('cloudJeansLength')
@@ -35,22 +35,28 @@ class Region:
         self.hdu = self.hdulist[0]
         self.wcs = WCS(self.hdu.header)
 
+        # If fitsDataType is column density, then convert to visual extinction
+        if self.fitsDataType == 'HydrogenColumnDensity':
+            self.hdu.data = self.hdu.data / config.VExtinct_2_Hcol
+
         # Pixel limits of the region of interest in the fits file:
         xmin = cloudParams['Cloud Info'].getfloat('xmin')
         xmax = cloudParams['Cloud Info'].getfloat('xmax')
         ymin = cloudParams['Cloud Info'].getfloat('ymin')
         ymax = cloudParams['Cloud Info'].getfloat('ymax')
-        self.xmin, self.xmax, self.ymin, self.ymax = util.getBoxBounds(self.hdu.data, xmin, xmax, ymin, ymax)
+        self.xmin, self.xmax, self.ymin, self.ymax = util.getBoxBounds(self.hdu.data, xmin, xmax, ymin, ymax) #Utilizing the function to ensure the loaded bounds are valid.
 
         # Path to the fiducial extinction and electron abundance for the region of interest:
         self.n0 = cloudParams['Cloud Info'].get('n0')
         self.T0 = cloudParams['Cloud Info'].get('T0')
         self.G0 = cloudParams['Cloud Info'].get('G0')  # can be 1 for most clouds unless clouds with many type o and b stars
         Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-        self.AvFileDir = os.path.join(config.dir_root, config.dir_data, config.dir_chemAbundance, Parameters)
-        self.AvFilePath = os.path.join(self.AvFileDir, 'Av_T0_n0.out')
+        self.AvFileDir = os.path.join(config.DataChemAbundanceDir, Parameters)
+        self.AvFilePath = os.path.join(self.AvFileDir, config.template_AvAbundanceData.format(0, 0))
 
-        # Boundaries of the region of interest:
+        # -------- Compute Derivative Data --------
+
+        # Ra-Dec Boundaries of the region of interest:
         raMin, raMax, decMin, decMax = util.getRaDecMinSec(self.xmin, self.xmax, self.ymin, self.ymax, self.wcs)
         self.raHoursMax = raMax.h
         self.raMinsMax = raMax.m
@@ -60,33 +66,3 @@ class Region:
         self.raSecMin = raMin.s
         self.decDegMax = decMax
         self.decDegMin = decMin
-'''
-TEMPLATE (with defaults)
-        elif regionName.lower() == CLOUDNAME:
-            # Distance to the region of interest:
-            self.distance =  # [pc]
-            # Path to the fits file containing to the region of interest:
-            self.fitsFilePath = os.path.join(currentDir, '')
-            self.fitsDataType = # 'HydrogenColumnDensity' or 'VisualExtinciton'
-            # Pixel limits of the region of interest in the fits file:
-            self.xmin = 'none'
-            self.xmax = 'none'
-            self.ymin = 'none'
-            self.ymax = 'none'
-            # Path to the fiducial extinction and electron abundance for the region of interest:
-            self.n0 = ''
-            self.T0 = ''
-            self.G0 = ''
-            Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
-            self.AvFileDir = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/'.replace('/', os.sep))
-            self.AvFilePath = os.path.join(currentDir, 'Data/ChemicalAbundance/'.replace('/', os.sep) + Parameters + '/Av_T0_n0.out'.replace('/', os.sep))
-            # Boundaries of the region of interest:
-            self.raHoursMax =
-            self.raMinsMax =
-            self.raSecMax =
-            self.raHoursMin =
-            self.raMinsMin =
-            self.raSecMin =
-            self.decDegMax =
-            self.decDegMin =
-'''

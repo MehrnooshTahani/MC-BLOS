@@ -99,12 +99,6 @@ RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
 fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
-# -------- PREPROCESS FITS DATA TYPE. --------
-# If fitsDataType is column density, then convert to visual extinction
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
-# -------- PREPROCESS FITS DATA TYPE. --------
-
 # =====================================================================================================================
 
 # -------- CALCULATE BLOS --------

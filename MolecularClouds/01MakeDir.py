@@ -1,5 +1,5 @@
 """
-This is the zeroth stage of the BLOSMapping method where the necessary directories are made
+This is the first stage of the BLOSMapping method where the necessary directories are made
 
     - When run, the file will check for the region of interest.  It will then check to see of this region of
     interest has a folder yet. If not it will make the needed folders and sub-folders.
@@ -36,8 +36,8 @@ if cloudName.lower() not in InFileOutput:
     os.mkdir(config.dir_temperatureSensitivity)
 
 # ---- CONFIGURE LOGGING
-saveScriptLogPath = config.Script01File
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+scriptLogFile = config.Script01File
+logging.basicConfig(filename=scriptLogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # ---- CONFIGURE LOGGING
 
 # ---- LOG RESULTS

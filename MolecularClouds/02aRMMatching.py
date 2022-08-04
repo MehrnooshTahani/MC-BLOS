@@ -1,5 +1,5 @@
 """
-This is the first stage of the BLOSMapping method where rotation measure points from the catalogue are matched to
+This is the second stage of the BLOSMapping method where rotation measure points from the catalogue are matched to
 an extinction value from the fits file. Matching is based on physical proximity.
 
 The matched rotation measure data and extinction information are saved in a file.
@@ -25,48 +25,39 @@ regionOfInterest = Region(cloudName)
 # -------- CHOOSE THE REGION OF INTEREST. --------
 
 # -------- DEFINE FILES AND PATHS --------
-RMCatalogPath = config.DataRMCatalogFile
+RMCatalogFile = config.DataRMCatalogFile
 MatchedRMExtinctFile = config.MatchedRMExtinctionFile
-LogFile = config.Script02aFile
+scriptLogFile = config.Script02aFile
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
 loggingDivider = config.logSectionDivider
-logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
+logging.basicConfig(filename=scriptLogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
 
 # -------- PREPROCESS FITS DATA TYPE. --------
+#Local copy of the data for data integrity safety sake
 data = rjl.deepCopy(regionOfInterest.hdu.data)
-
-# If fitsDataType is column density, then convert to visual extinction
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    data = data / config.VExtinct_2_Hcol
-
-# Identify where there is no data
-nodata = np.isnan(data)
-
 # Obtain data bounds
 xmin, xmax, ymin, ymax = regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax #Shortened alias.
 
-# Set default data values for missing data.
-if config.fillMissingExtinct == 'Zero':
-    data[nodata] = 0
-elif config.fillMissingExtinct == 'Average':
-    data[nodata] = np.average(data[np.isfinite(data)])
-elif config.fillMissingExtinct == 'Inf':
-    data[nodata] = math.inf
-elif config.fillMissingExtinct == 'Interpolate':
-    data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], nodata[ymin:ymax, xmin:xmax], config.interpMethod)
-else:
-    data[nodata] = math.nan
+# ---- Deal with initial missing data
+# Identify where there is no data
+nodata = np.isnan(data)
+
+# Set default data values for missing data within the bounds.
+data[ymin:ymax, xmin:xmax] = rjl.fillMissing(data[ymin:ymax, xmin:xmax], config.fillMissingExtinct, config.interpMethod)
 
 #Refresh the nodata situation depending on config decision on whether or not filled values can be used for matching.
 if config.useFillExtinct:
     nodata = np.isnan(data)
+# ---- Deal with initial missing data
 
+# ---- Deal with non-physical data
 # Identify and remove bad data, defined as non-physical negative extinction values.
 baddata = data < 0
 data[ymin:ymax, xmin:xmax][baddata[ymin:ymax, xmin:xmax]] = math.nan
+# ---- Deal with non-physical data
 
 # Handle bad data (negative/no values) by full fits-file interpolation, if turned on.
 if config.doInterpExtinct and config.interpRegion == 'All':
@@ -91,7 +82,7 @@ for message in messages:
 
 # -------- READ ROTATION MEASURE FILE --------
 # Get all the rm points within the region of interest
-rmData = RMCatalog(RMCatalogPath, regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax,
+rmData = RMCatalog(RMCatalogFile, regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax,
                    regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin,
                    regionOfInterest.decDegMax, regionOfInterest.decDegMin)
 # -------- READ ROTATION MEASURE FILE. --------
@@ -106,8 +97,7 @@ if len(rmData.targetRotationMeasures) < 2:
     logging.critical(loggingDivider)
     for message in messages:
         logging.critical(message)
-        print(message)
-    exit()
+    raise ValueError("\n".join(messages))
 # -------- CHECK THAT THERE'S ENOUGH POINTS IN THE FILE. --------
 
 # -------- DEFINE THE ERROR RANGE --------
@@ -125,9 +115,6 @@ decErr = cl.dec_dms2deg(0, 0, decErrSec) #deg
 
 RMResolutionDegs = max(raErr, decErr)
 
-''' Configuration based
-RMResolutionDegs = config.resolution_RMCatalogue
-'''
 ExtinctionResolutionDegs = min(abs(regionOfInterest.hdu.header['CDELT1']), abs(regionOfInterest.hdu.header['CDELT2'])) #deg
 # It is 1 pixel at most if the extinction map has a lower resolution than the RM map.
 # #The maximum number of pixels which fit within the RM's resolution otherwise.
@@ -136,6 +123,7 @@ if (ExtinctionResolutionDegs > RMResolutionDegs):
 else:
     NDelt = np.ceil(RMResolutionDegs/ExtinctionResolutionDegs)
 
+#Log explanatory results.
 messages = ["The uncertainty/resolution of the RM Catalogue for the given region (in degrees) is: {}".format(RMResolutionDegs),
             "The uncertainty/resolution of the Extinction map for the given region (in degrees) is: {}".format(ExtinctionResolutionDegs),
             "Given this, the number of extinction map pixels needed to cover the uncertainty in rotation measures is: {}".format(NDelt),
@@ -182,15 +170,15 @@ for index in range(len(rmData.targetRotationMeasures)):
     # ---- Location of the rotation measure.
 
     # ---- Skip the point if it violates a condition.
+    #Point is in the file
     inFitsFile = 0 <= px < data.shape[1] and 0 <= py < data.shape[0]
-
+    #Point has data
     hasData = inFitsFile and not nodata[py, px]
+    #Point is either to be interpolated, or does not contain non-physical data
     physicalData = inFitsFile and not baddata[py, px]
     interpByPoint = config.doInterpExtinct and config.interpRegion == 'Local'
-
+    #Check all conditions for validity
     validPoint = inFitsFile and hasData and (physicalData or interpByPoint)
-
-    #if not validPoint:
     if not validPoint:
         continue
     # ---- Skip the point if it violates a condition.
@@ -204,17 +192,18 @@ for index in range(len(rmData.targetRotationMeasures)):
         baddata[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = False
     # ---- Interpolate Missing Data
 
+    # ---- Load the data that is going to be matched from the RM Catalog and the extinction map.
     extinction = data[py, px]
-
     Identifier.append(cntr)
     RMRa.append(rmRA)
     RMDec.append(rmDec)
     RMValue.append(rmData.targetRotationMeasures[index])
     RMErr.append(rmData.targetRMErrs[index])
+    # ---- Load the data that is going to be matched from the RM Catalog and the extinction map.
 
     # ---- Match rotation measure to an extinction value
-    ExtinctionIndex_x.append(int(px))
-    ExtinctionIndex_y.append(int(py))
+    ExtinctionIndex_x.append(int(px)) #Round down
+    ExtinctionIndex_y.append(int(py)) #Round down
     ExtinctionRa.append(regionOfInterest.wcs.wcs_pix2world(px, py, 0)[0])
     ExtinctionDec.append(regionOfInterest.wcs.wcs_pix2world(px, py, 0)[1])
     ExtinctionValue.append(extinction)
@@ -233,10 +222,10 @@ for index in range(len(rmData.targetRotationMeasures)):
     for pxx in range(ind_xmin, ind_xmax):
         for pyy in range(ind_ymin, ind_ymax):
             # ---- Skip Missing Data
-            if nodata[pyy, pxx] and math.isnan(data[pyy, pxx]):
+            if nodata[pyy, pxx] or (math.isnan(data[pyy, pxx]) and not baddata[pyy, pxx]):
                 continue
             # ---- Skip Missing Data
-            # ---- Interpolate Bad Data
+            # ---- Interpolate Bad Data, if interpolation is to be done.
             if baddata[pyy, pxx] and config.interpRegion == 'Local':
                 xmin, xmax, ymin, ymax = rjl.getNullBox(pxx, pyy, data)
                 data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax],
@@ -244,7 +233,7 @@ for index in range(len(rmData.targetRotationMeasures)):
                                                                             xmin:xmax],
                                                                             config.interpMethod)
                 baddata[ymin:ymax, xmin:xmax] = False
-            # ---- Interpolate Missing Data
+            # ---- Interpolate Bad Data, if interpolation is to be done.
             extinction = data[pyy, pxx]
             extinction_temp.append(extinction)
             xx, yy = regionOfInterest.wcs.wcs_pix2world(pxx, pyy, 0)

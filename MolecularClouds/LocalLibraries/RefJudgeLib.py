@@ -365,3 +365,28 @@ def interpMask(data, mask, method='cubic', fill_value=0):
 
     return returnData
 # -------- FUNCTION DEFINITION --------
+
+# -------- FUNCTION DEFINITION --------
+def fillMissing(data, fillMode, interpMethod = 'linear'):
+    '''
+    Fill missing data within the provided data array.
+    :param data: The 2d numpy data array with missing data values.
+    :param fillMode: What the missing data should be filled with. String.
+    :param interpMethod: Interpolation method, if interpolation is to be used. Default is linear. String.
+    :return: data - with the fillings.
+    '''
+    nodata = np.isnan(data)
+
+    if fillMode == 'Zero':
+        data[nodata] = 0
+    elif fillMode == 'Average':
+        data[nodata] = np.average(data[np.isfinite(data)])
+    elif fillMode == 'Inf':
+        data[nodata] = math.inf
+    elif fillMode == 'Interpolate':
+        data = interpMask(data, nodata, interpMethod)
+    else:
+        data[nodata] = math.nan
+
+    return data
+# -------- FUNCTION DEFINITION --------

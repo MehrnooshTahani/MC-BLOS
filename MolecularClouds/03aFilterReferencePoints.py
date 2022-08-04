@@ -50,29 +50,36 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
-# -------- PREPROCESS FITS DATA TYPE. --------
-# If fitsDataType is column density, then convert to visual extinction
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
-# -------- PREPROCESS FITS DATA TYPE. --------
-
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
+# ---- TRACK INDEXES WHICH ARE ACCEPTED AS REFERENCE VALUES/REJECTED ----
+PotRefPoints = []
+RejectedReferencePoints = []
+# ---- TRACK INDEXES WHICH ARE ACCEPTED AS REFERENCE VALUES/REJECTED ----
+
+# ---- TRACK KEY DATAFRAMES ----
+AllPotentialRefPoints = None
+# ---- TRACK KEY DATAFRAMES ----
+
 # -------- LOAD THE THRESHOLD EXTINCTION --------
-# ---- Convert from equatorial to galactic coordinates (after finding the center)
+# ---- Find the center of the cloud in equatorial coordinates
 regionRaMin = cl.ra_hms2deg(regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax)
 regionRaMax = cl.ra_hms2deg(regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin)
 regionRaAvg = (regionRaMin + regionRaMax) / 2.0
 regionDecMin = regionOfInterest.decDegMax
 regionDecMax = regionOfInterest.decDegMin
 regionDecAvg = (regionDecMin + regionDecMax) / 2.0
+# ---- Find the center of the cloud in equatorial coordinates
 
+# ---- Convert from equatorial to galactic coordinates
 coord = SkyCoord(regionRaAvg, regionDecAvg, unit="deg", frame='icrs')
 GalLongDeg = coord.galactic.l.degree
 GalLatDeg = coord.galactic.b.degree
 # ---- Convert from equatorial to galactic coordinates
+
+# ---- Load the threshold.
 Av_threshold = None
 if abs(GalLatDeg) < config.offDiskLatitude and (abs(GalLongDeg) < 90 or abs(GalLongDeg) > 270):
     Av_threshold = config.onDiskAvGalacticThresh
@@ -80,6 +87,8 @@ elif abs(GalLatDeg) < config.offDiskLatitude:
     Av_threshold = config.onDiskAvAntiGalacticThresh
 else:
     Av_threshold = config.offDiskAvThresh
+# ---- Load the threshold.
+
 # ---- Log info
 messages = ['Potential reference points with a matched extinction value less than the extinction threshold set in the starting settings configuration are considered candidates.',
             '\t-For clouds that appear near the disk and towards the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvGalacticThresh),
@@ -95,15 +104,6 @@ for message in messages:
 # ---- Log info
 # -------- LOAD THE THRESHOLD EXTINCTION. --------
 
-# ---- TRACK INDEXES WHICH ARE ACCEPTED AS REFERENCE VALUES/REJECTED ----
-PotRefPoints = []
-RejectedReferencePoints = []
-# ---- TRACK INDEXES WHICH ARE ACCEPTED AS REFERENCE VALUES/REJECTED ----
-
-# ---- TRACK KEY DATAFRAMES ----
-AllPotentialRefPoints = None
-# ---- TRACK KEY DATAFRAMES ----
-
 #======================================================================================================================
 
 # -------- FIND ALL POTENTIAL REFERENCE POINTS --------
@@ -113,7 +113,7 @@ We will only consider points with visual extinction less than the specified thre
 reference points
 - Here we extract these points and sort the resulting dataframe from smallest to greatest extinction 
 '''
-# All potential reference points are all reference points with extinction less than the threshold:
+# All potential reference points are all reference points with extinction less than the threshold
 dataframe = MatchedRMExtinctionData.copy()
 columnName = 'Extinction_Value'
 threshold = Av_threshold
@@ -131,8 +131,10 @@ if AllPotRefPointsPath is not None:
 # ---- SAVE REFERENCE POINT DATA AS A TABLE.
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
 
+# ---- Add those reference points to the data we're keeping track of
 PotRefPoints += listIndRefPoints
 RejectedReferencePoints += []
+# ---- Add those reference points to the data we're keeping track of
 
 # ---- Log info
 messages = ['Based on the threshold extinction of {}, a total of {} potential reference points were found.'.format(Av_threshold, numAllRefPoints),
@@ -215,22 +217,24 @@ for message in messages:
 # -------- Define "anomalous"
 
 # Choose a rotation measure corresponding to anomalous
-rm_avg = np.mean(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
-rm_std = np.std(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
+rmAvg = np.mean(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
+rmStd = np.std(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
 
 coeffSTD = config.anomalousSTDNum
-rm_upperLimit = rm_avg + coeffSTD * rm_std
-rm_lowerLimit = rm_avg - coeffSTD * rm_std
+rmUpperLimit = rmAvg + coeffSTD * rmStd
+rmLowerLimit = rmAvg - coeffSTD * rmStd
 # -------- Define "anomalous".
 
 # -------- For each potential reference point
 anomalousRMIndex = []
 for i in list(AllPotentialRefPoints.index):
     idNum = AllPotentialRefPoints['ID#'][i]
-    if AllPotentialRefPoints['Rotation_Measure(rad/m2)'][i] < rm_lowerLimit or \
-            AllPotentialRefPoints['Rotation_Measure(rad/m2)'][i] > rm_upperLimit:
+    if AllPotentialRefPoints['Rotation_Measure(rad/m2)'][i] < rmLowerLimit or \
+            AllPotentialRefPoints['Rotation_Measure(rad/m2)'][i] > rmUpperLimit:
         anomalousRMIndex.append(i)  # To identify points numbered in order of increasing extinction
 # -------- For each potential reference point.
+
+# ---- Record the points rejected for what reason, and what points remain as potential reference points.
 anomalousReject = [item for item in PotRefPoints if item in anomalousRMIndex and config.useAnomalousSTDNumRemove]
 
 RejectedReferencePoints += anomalousReject
@@ -238,9 +242,11 @@ PotRefPoints = [item for item in PotRefPoints if item not in anomalousReject]
 
 AnomalousRejectedRefPoints = AllPotentialRefPoints.loc[anomalousReject].sort_values('Extinction_Value')
 AnomalousRejectedRefPoints.to_csv(AnomRejRefPointFile, sep=config.dataSeparator)
+# ---- Record the points rejected for what reason, and what points remain as potential reference points.
+
 # ---- Log info
 messages = ['We will now check if any of the potential reference points have anomalous rotation measure values.',
-            "\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or rm > {:.2f}rad/m^2)".format(coeffSTD, rm_lowerLimit, rm_upperLimit),
+            "\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or rm > {:.2f}rad/m^2)".format(coeffSTD, rmLowerLimit, rmUpperLimit),
             'As per configuration settings, anomalous points will be removed: {}'.format(config.useAnomalousSTDNumRemove),
             'The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex),
             'As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints),
@@ -267,16 +273,17 @@ for message in messages:
 #======================================================================================================================
 
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------
-chosenRefPoints_Num = [int(np.round(i)) for i in PotRefPoints]
-
+#Get the indexes of the remaining points.
+RemainingPotRefPoints = [int(np.round(i)) for i in PotRefPoints]
+#Make sure the number of points taken is no more than the accepted maximum number of points.
 maxRefPoints = int(round(len(MatchedRMExtinctionData.index) * config.maxFracPointNum))
-if len(chosenRefPoints_Num) > maxRefPoints: chosenRefPoints_Num = chosenRefPoints_Num[:maxRefPoints]
-
-FilteredRMExtincPoints = AllPotentialRefPoints.loc[chosenRefPoints_Num].sort_values('Extinction_Value').reset_index()
-FilteredRMExtincPoints.to_csv(FilteredRMExtincPath, sep=config.dataSeparator)
+if len(RemainingPotRefPoints) > maxRefPoints: RemainingPotRefPoints = RemainingPotRefPoints[:maxRefPoints]
+#Get the data of the points by selecting them from the data table, and save them.
+FilteredRMExtinctPoints = AllPotentialRefPoints.loc[RemainingPotRefPoints].sort_values('Extinction_Value').reset_index()
+FilteredRMExtinctPoints.to_csv(FilteredRMExtincPath, sep=config.dataSeparator)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
-if len(FilteredRMExtincPoints.index) < 1:
+if len(FilteredRMExtinctPoints.index) < 1:
     messages = ["Less than one potential reference points are left after filtering!",
                 "No further analysis can be done, and all future scripts will error.",
                 "Consider adjusting your judgement criteria in the config.",
@@ -286,7 +293,7 @@ if len(FilteredRMExtincPoints.index) < 1:
         logging.critical(message)
         print(message)
 
-elif len(FilteredRMExtincPoints.index) == len(MatchedRMExtinctionData.index):
+elif len(FilteredRMExtinctPoints.index) == len(MatchedRMExtinctionData.index):
     messages = ["All matched RM-Extinction points remain after filtering!",
                 "This will cause issues with stability trend analysis.",
                 "Consider limiting how many points can be taken as off positions.",
@@ -296,14 +303,16 @@ elif len(FilteredRMExtincPoints.index) == len(MatchedRMExtinctionData.index):
     for message in messages:
         logging.critical(message)
         print(message)
-
 # ---- Check if the number of points left after filtering is good for further analysis.
+
+# ---- Log info
 messages = ["The Remaining Reference Points will be:",
             PotRefPoints,
             "The Remaining data is thus:",
-            FilteredRMExtincPoints,
+            FilteredRMExtinctPoints,
             'Remaining data was saved to {}'.format(FilteredRMExtincPath)]
 logging.info(loggingDivider)
 for message in messages:
     logging.info(message)
+ # ---- Log info
 # -------- FINALIZE REMAINING POINTS AFTER WINNOWING FROM PRIOR STAGES --------

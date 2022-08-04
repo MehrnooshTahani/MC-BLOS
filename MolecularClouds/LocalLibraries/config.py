@@ -120,7 +120,6 @@ dir_cloudParameters = configDirectoryAndNames['Input Directories'].get('Cloud Pa
 dir_chemAbundance = configDirectoryAndNames['Input Directories'].get('Chemical Abundance Data')
 dir_RMCatalog = configDirectoryAndNames['Input Directories'].get('RM Catalogue Data')
 #Input Files
-#resolution_RMCatalogue = configDirectoryAndNames['Input Files'].getfloat('RM Catalogue Resolution (Degrees)')
 file_RMCatalogue = configDirectoryAndNames['Input Files'].get('RM Catalogue')
 template_AvAbundanceData = configDirectoryAndNames['Input Files'].get('AvAbundance Template')
 # -------- DEFINE DIRECTORIES AND NAMES. --------

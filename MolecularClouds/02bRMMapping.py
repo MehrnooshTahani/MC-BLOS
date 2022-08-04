@@ -1,5 +1,5 @@
 """
-This is an optional part of the first stage meant to provide more information only.
+This is an optional part of the second stage meant to provide more information on the matched RM points.
 
 This file maps the RMs on the extinction files to get an understanding of the rotation measure coverage
 of the region of interest.
@@ -30,12 +30,6 @@ MatchedRMExtinctPlotFile = config.MatchedRMExtinctionPlotFile
 LogFile = config.Script02bFile
 logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 # -------- CONFIGURE LOGGING --------
-
-# -------- PREPROCESS FITS DATA TYPE. --------
-# If fitsDataType is column density, then convert to visual extinction
-if regionOfInterest.fitsDataType == 'HydrogenColumnDensity':
-    regionOfInterest.hdu.data = regionOfInterest.hdu.data / config.VExtinct_2_Hcol
-# -------- PREPROCESS FITS DATA TYPE. --------
 
 # -------- READ ROTATION MEASURE FILE --------
 # Get all the rm points within the region of interest

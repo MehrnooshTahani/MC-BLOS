@@ -1,3 +1,6 @@
+'''
+Runs all the pre-analysis steps which need to be run only once.
+'''
 import subprocess
 scripts = ["00InstallPackages.py",
            "00MakeConfig.py",

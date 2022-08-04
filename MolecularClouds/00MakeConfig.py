@@ -24,6 +24,7 @@ configStartSettings['Judgement - Extinction Map'] = {
     'Fill Initial Nan Data': 'Nan',
     'Use Filled Values in RM-Extinction Matching': False,
     'Interpolate Non-Physical (Negative) Extinction': True,
+
     '# = Interpolate Area: What areas of the extinction map to interpolate. Valid values include Local, All. Local only interpolates a matched point with nan values and its surroundings, whilst All interpolates the entire map for all of its nan values. Warning: All can be very costly!': '',
     'Interpolate Area': 'Local',
     '# = Interpolation Method: How the interpolation should be done. Valid values include nearest, linear, cubic': '',
@@ -179,29 +180,21 @@ cloudInfoExport['Cloud Info'] = {
     '# = Physical line-of-sight distances in parsec': '',
     'distance': 0,
     'cloudJeansLength': 1,
+
     '# = Name of the fits file with the map corresponding to the region': '',
     'fitsFileName': '',
     'fitsDataType': 'HydrogenColumnDensity',
+
     '# = Pixels in the fits file corresponding to the region': '',
     'xmin': math.nan,
     'xmax': math.nan,
     'ymin': math.nan,
     'ymax': math.nan,
+
     '# = Chemical code parameters for the cloud': '',
     'n0': '',
     'T0': '',
     'G0': ''
-    '''
-    '# = ': '',
-    'raHoursMax': 0,
-    'raMinsMax': 0,
-    'raSecMax': 0,
-    'raHoursMin': 0,
-    'raMinsMin': 0,
-    'raSecMin': 0,
-    'decDegMax': 0,
-    'decDegMin': 0
-    '''
 }
 with open('Data\\CloudParameters\\0- cloudTemplate.ini', 'w') as output_file:
     cloudInfoExport.write(output_file)
