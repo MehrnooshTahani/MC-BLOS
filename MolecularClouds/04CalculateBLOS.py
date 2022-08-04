@@ -2,73 +2,21 @@
 This is the fourth stage of the BLOSMapping method where the BLOS values are calculated using the reference points selected in
 the previous stage.  This file also produces a scatter plot of BLOS points.
 """
-import os
 import pandas as pd
 import numpy as np
-from astropy.wcs import WCS
-from astropy.io import fits
+
 import matplotlib.pyplot as plt
 from LocalLibraries.RegionOfInterest import Region
 from LocalLibraries.CalculateB import CalculateB
+
 import LocalLibraries.MatchedRMExtinctionFunctions as MREF
 import LocalLibraries.config as config
 import LocalLibraries.PlotTemplates as pt
+import LocalLibraries.PlotUtils as putil
 
 import math
 
 import logging
-
-# -------- FUNCTION DEFINITION --------
-def B2RGB(b):
-    """
-    Takes BLOS values and assigns them a marker colour and size for use in plotting BLOS data
-
-    :param b: The BLOS value, or list of BLOS values
-    :return:  A tuple of (colour, size) corresponding to the rotation measure. Note "colour" is a tuple of (RBG,alpha)
-    """
-    c = []  # Marker colour
-    s = []  # Marker size
-
-    for item in b:
-        if abs(item) < 1000:
-            s.append(abs(item) / 2)
-        elif abs(item) >= 1000:
-            s.append(1000 / 2)
-
-        alpha = 1  # Optional: set the transparency
-        if int(np.sign(item)) == -1:
-            c.append((1, 0, 0, alpha))  # Negative rotation measures assigned red
-        if int(np.sign(item)) == 1:
-            c.append((0, 0, 1, alpha))  # Positive rotation measures assigned blue
-        if np.sign(item) == 0:
-            c.append((0, 1, 0, alpha))  # Zero-value rotation measures assigned green
-
-    # return the list of RGBA tuples and sizes
-    return c, s
-# -------- FUNCTION DEFINITION. --------
-
-# -------- FUNCTION DEFINITION --------
-def B2G(b, alpha = 1):
-    """
-    Takes BLOS values and assigns them the colour green and variable size for use in plotting BLOS data
-
-    :param b: The BLOS value, or list of BLOS values
-    :return:  A tuple of (colour, size) corresponding to the rotation measure. Note "colour" is a tuple of (RBG,alpha), where the RGB will always be green.
-    """
-    c = []  # Marker colour
-    s = []  # Marker size
-
-    for item in b:
-        if abs(item) < 1000:
-            s.append(abs(item) / 2)
-        elif abs(item) >= 1000:
-            s.append(1000 / 2)
-
-    c = [(0, 1, 0, alpha) for i in range(len(b))]
-
-    # return the list of RGBA tuples and sizes
-    return c, s
-# -------- FUNCTION DEFINITION. --------
 
 # -------- CHOOSE THE REGION OF INTEREST --------
 cloudName = config.cloud
@@ -94,15 +42,15 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 # -------- READ REFERENCE POINT TABLE --------
 MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 RefPointTable = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
-RemainingPointTable = MREF.removeMatchingPoints(MatchedRMExtinctTable, RefPointTable)
+RemainingPointTable = MREF.rmMatchingPts(MatchedRMExtinctTable, RefPointTable)
 RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
-fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
+fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.unpackRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
 # =====================================================================================================================
 
 # -------- CALCULATE BLOS --------
-BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+BLOSData = CalculateB(regionOfInterest.AvFilePath, RemainingPointTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange = config.negScaledExtOption)
 BLOSData.to_csv(BLOSPointsFile, index=False, na_rep=config.missingDataRep, sep=config.dataSeparator)
 
 message = 'Saving calculated magnetic field values to ' + BLOSPointsFile
@@ -117,14 +65,13 @@ n = list(BLOSData['ID#'])
 Ra = list(BLOSData['Ra(deg)'])
 Dec = list(BLOSData['Dec(deg)'])
 BLOS = list(BLOSData['Magnetic_Field(uG)'])
-
 # -------- PREPARE TO PLOT BLOS POINTS. --------
 #
 # -------- CREATE A FIGURE - BLOS POINT MAP --------
 fig = plt.figure(figsize=(12, 10), dpi=120, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(111, projection=regionOfInterest.wcs)
 
-plt.title(r'$\rm{B}_{LOS}$' + ' in the '+cloudName+' region\n\n\n', fontsize=12, linespacing=1)
+plt.title(r'$\rm{B}_{LOS}$' + ' in the {} region\n\n\n'.format(cloudName), fontsize=12, linespacing=1)
 im = plt.imshow(regionOfInterest.hdu.data, origin='lower', cmap='BrBG', interpolation='nearest')
 
 # ---- Convert Ra and Dec of points into pixel values of the fits file
@@ -135,7 +82,7 @@ for i in range(len(Ra)):
     x.append(pixelRow)
     y.append(pixelColumn)
 # ---- Convert Ra and Dec of points into pixel values of the fits file.
-color, size = B2RGB(BLOS)
+color, size = putil.p2RGB(BLOS, size_cap=1000, scale_factor=0.5)
 plt.scatter(x, y, s=size, facecolor=color, marker='o', linewidth=.5, edgecolors='black')
 
 # ---- Annotate the BLOS Points
@@ -162,7 +109,7 @@ for i in range(len(RefRa)):
     xRef.append(pixelRow)
     yRef.append(pixelColumn)
 # ---- Convert Ra and Dec of points into pixel values of the fits file.
-colorRef, sizeRef = B2G(RefBLOS)
+colorRef, sizeRef = putil.p2C(RefBLOS, colour=(0, 1, 0), size_cap=1000, scale_factor=0.5)
 plt.scatter(xRef, yRef, s=sizeRef, facecolor=colorRef, marker='o', linewidth=.5, edgecolors='black')
 
 # ---- Annotate the BLOS Points

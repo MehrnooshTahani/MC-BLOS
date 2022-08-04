@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 import math
 
+import BoxBounds
+import BoxBounds as bb
+import InterpLibrary
 from LocalLibraries.RMCatalog import RMCatalog
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
@@ -37,7 +40,7 @@ logging.basicConfig(filename=scriptLogFile, filemode='w', format=config.logForma
 
 # -------- PREPROCESS FITS DATA TYPE. --------
 #Local copy of the data for data integrity safety sake
-data = rjl.deepCopy(regionOfInterest.hdu.data)
+data = InterpLibrary.deepCopy(regionOfInterest.hdu.data)
 # Obtain data bounds
 xmin, xmax, ymin, ymax = regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax #Shortened alias.
 
@@ -46,7 +49,7 @@ xmin, xmax, ymin, ymax = regionOfInterest.xmin, regionOfInterest.xmax, regionOfI
 nodata = np.isnan(data)
 
 # Set default data values for missing data within the bounds.
-data[ymin:ymax, xmin:xmax] = rjl.fillMissing(data[ymin:ymax, xmin:xmax], config.fillMissingExtinct, config.interpMethod)
+data[ymin:ymax, xmin:xmax] = InterpLibrary.fillMissing(data[ymin:ymax, xmin:xmax], config.fillMissingExtinct, config.interpMethod)
 
 #Refresh the nodata situation depending on config decision on whether or not filled values can be used for matching.
 if config.useFillExtinct:
@@ -61,7 +64,7 @@ data[ymin:ymax, xmin:xmax][baddata[ymin:ymax, xmin:xmax]] = math.nan
 
 # Handle bad data (negative/no values) by full fits-file interpolation, if turned on.
 if config.doInterpExtinct and config.interpRegion == 'All':
-    data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], config.interpMethod) #This step is computationally costly. It may be omitted if it is taking too long.
+    data[ymin:ymax, xmin:xmax] = InterpLibrary.interpMask(data[ymin:ymax, xmin:xmax], baddata[ymin:ymax, xmin:xmax], config.interpMethod) #This step is computationally costly. It may be omitted if it is taking too long.
     baddata[ymin:ymax, xmin:xmax] = False
 
 messages = ["The Region Fits File Data Type is: {}".format(regionOfInterest.fitsDataType),
@@ -185,10 +188,10 @@ for index in range(len(rmData.targetRotationMeasures)):
 
     # ---- Interpolate Missing Data
     if not physicalData and interpByPoint:
-        ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getNullBox(px, py, data)
-        data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = rjl.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
+        ind_xmin, ind_xmax, ind_ymin, ind_ymax = bb.getNullBoxBound(px, py, data)
+        data[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = InterpLibrary.interpMask(data[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
                                                                     baddata[ind_ymin:ind_ymax, ind_xmin:ind_xmax],
-                                                                    config.interpMethod)
+                                                                              config.interpMethod)
         baddata[ind_ymin:ind_ymax, ind_xmin:ind_xmax] = False
     # ---- Interpolate Missing Data
 
@@ -211,7 +214,7 @@ for index in range(len(rmData.targetRotationMeasures)):
 
     # ---- Find the extinction error range for the given rm
     ErrRangePix.append(NDelt)
-    ind_xmin, ind_xmax, ind_ymin, ind_ymax = rjl.getBoxRange(px, py, data, NDelt)
+    ind_xmin, ind_xmax, ind_ymin, ind_ymax = BoxBounds.getBoxBound(px, py, data, NDelt)
     # ---- Find the extinction error range for the given rm.
 
     # ---- Cycle through extinction values within the error range
@@ -227,11 +230,11 @@ for index in range(len(rmData.targetRotationMeasures)):
             # ---- Skip Missing Data
             # ---- Interpolate Bad Data, if interpolation is to be done.
             if baddata[pyy, pxx] and config.interpRegion == 'Local':
-                xmin, xmax, ymin, ymax = rjl.getNullBox(pxx, pyy, data)
-                data[ymin:ymax, xmin:xmax] = rjl.interpMask(data[ymin:ymax, xmin:xmax],
+                xmin, xmax, ymin, ymax = bb.getNullBoxBound(pxx, pyy, data)
+                data[ymin:ymax, xmin:xmax] = InterpLibrary.interpMask(data[ymin:ymax, xmin:xmax],
                                                                             baddata[ymin:ymax,
                                                                             xmin:xmax],
-                                                                            config.interpMethod)
+                                                                      config.interpMethod)
                 baddata[ymin:ymax, xmin:xmax] = False
             # ---- Interpolate Bad Data, if interpolation is to be done.
             extinction = data[pyy, pxx]

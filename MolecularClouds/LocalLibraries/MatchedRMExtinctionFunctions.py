@@ -4,9 +4,9 @@ import pandas as pd
 Contains functions commonly performed on the MatchedRMExtinction dataset and related files.
 '''
 # -------- REMOVE REFERENCE POINTS FROM THE MATCHED RM AND EXTINCTION DATA. --------
-def getRefValFromRefData(refData):
+def unpackRefData(refData):
     '''
-    Gets the reference values from the reference value PANDAS table.
+    Unpacks the reference values from the reference value PANDAS table.
 
     :param refData: A PANDAS table which contains the reference values, generated in script 3.
     :return: fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction - the extracted reference values.
@@ -18,7 +18,7 @@ def getRefValFromRefData(refData):
     fiducialExtinction = refData['Reference Extinction'][0]
     return fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction
 
-def getFiducialValues(refData):
+def calcFiducialVals(refData):
     '''
     Calculates the reference values from the reference points PANDAS table. Assumes no weighting.
     :param refData: Table with the Reference Point information. PANDAS table.
@@ -33,7 +33,7 @@ def getFiducialValues(refData):
     # -------- FIND FIDUCIAL REFERENCE VALUES. --------
     return fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction
 
-def removeMatchingPoints(ExtincRMTable, refRMTable):
+def rmMatchingPts(ExtincRMTable, refRMTable):
     '''
     Given two matched RM extinction tables, returns a new table with the elements the second has in common with the first removed.
     :param ExtincRMTable: The first table, to have elements removed from.

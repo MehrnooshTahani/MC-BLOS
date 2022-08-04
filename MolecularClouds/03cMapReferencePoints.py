@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 
 import matplotlib.pyplot as plt
@@ -13,7 +11,7 @@ import LocalLibraries.PlotUtils as putil
 
 import logging
 
-def plotRefPoints(refPoints, hdu, regionOfInterest, title):
+def plotRefPoints(refPoints, hdu, regionOfInterest, title, fontsize=12, titley=1.08, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50, textFix=True):
     '''
     Given a list of reference points and the data of the region in question,
     generates a basic plot of the region with the locations of the reference points.
@@ -27,6 +25,7 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title):
     labels = list(refPoints['ID#'])
     Ra = list(refPoints['Ra(deg)'])
     Dec = list(refPoints['Dec(deg)'])
+
     # ---- Convert Ra and Dec of reference points into pixel values of the fits file
     x, y = cl.RADec2xy(Ra, Dec, regionOfInterest.wcs)
     # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
@@ -35,15 +34,15 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title):
     # -------- CREATE A FIGURE - ALL REF POINTS MAP --------
     fig, ax = pt.extinctionPlot(hdu, regionOfInterest)
 
-    plt.title(title, fontsize=12, y=1.08)
-    plt.scatter(x, y, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50)
+    plt.title(title, fontsize=fontsize, y=titley)
+    plt.scatter(x, y, marker=marker, facecolor=facecolor, linewidth=linewidth, edgecolors=edgecolors, s=s)
     # ---- Annotate the chosen reference points
-    pt.labelPoints(ax, labels, x, y, textFix=config.textFix)
+    pt.labelPoints(ax, labels, x, y, textFix=textFix)
     # ---- Annotate the chosen reference points
     # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
     return fig, ax
 
-def refPointPlot(titleFragment, saveFragment, cloudName, refPoints, hdu, regionOfInterest):
+def plotRefPointScript(title, saveFigurePath, refPoints, hdu, regionOfInterest, textFix=True):
     '''
     Wrapper function for commonly duplicated code in creating a reference point plot.
     :param titleFragment: Part of the title. String.
@@ -55,15 +54,13 @@ def refPointPlot(titleFragment, saveFragment, cloudName, refPoints, hdu, regionO
     :return: Nothing.
     '''
     # -------- PREPARE TO PLOT REFERENCE POINTS --------
-    title = titleFragment + 'Reference Points' + ' in the ' + cloudName + ' region\n'
-    plotRefPoints(refPoints, hdu, regionOfInterest, title)
+    plotRefPoints(refPoints, hdu, regionOfInterest, title, textFix=textFix)
     # ---- Display or save the figure
-    saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_' + saveFragment + '.png'
-    plt.savefig(saveFigurePath_RefPointMap)
+    plt.savefig(saveFigurePath)
     plt.close()
     # ---- Display or save the figure.
     # ---- Log info
-    message = 'Saving the map: ' + title + ' to ' + saveFigurePath_RefPointMap
+    message = 'Saving the map: {} to {}'.format(title, saveFigurePath)
     logging.info(loggingDivider)
     logging.info(message)
     print(message)
@@ -88,18 +85,26 @@ RemainingRefPointsPath = config.RemainingRefPointFile
 # ---- Input Files
 
 # ---- Output Files
-saveScriptLogPath = config.Script03cFile
-saveFigureDir_RefPointMap = config.CloudPlotsDir
+LogFile = config.Script03cFile
+
+AllPotRefPtsPlotFile = config.AllPotRefPtsPlotFile
+NearHighExtRejPlotFile = config.NearHighExtRejPlotFile
+FarHighExtRejPlotFile = config.FarHighExtRejPlotFile
+AnomRMPlotFile = config.AnomRMPlotFile
+AllRejPlotFile = config.AllRejPlotFile
+AllRemainPlotFile = config.AllRemainPlotFile
+AllChosenPlotFile = config.AllChosenPlotFile
+AllRefAndRejPlotFile = config.AllRefAndRejPlotFile
 
 saveQuadrantFigurePath = config.QuadrantDivisionPlotFile #Todo?
-saveFigurePath_BLOSvsNRef_AllPotentialRefPoints = config.BLOSvsNRef_AllPlotFile
-saveFigurePath_BLOSvsNRef_ChosenPotentialRefPoints = config.BLOSvsNRef_ChosenPlotFile
+BLOSvsNRef_AllPlotFile = config.BLOSvsNRef_AllPlotFile
+BLOSvsNRef_ChosenPlotFile = config.BLOSvsNRef_ChosenPlotFile
 # ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------
 
 # -------- CONFIGURE LOGGING --------
-logging.basicConfig(filename=saveScriptLogPath, filemode='w', format=config.logFormat, level=logging.INFO)
+logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, level=logging.INFO)
 loggingDivider = config.logSectionDivider
 # -------- CONFIGURE LOGGING --------
 
@@ -115,13 +120,13 @@ RemainingRefPoints = pd.read_csv(RemainingRefPointsPath, sep=config.dataSeparato
 chosenRefPoints = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 #======================================================================================================================
-refPointPlot("All Potential ", "AllPotentialRefPoints", cloudName, AllPotentialRefPoints, regionOfInterest.hdu, regionOfInterest)
-refPointPlot("Near-High Extinction Rejected ", "NearExtinctRejectedRefPoints", cloudName, NearRejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
-refPointPlot("Far from High Extinction Rejected ", "FarExtinctRejectedRefPoints", cloudName, FarRejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
-refPointPlot("Anomalous RM Rejected ", "AnomalousRMRejectedRefPoints", cloudName, AnomalousRejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
-refPointPlot("All Rejected ", "AllRejectedRefPoints", cloudName, RejectedRefPoints, regionOfInterest.hdu, regionOfInterest)
-refPointPlot("All Remaining ", "AllRemainingRefPoints", cloudName, RemainingRefPoints, regionOfInterest.hdu, regionOfInterest)
-refPointPlot("All Chosen ", "ChosenRefPoints", cloudName, chosenRefPoints, regionOfInterest.hdu, regionOfInterest)
+plotRefPointScript(config.plotName_AllPotRefPtsPlot, AllPotRefPtsPlotFile, AllPotentialRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_NearHighExtRejPlot, NearHighExtRejPlotFile, NearRejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_FarHighExtRejPlot, FarHighExtRejPlotFile, FarRejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AnomRMPlot, AnomRMPlotFile, AnomalousRejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AllRejPlot, AllRejPlotFile, RejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AllRemainPlot, AllRemainPlotFile, RemainingRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AllChosenPlot, AllChosenPlotFile, chosenRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
 #======================================================================================================================
 # -------- PREPARE TO PLOT REMAINING AND REJECTED REFERENCE POINTS --------
 refPoints = RemainingRefPoints
@@ -131,7 +136,7 @@ anomRefPoints = AnomalousRejectedRefPoints
 RejectedRefPoints = RejectedRefPoints
 
 fig, ax = pt.extinctionPlot(regionOfInterest.hdu, regionOfInterest)
-title = 'All Potential Reference Points Sorted in the ' + cloudName + ' region\n'
+title = config.plotName_AllRefAndRejPlot
 plt.title(title, fontsize=12, y=1.08)
 
 # -------- PREPARE TO PLOT REFERENCE POINTS --------
@@ -204,13 +209,13 @@ frame.set_alpha(0.4)
 # ---- Style the legend.
 
 # ---- Display or save the figure
-saveFigurePath_RefPointMap = saveFigureDir_RefPointMap + os.sep + 'RefPointMap_RemainingAndRejectedRefPoints.png'
-plt.savefig(saveFigurePath_RefPointMap)
+plt.savefig(AllRefAndRejPlotFile)
 plt.close()
 # ---- Display or save the figure.
 # ---- Log info
+message = 'Saving the map: {} to {}'.format(title, AllRefAndRejPlotFile)
 logging.info(loggingDivider)
-logging.info('Saving the map: ' + title + ' to '+saveFigurePath_RefPointMap)
+logging.info(message)
 # ---- Log info
 # -------- CREATE A FIGURE - REMAINING AND REJECTED REF POINTS MAP. --------
 #======================================================================================================================

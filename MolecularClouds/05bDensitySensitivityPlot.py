@@ -32,7 +32,7 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 # -------- CONFIGURE LOGGING --------
 
 # -------- EXTRACT ORIGINAL BLOS VALUES --------
-InitPath = DensVaryFileTemplate.format(0) #DensBT0n0File
+InitPath = DensVaryFileTemplate.format(0)
 InitialBData = pd.read_csv(InitPath, sep=config.dataSeparator)
 B = list(InitialBData['Magnetic_Field(uG)'])
 # -------- EXTRACT ORIGINAL BLOS VALUES. --------

@@ -10,6 +10,7 @@ import math
 from astropy.coordinates import SkyCoord
 
 import LocalLibraries.ConversionLibrary as cl
+import BoxBounds as bb
 from LocalLibraries.RegionOfInterest import Region
 
 import LocalLibraries.config as config
@@ -170,9 +171,9 @@ for i in list(AllPotentialRefPoints.index):
     px = AllPotentialRefPoints['Extinction_Index_x'][i]
     py = AllPotentialRefPoints['Extinction_Index_y'][i]
     # ---- Find the extinction range for the given point
-    if rjl.nearHighExtinction(px, py, regionOfInterest.hdu.data, NDeltNear, highExtinctionThreshold):
+    if rjl.IsNeatHighExt(px, py, regionOfInterest.hdu.data, NDeltNear, highExtinctionThreshold):
         nearHighExtinctionRegion.append(i)
-    if not rjl.nearHighExtinction(px, py, regionOfInterest.hdu.data, NDeltFar, highExtinctionThreshold):
+    if not rjl.IsNeatHighExt(px, py, regionOfInterest.hdu.data, NDeltFar, highExtinctionThreshold):
         farHighExtinctionRegion.append(i)
     # ---- Find the extinction range for the given point.
 # -------- For each potential reference point.

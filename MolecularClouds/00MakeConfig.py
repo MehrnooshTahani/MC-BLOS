@@ -58,6 +58,10 @@ configStartSettings['Judgement - Cloud Quadrant Sampling'] = {
     '# = Weighting Scheme: How the RMoff values should be weighted. Valid values include None, Quadrant': '',
     'Weighting Scheme': 'None'
     }
+configStartSettings['Judgement - Magnetic Field Calculations'] = {
+    '# = Negative Scaled Extinction Data: What to do with non-physical negative scaled extinction points in calculating magnetic fields. Valid values include Delete, Zero, None': 'Delete',
+    'Negative Scaled Extinction Data': 'Delete'
+}
 configStartSettings['Judgement - Uncertainty Calculations'] = {
     'Use Nans in Uncertainty Calculations': False
 }
@@ -109,16 +113,36 @@ configDirectoryAndNames['Output Files - Point Filtering'] = {
     'Rejected Anomalous RM-Extinction': 'AnomRej.csv',
     'Rejected RM-Extinction': 'Rejected.csv',
     'Remaining RM-Extinction': 'Remaining.csv',
-    'Filtered RM-Extinction': 'FilteredRMExtinction.csv'
+    'Filtered RM-Extinction': 'FilteredRMExtinction.csv',
 }
 configDirectoryAndNames['Output Files - Reference Points'] = {
     'All Potential Reference Points': 'AllPotentialRefPoints.csv',
     'Selected Reference Points': 'SelectedRefPoints.csv',
-    'Optimal Reference Points': 'DataNoRef.csv',
+    'Stability Trend Reference Points': 'TrendDataTable.csv',
     'Optimal Reference Points Stability Plot': 'BLOS_vs_NRef_AllPotentialRefPoints.png',
     'Chosen Reference Points Stability Plot': 'BLOS_vs_NRef_ChosenRefPoints.png',
     'Chosen Reference Points Quadrant Plot': 'QuadrantDivisionPlot.png',
     'Reference Data': 'ReferenceData.csv'
+}
+configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
+    'All Potential Reference Points': 'All Potential Reference Points',
+    'Near-High Extinction Rejected Points': 'Near-High Extinction Rejected Points',
+    'Far from High Extinction Rejected Points': 'Far from High Extinction Rejected Points',
+    'Anomalous RM Rejected Points': 'Anomalous RM Rejected Points',
+    'All Rejected Points': 'All Rejected Points',
+    'All Remaining Points': 'All Remaining Points',
+    'All Chosen Points': 'All Chosen Points',
+    'All Remaining and Rejected Reference Points': 'All Remaining and Rejected Reference'
+}
+configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
+    'All Potential Reference Points': 'RemainingAndRejectedRefPoints.png',
+    'Near-High Extinction Rejected Points': 'Filter_NearHighExt.png',
+    'Far from High Extinction Rejected Points': 'Filter_FarHighExt.png',
+    'Anomalous RM Rejected Points': 'Filter_AnomRM.png',
+    'All Rejected Points': 'Filter_AllRej.png',
+    'All Remaining Points': 'Filter_AllRemaining.png',
+    'All Chosen Points': 'ChosenRefPoints.png',
+    'All Remaining and Rejected Reference Points': 'AllRefPointSorted.png'
 }
 configDirectoryAndNames['Output Files - BLOS Uncertainties'] = {
     'BLOS Density Uncertainty Data': 'B_Av_T0_n{}.csv',

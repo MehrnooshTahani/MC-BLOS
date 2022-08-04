@@ -37,9 +37,9 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 # -------- READ REFERENCE POINT TABLE --------
 MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 RefPointTable = pd.read_csv(RefPointFile, sep=config.dataSeparator)
-RemainingTable = MREF.removeMatchingPoints(MatchedRMExtinctTable, RefPointTable)
+RemainingTable = MREF.rmMatchingPts(MatchedRMExtinctTable, RefPointTable)
 RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
-fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getRefValFromRefData(RefData)
+fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.unpackRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
 # -------- CALCULATE BLOS AS A FUNCTION OF PERCENT OF THE INPUT DENSITY --------
@@ -51,28 +51,29 @@ percent = ['-{}'.format(i) for i in p[::-1]] + ['0'] + ['+{}'.format(i) for i in
 errPercent = []
 
 for value in percent:
+    #Load the abundance file paths with the appropriate values.
     AvAbundanceFile = config.template_AvAbundanceData.format(0, value)
     AvAbundancePath = os.path.join(regionOfInterest.AvFileDir, AvAbundanceFile)
     saveFilePath = DensVaryFileTemplate.format(value)
-    B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+    #Calculate the magnetic fields given these paths
+    B = CalculateB(AvAbundancePath, RemainingTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange = config.negScaledExtOption)
     B.to_csv(saveFilePath, index=False, na_rep=config.missingDataRep, sep=config.dataSeparator)
+    #If there are any missing values in the calculation, warn the user.
     if B.isnull().values.any():
         errPercent.append(value)
-
         message = "Error! The following percentage change has invalid (nan) values: {}".format(value)
         logging.warning(message)
         print(message)
-
+#If there are any missing values in the calculation, warn the user again, in a summary fashion.
 if len(errPercent) > 0:
     messages = [loggingDivider,
                 'Warning: The following density changes have invalid values.',
                 '{}'.format(errPercent),
-                'Please review the results.',
-                loggingDivider]
+                'Please review the results.']
     for message in messages:
         logging.warning(message)
         print(message)
-
+#Log results and report to the user.
 message = 'Saving calculated magnetic field values in the folder: ' + CloudDensSensDir
 logging.info(message)
 print(message)

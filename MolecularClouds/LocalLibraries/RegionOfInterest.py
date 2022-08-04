@@ -1,5 +1,5 @@
 """
-The regions of interest class loads in the data from the regions of interest files as well as all derrivative data.
+The regions of interest class loads in the data from the regions of interest files as well as derivative data.
  - The boundaries and parameters defined here will be used throughout the analysis
 """
 import os
@@ -8,8 +8,9 @@ from astropy.wcs import WCS
 
 from configparser import ConfigParser
 
+import ConversionLibrary
 from . import config as config
-from . import util as util
+from . import BoxBounds as bb
 
 class Region:
     def __init__(self, regionName):
@@ -20,10 +21,11 @@ class Region:
             message = "Region data file for given region name: {} not found! Check {} to ensure it exists.".format(regionName, config.DataCloudParamsDir)
             raise NameError(message)
         cloudParams.read(regionDataFileLoc)
+        # -------- Load the region data file, and raise an error if it doesn't exist. --------
 
         # -------- Load Region Data --------
         # Distance to the region of interest:
-        self.distance = cloudParams['Cloud Info'].getfloat('distance')  # CHECK THIS [pc]
+        self.distance = cloudParams['Cloud Info'].getfloat('distance')  # [pc]
         self.jeanslength = cloudParams['Cloud Info'].getfloat('cloudJeansLength')
 
         # Path to the fits file containing to the region of interest:
@@ -34,17 +36,15 @@ class Region:
         self.hdulist = fits.open(self.fitsFilePath)
         self.hdu = self.hdulist[0]
         self.wcs = WCS(self.hdu.header)
-
-        # If fitsDataType is column density, then convert to visual extinction
-        if self.fitsDataType == 'HydrogenColumnDensity':
-            self.hdu.data = self.hdu.data / config.VExtinct_2_Hcol
+        #Adjust in case it's hydrogen column density data.
+        self.hdu.data = self.hdu.data / config.VExtinct_2_Hcol if self.fitsDataType == 'HydrogenColumnDensity' else self.hdu.data
 
         # Pixel limits of the region of interest in the fits file:
         xmin = cloudParams['Cloud Info'].getfloat('xmin')
         xmax = cloudParams['Cloud Info'].getfloat('xmax')
         ymin = cloudParams['Cloud Info'].getfloat('ymin')
         ymax = cloudParams['Cloud Info'].getfloat('ymax')
-        self.xmin, self.xmax, self.ymin, self.ymax = util.getBoxBounds(self.hdu.data, xmin, xmax, ymin, ymax) #Utilizing the function to ensure the loaded bounds are valid.
+        self.xmin, self.xmax, self.ymin, self.ymax = bb.getBoxBounds(self.hdu.data, xmin, xmax, ymin, ymax) #Utilizing the function to ensure the loaded bounds are valid.
 
         # Path to the fiducial extinction and electron abundance for the region of interest:
         self.n0 = cloudParams['Cloud Info'].get('n0')
@@ -53,11 +53,11 @@ class Region:
         Parameters = 'n' + self.n0 + '_T' + self.T0 + '_G' + self.G0
         self.AvFileDir = os.path.join(config.DataChemAbundanceDir, Parameters)
         self.AvFilePath = os.path.join(self.AvFileDir, config.template_AvAbundanceData.format(0, 0))
+        # -------- Load Region Data --------
 
         # -------- Compute Derivative Data --------
-
         # Ra-Dec Boundaries of the region of interest:
-        raMin, raMax, decMin, decMax = util.getRaDecMinSec(self.xmin, self.xmax, self.ymin, self.ymax, self.wcs)
+        raMin, raMax, decMin, decMax = ConversionLibrary.getRaDecMinSec(self.xmin, self.xmax, self.ymin, self.ymax, self.wcs)
         self.raHoursMax = raMax.h
         self.raMinsMax = raMax.m
         self.raSecMax = raMax.s
@@ -66,3 +66,4 @@ class Region:
         self.raSecMin = raMin.s
         self.decDegMax = decMax
         self.decDegMin = decMin
+        # -------- Compute Derivative Data --------

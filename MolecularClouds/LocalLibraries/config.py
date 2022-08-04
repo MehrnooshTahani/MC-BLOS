@@ -39,6 +39,8 @@ useQuadrantEnforce = configStartSettings['Judgement - Cloud Quadrant Sampling'].
 minPointsPerQuadrant = configStartSettings['Judgement - Cloud Quadrant Sampling'].getint('Minimum Points Per Quadrant')
 weightingScheme = configStartSettings['Judgement - Cloud Quadrant Sampling'].get('Weighting Scheme')
 
+negScaledExtOption = configStartSettings['Judgement - Magnetic Field Calculations'].get("Negative Scaled Extinction Data")
+
 useUncertaintyNans = configStartSettings['Judgement - Uncertainty Calculations'].getboolean("Use Nans in Uncertainty Calculations")
 
 #Plotting Options
@@ -85,12 +87,30 @@ file_RMExtinctionRemaining = configDirectoryAndNames['Output Files - Point Filte
 file_RMExtinctionFiltered = configDirectoryAndNames['Output Files - Point Filtering'].get('Filtered RM-Extinction')
 
 file_allPotRefPoints = configDirectoryAndNames['Output Files - Reference Points'].get('All Potential Reference Points')
-file_OptRefPoints = configDirectoryAndNames['Output Files - Reference Points'].get('Optimal Reference Points')
+file_StabilityTrendRefPoints = configDirectoryAndNames['Output Files - Reference Points'].get('Stability Trend Reference Points')
 file_OptRefStabPlot = configDirectoryAndNames['Output Files - Reference Points'].get('Optimal Reference Points Stability Plot')
 file_SelRefStabPlot = configDirectoryAndNames['Output Files - Reference Points'].get('Chosen Reference Points Stability Plot')
 file_SelRefQuadPlot = configDirectoryAndNames['Output Files - Reference Points'].get('Chosen Reference Points Quadrant Plot')
 file_selRefPoints = configDirectoryAndNames['Output Files - Reference Points'].get('Selected Reference Points')
 file_refData = configDirectoryAndNames['Output Files - Reference Points'].get('Reference Data')
+
+plotName_AllPotRefPtsPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Potential Reference Points')
+plotName_NearHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Near-High Extinction Rejected Points')
+plotName_FarHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Far from High Extinction Rejected Points')
+plotName_AnomRMPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Anomalous RM Rejected Points')
+plotName_AllRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Rejected Points')
+plotName_AllRemainPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Remaining Points')
+plotName_AllChosenPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Chosen Points')
+plotName_AllRefAndRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Remaining and Rejected Reference Points')
+
+file_AllPotRefPtsPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Potential Reference Points')
+file_NearHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('Near-High Extinction Rejected Points')
+file_FarHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('Far from High Extinction Rejected Points')
+file_AnomRMPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('Anomalous RM Rejected Points')
+file_AllRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Rejected Points')
+file_AllRemainPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Remaining Points')
+file_AllChosenPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Chosen Points')
+file_AllRefAndRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Remaining and Rejected Reference Points')
 
 file_BLOSDensUncertaintyTemplate = configDirectoryAndNames['Output Files - BLOS Uncertainties'].get('BLOS Density Uncertainty Data')
 file_BLOSDensUncertaintyPlot = configDirectoryAndNames['Output Files - BLOS Uncertainties'].get('BLOS Density Uncertainty Plot')
@@ -119,24 +139,25 @@ dir_data = configDirectoryAndNames['Input Directories'].get('Input Data')
 dir_cloudParameters = configDirectoryAndNames['Input Directories'].get('Cloud Parameter Data')
 dir_chemAbundance = configDirectoryAndNames['Input Directories'].get('Chemical Abundance Data')
 dir_RMCatalog = configDirectoryAndNames['Input Directories'].get('RM Catalogue Data')
+
 #Input Files
 file_RMCatalogue = configDirectoryAndNames['Input Files'].get('RM Catalogue')
 template_AvAbundanceData = configDirectoryAndNames['Input Files'].get('AvAbundance Template')
 # -------- DEFINE DIRECTORIES AND NAMES. --------
 
-# -------- DEFINE DIRECTORIES/FILE STRUCTURE. --------
+# -------- DEFINE DIRECTORIES/FILE STRUCTURE ALIASES. --------
 #Base Folders
 DataDir = os.path.join(dir_root, dir_data)
 FileOutputDir = os.path.join(dir_root, dir_fileOutput)
+
 #Input
 DataChemAbundanceDir = os.path.join(DataDir, dir_chemAbundance)
 DataCloudParamsDir = os.path.join(DataDir, dir_cloudParameters)
 DataRMCatalogDir = os.path.join(DataDir, dir_RMCatalog)
-
 DataRMCatalogFile = os.path.join(DataRMCatalogDir, file_RMCatalogue)
+
 #Output
 CloudOutputDir = os.path.join(FileOutputDir, cloud)
-
 CloudDensSensDir = os.path.join(CloudOutputDir, dir_densitySensitivity)
 CloudLogsDir = os.path.join(CloudOutputDir, dir_logs)
 CloudPlotsDir = os.path.join(CloudOutputDir, dir_plots)
@@ -156,8 +177,16 @@ RemainingRefPointFile = os.path.join(CloudOutputDir, file_RMExtinctionRemaining)
 ChosenRefPointFile = os.path.join(CloudOutputDir, file_selRefPoints)
 ChosenRefDataFile = os.path.join(CloudOutputDir, file_refData)
 
-DataNoRefFile = os.path.join(CloudOutputDir, file_OptRefPoints)
+AllPotRefPtsPlotFile = os.path.join(CloudPlotsDir, file_AllPotRefPtsPlot)
+NearHighExtRejPlotFile = os.path.join(CloudPlotsDir, file_NearHighExtRejPlot)
+FarHighExtRejPlotFile = os.path.join(CloudPlotsDir, file_FarHighExtRejPlot)
+AnomRMPlotFile = os.path.join(CloudPlotsDir, file_AnomRMPlot)
+AllRejPlotFile = os.path.join(CloudPlotsDir, file_AllRejPlot)
+AllRemainPlotFile = os.path.join(CloudPlotsDir, file_AllRemainPlot)
+AllChosenPlotFile = os.path.join(CloudPlotsDir, file_AllChosenPlot)
+AllRefAndRejPlotFile = os.path.join(CloudPlotsDir, file_AllRefAndRejPlot)
 
+StabilityTrendDataTablePath = os.path.join(CloudOutputDir, file_StabilityTrendRefPoints)
 BLOSPointsFile = os.path.join(CloudOutputDir, file_BLOSPointData)
 BLOSUncertaintyFile = os.path.join(CloudOutputDir, file_BLOSUncertainty)
 
@@ -184,7 +213,7 @@ Script05bFile = os.path.join(CloudLogsDir, file_logscript05b)
 Script06aFile = os.path.join(CloudLogsDir, file_logscript06a)
 Script06bFile = os.path.join(CloudLogsDir, file_logscript06b)
 Script07File = os.path.join(CloudLogsDir, file_logscript07)
-# -------- DEFINE DIRECTORIES/FILE STRUCTURE. --------
+# -------- DEFINE DIRECTORIES/FILE STRUCTURE ALIASES. --------
 
 # -------- DEFINE CONSTANTS. --------
 configConstants = ConfigParser()

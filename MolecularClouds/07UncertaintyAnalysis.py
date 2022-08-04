@@ -74,6 +74,7 @@ FinalBLOSResults['Magnetic_Field(uG)'] = BData['Magnetic_Field(uG)']
 TotalRMErrStDevinB = (BData['Magnetic_Field(uG)']) * (BData['TotalRMScaledErrWithStDev'] /BData['Scaled_RM'])
 
 # -------- CALCULATE UNCERTAINTIES --------
+# ---- Establish values and parameters
 BTotalUpperUncertainty = []
 BTotalLowerUncertainty = []
 
@@ -86,7 +87,9 @@ DensPercent = [1, 2.5, 5, 10, 20, 30, 40, 50]
 DensPercent = DensPercent[::-1]
 TempPercent = [5, 10, 20]
 TempPercent = TempPercent[::-1]
+# ---- Establish values and parameters
 
+# ---- Check to see if there's any missing data in the density variance data we intend to use. If so, depending on the config option, skip to the next one, or just use it.
 errDensPercent = []
 for densPercent in DensPercent:
     BData_DensityIncreasePath = DensVaryNameTemplate.format("+{}".format(densPercent))
@@ -113,7 +116,9 @@ if len(errDensPercent) > 0:
     for message in messages:
         logging.warning(message)
         print(message)
+# ---- Check to see if there's any missing data in the density variance data we intend to use. If so, depending on the config option, skip to the next one, or just use it.
 
+# ---- Check to see if there's any missing data in the temperature variance data we intend to use. If so, depending on the config option, skip to the next one, or just use it.
 errTempPercent = []
 for tempPercent in TempPercent:
     BData_TempIncreasePath = TempVaryNameTemplate.format("+{}".format(tempPercent))
@@ -140,7 +145,9 @@ if len(errTempPercent) > 0:
     for message in messages:
         logging.warning(message)
         print(message)
+# ---- Check to see if there's any missing data in the temperature variance data we intend to use. If so, depending on the config option, skip to the next one, or just use it.
 
+# ---- Check to see if no data can be loaded due to the config settings above removing nan valued entries.
 if BChemDensDecrease is None or BChemDensIncrease is None or BChemTempDecrease is None or BChemTempIncrease is None:
     messages = ['Warning: There is insufficient data to calculate the uncertainty with!',
                 'Make sure the last two scripts (5, 6) were run before this script.',
@@ -150,8 +157,9 @@ if BChemDensDecrease is None or BChemDensIncrease is None or BChemTempDecrease i
     for message in messages:
         logging.warning(message)
         print(message)
+# ---- Check to see if no data can be loaded due to the config settings above removing nan valued entries.
 
-#Find the uncertainty for each row of data.
+# ---- Find the uncertainty for each row of data.
 for index in range(len(BData)):
     #Identify the uncertainty.
     upperDeltaBExt, lowerDeltaBExt = extinctionChemUncertainties(
@@ -164,7 +172,7 @@ for index in range(len(BData)):
     # Calculate uncertainties
     BUpperUncertainty = round(((TotalRMErrStDevinB[index]) ** 2 + upperDeltaBExt ** 2 + upperDeltaBChemDens ** 2 + upperDeltaBChemTemp ** 2) ** (1 / 2), 0)
     BLowerUncertainty = round(((TotalRMErrStDevinB[index]) ** 2 + lowerDeltaBExt ** 2 + lowerDeltaBChemDens ** 2 + lowerDeltaBChemTemp ** 2) ** (1 / 2), 0)
-    #Avoid overestimating the uncertainty. The propagated uncertainty
+    #Avoid overestimating the uncertainty. The propagated uncertainty should not cause the uncertainty to be able to flip the sign, if it cannot already do that.
     BUpperUncertainty = TotalRMErrStDevinB[index] if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] < 0 else BUpperUncertainty
     BLowerUncertainty = TotalRMErrStDevinB[index] if abs(BLowerUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] > 0 else BLowerUncertainty
     #Append the uncertainty to the list.
@@ -173,6 +181,7 @@ for index in range(len(BData)):
 
 FinalBLOSResults['TotalUpperBUncertainty'] = BTotalUpperUncertainty
 FinalBLOSResults['TotalLowerBUncertainty'] = BTotalLowerUncertainty
+# ---- Find the uncertainty for each row of data.
 # -------- CALCULATE UNCERTAINTIES. --------
 
 # -------- SAVE FINAL BLOS RESULTS --------

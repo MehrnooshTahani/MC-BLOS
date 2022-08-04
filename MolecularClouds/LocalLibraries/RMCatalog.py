@@ -17,7 +17,8 @@ class RMCatalog:
                  raSecMin  = 0, decDegMax = 90, decDegMin = -90):
         """
            Takes a file containing rotation measure data in the format of the Taylor et al. (2009) catalog and gives
-           parameters such as ra, dec, rm, etc corresponding to a specific region of interest
+           parameters such as ra, dec, rm, etc corresponding to a specific region of interest. Default parameters read
+           the entire catalog.
 
         :param filename: Path to the file containing the rotation measure data (eg the Taylor et al (2009) catalogue)
         :param raHoursMax: Hour component of the maximum right ascension of the region of interest

@@ -34,7 +34,7 @@ ChosenRefDataFile = config.ChosenRefDataFile
 BLOSvsNRef_AllPotRefPointsPlot = config.BLOSvsNRef_AllPlotFile
 BLOSvsNRef_ChosenPlotFile = config.BLOSvsNRef_ChosenPlotFile
 
-DataNoRefPath = config.DataNoRefFile
+StabilityTrendDataTablePath = config.StabilityTrendDataTablePath
 LogFile = config.Script03bFile
 # ---- Output Files
 
@@ -97,12 +97,12 @@ for message in messages:
 #============================================================================================================
 # -------- FIND OPTIMAL NUMBER OF REFERENCE POINTS --------
 # ---- Find the trend data
-DataNoRef = orp.findTrendData(FilteredRefPoints, MatchedRMExtinctionData, regionOfInterest)
-DataNoRef.to_csv(DataNoRefPath, sep=config.dataSeparator)
+TrendDataTable = orp.findTrendData(FilteredRefPoints, MatchedRMExtinctionData, regionOfInterest)
+TrendDataTable.to_csv(StabilityTrendDataTablePath, sep=config.dataSeparator)
 # ---- Find the trend data
 
 # ---- Plot the trend data
-fig = orp.stabilityTrendGraph(DataNoRef)
+fig = orp.plotStabilityTrend(TrendDataTable)
 plt.savefig(BLOSvsNRef_AllPotRefPointsPlot)
 # ---- Plot the trend data
 
@@ -114,7 +114,7 @@ TotalNumPoints = len(MatchedRMExtinctionData)
 We can now determine the optimal number of reference points using the calculated BLOS values as a function of 
 number of candidate reference points.
  '''
-Optimal_NumRefPoints = orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(DataNoRef) #[orp.minRefRMOff(FilteredRefPoints, 1)]
+Optimal_NumRefPoints = orp.stabilityCheckAlg(TrendDataTable) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(TrendDataTable) #[orp.minRefRMOff(FilteredRefPoints, 1)]
 # -------- Find the optimal number of reference points using the trend data
 # The number of reference points should be greater than 3 and less than half the total number of points
 minStablePoints = config.minRefPoints
@@ -212,11 +212,11 @@ extinction greater than the extinction of the last chosen reference point/
 RefPoints = chosenRefPoints[:-1].append(FilteredRefPoints.set_index('ID#').
                                         loc[list(chosenRefPoints['ID#'])[-1]:].reset_index())\
     .reset_index(drop=True)
-DataNoRef = orp.findTrendData(RefPoints, MatchedRMExtinctionData, regionOfInterest)
+TrendDataTable = orp.findTrendData(RefPoints, MatchedRMExtinctionData, regionOfInterest)
 # ---- Check the trend data of the chosen reference points
 
 # ---- Create a figure
-fig = orp.stabilityTrendGraph(DataNoRef)
+fig = orp.plotStabilityTrend(TrendDataTable)
 yLower, yUpper = plt.ylim()
 plt.vlines(OptimalNumRefPoints_from_AllPotentialRefPoints, yLower, yUpper, color='black', label='Suggested optimal '
                                                                                                 'number of reference '
@@ -236,10 +236,6 @@ logging.info('Saving the BLOS stability reassessment figure to ' + BLOSvsNRef_Ch
 # -------- REASSESS STABILITY. --------
 
 #======================================================================================================================
-# -------- SORT REF POINTS INTO THESE REGIONS. --------
-Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'], chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
-# -------- SORT REF POINTS INTO THESE REGIONS. --------
-
 # -------- DETERMINE WEIGHTING SCHEME --------
 refRM = 0.0
 refAvgErr = 0.0
@@ -247,6 +243,10 @@ refRMStd = 0.0
 refExtinc = 0.0
 
 if config.weightingScheme == "Quadrant":
+    # -------- Sort ref points into quadrants
+    Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'],
+                                           chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
+    # -------- Sort ref points into quadrants
     perQuadrantWeight = 100000000 #Arbitrarily large number for weighting.
     chosenPoints = []
     weightPoints = []

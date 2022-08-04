@@ -20,7 +20,7 @@ def mode(listInput):
     '''
     return collections.Counter(listInput).most_common()[0][0]
 
-def stabilityCheckAlg(DataNoRef):
+def stabilityCheckAlg(TrendDataTable):
     '''
     The following algorithm searches for the number of candidate reference points where the trend of calculated BLOS
      values stabilizes
@@ -33,11 +33,11 @@ def stabilityCheckAlg(DataNoRef):
     reference points is taken to be the number of reference points where the longest run occurs most often
 
     We repeat this algorithm over all potential threshold values
-    :param DataNoRef: The input dataframe for which this data is analyzed.
+    :param TrendDataTable: The input dataframe for which this data is analyzed.
     :return: Optimal_NumRefPoints: The minimal number of reference points needed before the longest stable run.
     '''
-    UpperLimit = max([max(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
-    LowerLimit = min([min(abs(np.diff(list(DataNoRef.loc[number])))) for number in DataNoRef.index])
+    UpperLimit = max([max(abs(np.diff(list(TrendDataTable.loc[number])))) for number in TrendDataTable.index])
+    LowerLimit = min([min(abs(np.diff(list(TrendDataTable.loc[number])))) for number in TrendDataTable.index])
     numThresholds = 500
     thresholds = np.linspace(LowerLimit, UpperLimit, numThresholds)
 
@@ -49,8 +49,8 @@ def stabilityCheckAlg(DataNoRef):
         LongestRun_Length = []
 
         # For every point within the region of interest that was not used as a reference point:
-        for index in range(len(DataNoRef)):
-            y = list(DataNoRef.loc[index])  # List of BLOS values for the given point
+        for index in range(len(TrendDataTable)):
+            y = list(TrendDataTable.loc[index])  # List of BLOS values for the given point
             x = list(np.arange(1, len(y) + 1))  # List of number of reference points
 
             # -------- STABILITY TREND ALGORITHM --------
@@ -90,13 +90,13 @@ def stabilityCheckAlg(DataNoRef):
         Optimal_NumRefPoints.append(mode(LongestRun_NumRefPoints))
     return Optimal_NumRefPoints
 
-def stabilityTrendGraph(DataNoRef):
+def plotStabilityTrend(TrendDataTable):
     '''
     Generates the stability trend graph for the given reference dataset.
-    :param DataNoRef: Trend Data, PANDAS Table
+    :param TrendDataTable: Trend Data, PANDAS Table
     :return: fig - the Matplotlib figure of the graph.
     '''
-    Identifiers = list(DataNoRef.index)
+    Identifiers = list(TrendDataTable.index)
     # -------- CREATE A FIGURE --------
     fig = plt.figure(figsize=(6, 4), dpi=120, facecolor='w', edgecolor='k')
 
@@ -105,15 +105,15 @@ def stabilityTrendGraph(DataNoRef):
     plt.xlabel('Number of reference points')
     plt.ylabel('Calculated BLOS value ' + r'($\mu G$)')
 
-    x = [int(col) for col in DataNoRef.columns]
-    plt.xticks(x, list(DataNoRef.columns))
+    x = [int(col) for col in TrendDataTable.columns]
+    plt.xticks(x, list(TrendDataTable.columns))
 
     cmap = plt.get_cmap('terrain')
-    colors = [cmap(i) for i in np.linspace(0, 1, len(DataNoRef.index))]
+    colors = [cmap(i) for i in np.linspace(0, 1, len(TrendDataTable.index))]
 
     # For each BLOS Point
-    for i, number in enumerate(DataNoRef.index):
-        plt.plot(x, list(DataNoRef.loc[number]), '-o', label=str(Identifiers[i]), color=colors[i], markersize=3)
+    for i, number in enumerate(TrendDataTable.index):
+        plt.plot(x, list(TrendDataTable.loc[number]), '-o', label=str(Identifiers[i]), color=colors[i], markersize=3)
 
     # plt.legend(loc='center right', bbox_to_anchor=(1.1, 0.5), ncol=2, framealpha=1, title='Identification Number')
     # -------- CREATE A FIGURE. --------
@@ -121,10 +121,10 @@ def stabilityTrendGraph(DataNoRef):
 def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
     '''
     Finds the stability trend data
-    :param potentialRefPoints:
-    :param ExtincRMTable:
-    :param regionOfInterest:
-    :return: DataNoRef - The stability trend data, in PANDAS table format.
+    :param potentialRefPoints: The potential reference points. PANDAS table.
+    :param ExtincRMTable: All matched RM-Extinction points. PANDAS table.
+    :param regionOfInterest: A RegionOfInterest object that contains all the data for the region of analysis.
+    :return: TrendDataTable - The stability trend data, in PANDAS table format.
     '''
     # -------- CREATE A TABLE FOR ALL BLOS DATA --------
     # The rows of this table will represent the number of reference points and the columns of this table will
@@ -140,11 +140,11 @@ def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
         # -------- Extract {num} points from the table of potential reference points.
 
         #Note: This assumes no weighting scheme.
-        fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.getFiducialValues(candidateRefPoints)
-        remainderTable = MREF.removeMatchingPoints(ExtincRMTable, candidateRefPoints)
+        fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.calcFiducialVals(candidateRefPoints)
+        remainderTable = MREF.rmMatchingPts(ExtincRMTable, candidateRefPoints)
 
         # -------- Use the candidate reference points to calculate BLOS
-        BLOSData = CalculateB(regionOfInterest.AvFilePath, remainderTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction)
+        BLOSData = CalculateB(regionOfInterest.AvFilePath, remainderTable, fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction, NegativeExtinctionEntriesChange = config.negScaledExtOption)
         BLOSData = BLOSData.set_index('ID#', drop=True)
         # -------- Use the candidate reference points to calculate BLOS
 
@@ -156,9 +156,9 @@ def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
     # -------- FIND OPTIMAL NUM REF POINTS --------
     # If a point has been used as a candidate reference point at any time it will not be used to determine the
     # optimal number of reference points
-    DataNoRef = AllData.copy().drop(list(potentialRefPoints['ID#']), errors='ignore')
-    DataNoRef = DataNoRef.reset_index(drop=True)
-    return DataNoRef
+    TrendDataTable = AllData.copy().drop(list(potentialRefPoints['ID#']), errors='ignore')
+    TrendDataTable = TrendDataTable.reset_index(drop=True)
+    return TrendDataTable
 
 #======================================================================================================================
 #Experimental Functions.
@@ -166,13 +166,13 @@ def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
 
 #Minimum number of reference points needed to land in the ballpark of average Av off.
 def minRefRMOff(potentialRefPoints, validDev):
-    fiducialRM, _, fiducialStd, _ = MREF.getFiducialValues(potentialRefPoints)
+    fiducialRM, _, fiducialStd, _ = MREF.calcFiducialVals(potentialRefPoints)
     minPoints = 0
     for num in range(len(potentialRefPoints)):
         minPoints = num
 
         candidateRefPoints = potentialRefPoints.head(num+1)
-        candidateRM, _, candidateRMStd, _ = MREF.getFiducialValues(candidateRefPoints)
+        candidateRM, _, candidateRMStd, _ = MREF.calcFiducialVals(candidateRefPoints)
         if abs(candidateRM-fiducialRM) < abs(fiducialStd * validDev):
             break
     return minPoints+1
@@ -185,10 +185,10 @@ def minRefRMOn(MatchedRMPoints, potRMPoints, validDev):
         minPoints = num
         #Get the off RM
         candidateRefPoints = potRMPoints.head(num + 1)
-        candidateRM, _, candidateRMStd, _ = MREF.getFiducialValues(candidateRefPoints)
+        candidateRM, _, candidateRMStd, _ = MREF.calcFiducialVals(candidateRefPoints)
         #Get the average remaining RM
-        remainingTable = MREF.removeMatchingPoints(MatchedRMPoints, candidateRefPoints)
-        fiducialRM, _, fiducialStd, _ = MREF.getFiducialValues(remainingTable)  # MREF.getFiducialValues(MatchedRMPoints)
+        remainingTable = MREF.rmMatchingPts(MatchedRMPoints, candidateRefPoints)
+        fiducialRM, _, fiducialStd, _ = MREF.calcFiducialVals(remainingTable)  # MREF.getFiducialValues(MatchedRMPoints)
         #If the off RM is close to the average RM, break
         if abs(candidateRM - fiducialRM) < abs(fiducialStd * validDev):
             break
