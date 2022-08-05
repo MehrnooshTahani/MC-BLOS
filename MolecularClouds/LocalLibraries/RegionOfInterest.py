@@ -8,7 +8,7 @@ from astropy.wcs import WCS
 
 from configparser import ConfigParser
 
-import ConversionLibrary
+from . import ConversionLibrary as cl
 from . import config as config
 from . import BoxBounds as bb
 
@@ -57,7 +57,7 @@ class Region:
 
         # -------- Compute Derivative Data --------
         # Ra-Dec Boundaries of the region of interest:
-        raMin, raMax, decMin, decMax = ConversionLibrary.getRaDecMinSec(self.xmin, self.xmax, self.ymin, self.ymax, self.wcs)
+        raMin, raMax, decMin, decMax = cl.getRaDecMinSec(self.xmin, self.xmax, self.ymin, self.ymax, self.wcs)
         self.raHoursMax = raMax.h
         self.raMinsMax = raMax.m
         self.raSecMax = raMax.s

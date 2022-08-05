@@ -4,7 +4,7 @@ Contains functions involved with providing information to make decisions on whic
 import math
 import numpy as np
 from sklearn.linear_model import Ridge
-from BoxBounds import getBoxBound
+from .BoxBounds import getBoxBound
 import copy
 
 # -------- FUNCTION DEFINITION --------
