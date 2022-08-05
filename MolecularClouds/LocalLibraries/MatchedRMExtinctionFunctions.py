@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 '''
 Contains functions commonly performed on the MatchedRMExtinction dataset and related files.
 '''

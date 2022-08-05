@@ -5,8 +5,8 @@ This is the second part of the fifth stage of the BLOSMapping method where the d
 """
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import pandas as pd
+
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 

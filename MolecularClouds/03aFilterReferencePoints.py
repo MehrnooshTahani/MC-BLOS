@@ -1,8 +1,6 @@
 """
 This is the third stage of the BLOSMapping method where the reference points are determined
 """
-import os
-
 import pandas as pd
 import numpy as np
 import math
@@ -10,7 +8,6 @@ import math
 from astropy.coordinates import SkyCoord
 
 import LocalLibraries.ConversionLibrary as cl
-import BoxBounds as bb
 from LocalLibraries.RegionOfInterest import Region
 
 import LocalLibraries.config as config

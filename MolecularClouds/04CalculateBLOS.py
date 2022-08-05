@@ -2,8 +2,8 @@
 This is the fourth stage of the BLOSMapping method where the BLOS values are calculated using the reference points selected in
 the previous stage.  This file also produces a scatter plot of BLOS points.
 """
+import math
 import pandas as pd
-import numpy as np
 
 import matplotlib.pyplot as plt
 from LocalLibraries.RegionOfInterest import Region
@@ -13,8 +13,6 @@ import LocalLibraries.MatchedRMExtinctionFunctions as MREF
 import LocalLibraries.config as config
 import LocalLibraries.PlotTemplates as pt
 import LocalLibraries.PlotUtils as putil
-
-import math
 
 import logging
 

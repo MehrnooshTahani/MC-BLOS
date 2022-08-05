@@ -3,10 +3,10 @@ This is the second part of the sixth stage of the BLOSMapping method where the d
     - In this part, the differences in the original BLOS and the BLOS calculated with varying electron abundances
     are plotted
 """
-import matplotlib.pyplot as plt
 import numpy as np
-import os
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from LocalLibraries.RegionOfInterest import Region
 import LocalLibraries.config as config
 

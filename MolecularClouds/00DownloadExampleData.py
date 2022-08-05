@@ -35,7 +35,7 @@ def download_files(urls, dir, print_status = True):
                 if chunk:
                     file.write(chunk)
         outputs.append(file_name)
-        return outputs
+    return outputs
 
 def unzip_gzs(files_in, print_status = True):
     '''
@@ -52,9 +52,9 @@ def unzip_gzs(files_in, print_status = True):
             print("Unzipping: {}".format(file))
         # Unzip
         with gzip.open(file, 'rb') as file_in:
-            with open(file.removesuffix('.gz'), 'wb') as file_out:
+            with open(file[:-len('.gz')], 'wb') as file_out:
                 shutil.copyfileobj(file_in, file_out)
-                outputs.append(file.removesuffix('.gz'))
+                outputs.append(file[:-len('.gz')])
     return outputs
 
 def addHeader(headerless_file, headerfile):

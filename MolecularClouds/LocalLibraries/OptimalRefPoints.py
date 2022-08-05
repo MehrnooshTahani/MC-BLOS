@@ -2,11 +2,12 @@
 Contains functions used to find the optimal number of reference points out of a given set.
 Used in the third stage of the BLOS Mapping Method.
 """
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import collections
+
 from .CalculateB import CalculateB
 from . import MatchedRMExtinctionFunctions as MREF
 #from statistics import mode #Before Python 3.8, errors when there are multiple modes. This is not behavior we desire.
