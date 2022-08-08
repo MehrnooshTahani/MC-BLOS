@@ -8,13 +8,13 @@ import math
 
 from astropy.wcs import WCS
 
-def extinctionPlot(hdu, regionOfInterest):
+def extinctionPlot(regionOfInterest):
     '''
-
-    :param hdu: The HDU contianing the image data that is to be plotted. HDU object.
+    Plots the extinction plot of a given region.
     :param regionOfInterest: RegionOfInterest object which gives data on where and what part of the HDU is to be plotted. RegionOfInterest Object.
     :return: fig, ax - the figure and axis of the plot. Matplotlib objects.
     '''
+    hdu = regionOfInterest.hdu
     fig, ax, im = heatPlot(hdu)
     equatorialCoords(ax)
     overlayCoords(ax)

@@ -101,13 +101,16 @@ configDirectoryAndNames['Output Directories'] = {
     'Plots': 'Plots',
     'Logs': 'Logs',
     'Density Sensitivity': 'DensitySensitivity',
-    'Temperature Sensitivity': 'TemperatureSensitivity'
+    'Temperature Sensitivity': 'TemperatureSensitivity',
+    'Intermediate Data': 'IntermediateData',
+    'Final Data': 'FinalData'
 }
 configDirectoryAndNames['Output Files - Point Matching'] = {
     'RM Map': 'RMMap.png',
     'Matched RM-Extinction': 'MatchedRMExtinction.csv'
 }
 configDirectoryAndNames['Output Files - Point Filtering'] = {
+    'Region Threshold Data': 'RegionThresholdData.csv',
     'Rejected Near High-Extinction RM-Extinction': 'NearHighExtRej.csv',
     'Rejected Far High-Extinction RM-Extinction': 'FarHighExtRej.csv',
     'Rejected Anomalous RM-Extinction': 'AnomRej.csv',
@@ -118,10 +121,11 @@ configDirectoryAndNames['Output Files - Point Filtering'] = {
 configDirectoryAndNames['Output Files - Reference Points'] = {
     'All Potential Reference Points': 'AllPotentialRefPoints.csv',
     'Selected Reference Points': 'SelectedRefPoints.csv',
+    'Quadrant Division Data': 'QuadrantDvisionData.csv',
     'Stability Trend Reference Points': 'TrendDataTable.csv',
     'Optimal Reference Points Stability Plot': 'BLOS_vs_NRef_AllPotentialRefPoints.png',
     'Chosen Reference Points Stability Plot': 'BLOS_vs_NRef_ChosenRefPoints.png',
-    'Chosen Reference Points Quadrant Plot': 'QuadrantDivisionPlot.png',
+    'Potential Reference Points Quadrant Plot': 'QuadrantDivisionPlot.png',
     'Reference Data': 'ReferenceData.csv'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
@@ -132,7 +136,9 @@ configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
     'All Rejected Points': 'All Rejected Points',
     'All Remaining Points': 'All Remaining Points',
     'All Chosen Points': 'All Chosen Points',
-    'All Remaining and Rejected Reference Points': 'All Remaining and Rejected Reference'
+    'All Remaining and Rejected Reference Points': 'All Remaining and Rejected Reference',
+    'Quadrant Division Plot': 'Quadrant Division Plot',
+    'Extinction Threshold Plot': 'Extinction Threshold Plot'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
     'All Potential Reference Points': 'RemainingAndRejectedRefPoints.png',
@@ -142,7 +148,8 @@ configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
     'All Rejected Points': 'Filter_AllRej.png',
     'All Remaining Points': 'Filter_AllRemaining.png',
     'All Chosen Points': 'ChosenRefPoints.png',
-    'All Remaining and Rejected Reference Points': 'AllRefPointSorted.png'
+    'All Remaining and Rejected Reference Points': 'AllRefPointSorted.png',
+    'Extinction-Reference Points Plot': 'ExtRefPts.png'
 }
 configDirectoryAndNames['Output Files - BLOS Uncertainties'] = {
     'BLOS Density Uncertainty Data': 'B_Av_T0_n{}.csv',

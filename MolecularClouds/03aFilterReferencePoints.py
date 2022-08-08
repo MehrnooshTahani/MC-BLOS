@@ -28,6 +28,8 @@ MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 # ---- Input Files
 
 # ---- Output Files
+extinctionCoordinateDataFile = config.ExtinctionCoordDataFile
+
 AllPotRefPointsPath = config.AllPotRefPointFile
 
 LogFile = config.Script03aFile
@@ -77,6 +79,13 @@ GalLongDeg = coord.galactic.l.degree
 GalLatDeg = coord.galactic.b.degree
 # ---- Convert from equatorial to galactic coordinates
 
+# ---- Get the average extinction in the area of valid points.
+xmin, xmax, ymin, ymax = regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax
+regionData = regionOfInterest.hdu.data[ymin:ymax, xmin:xmax]
+finiteVals = np.isfinite(regionData)
+avgExt = np.average(regionData[finiteVals])
+# ---- Get the average extinction in the area of valid points.
+
 # ---- Load the threshold.
 Av_threshold = None
 if abs(GalLatDeg) < config.offDiskLatitude and (abs(GalLongDeg) < 90 or abs(GalLongDeg) > 270):
@@ -87,6 +96,20 @@ else:
     Av_threshold = config.offDiskAvThresh
 # ---- Load the threshold.
 
+# ---- Save the info
+columns = ['Extinction Threshold', 'Average Extinction',
+           'Region Right Ascension', 'Region Declination',
+           'Region Galactic Longitude', 'Region Galactic Latitude']
+extinctionCoordData = pd.DataFrame(columns=columns)
+extinctionCoordData['Extinction Threshold'] = [Av_threshold]
+extinctionCoordData['Average Extinction'] = [avgExt]
+extinctionCoordData['Region Right Ascension'] = [regionRaAvg]
+extinctionCoordData['Region Declination'] = [regionDecAvg]
+extinctionCoordData['Region Galactic Longitude'] = [GalLongDeg]
+extinctionCoordData['Region Galactic Latitude'] = [GalLatDeg]
+extinctionCoordData.to_csv(extinctionCoordinateDataFile, sep=config.dataSeparator)
+# ---- Save the info
+
 # ---- Log info
 messages = ['Potential reference points with a matched extinction value less than the extinction threshold set in the starting settings configuration are considered candidates.',
             '\t-For clouds that appear near the disk and towards the galactic center, an appropriate threshold value is {}.'.format(config.onDiskAvGalacticThresh),
@@ -94,7 +117,8 @@ messages = ['Potential reference points with a matched extinction value less tha
             '\t-For clouds that appear off the disk, an appropriate threshold value is {}.'.format(config.offDiskAvThresh),
             "{}'s absolute calculated latitude is: {}".format(cloudName, abs(GalLatDeg)),
             "The selected threshold latitude (from the starting settings config) is: {}".format(config.offDiskLatitude),
-            "Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold)]
+            "Given this information, the threshold extinction has been set to the suggested {}".format(Av_threshold),
+            "This info has been saved to: {}".format(extinctionCoordinateDataFile)]
 
 logging.info(loggingDivider)
 for message in messages:

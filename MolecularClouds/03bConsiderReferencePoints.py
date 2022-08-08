@@ -28,6 +28,8 @@ FilteredRMExtinctFile = config.FilteredRMExtinctionFile
 # ---- Input Files
 
 # ---- Output Files
+QuadDivDataFile = config.QuadDivDataFile
+
 ChosenRefPointFile = config.ChosenRefPointFile
 ChosenRefDataFile = config.ChosenRefDataFile
 
@@ -79,6 +81,20 @@ quadrantsUndersampled = quadrantsUndersampled + 1 if Q3Less else quadrantsUnders
 quadrantsUndersampled = quadrantsUndersampled + 1 if Q4Less else quadrantsUndersampled
 # ---- Calculate Results.
 
+# ---- Save Data
+QuadDivCols = ['Cloud Center X', 'Cloud Center Y',
+               'Slope of Line Through Cloud', 'Vertical Offset of Line Through Cloud',
+               'Slope of Perpendicular Line', 'Vertical Offset of Perpendicular Line']
+QuadDivData = pd.DataFrame(columns = QuadDivCols)
+QuadDivData['Cloud Center X'] = [cloudCenterX]
+QuadDivData['Cloud Center Y'] = [cloudCenterY]
+QuadDivData['Slope of Line Through Cloud'] = m
+QuadDivData['Vertical Offset of Line Through Cloud'] = b
+QuadDivData['Slope of Perpendicular Line'] = mPerp
+QuadDivData['Vertical Offset of Perpendicular Line'] = bPerp
+QuadDivData.to_csv(QuadDivDataFile, index=False, sep=config.dataSeparator)
+# ---- Save Data
+
 # ---- Log results
 messages = ["The filtered reference points, sorted by quadrant, are:",
             "Q1: {}".format(Q1),
@@ -86,9 +102,10 @@ messages = ["The filtered reference points, sorted by quadrant, are:",
             "Q3: {}".format(Q3),
             "Q4: {}".format(Q4),
             "As defined in the starting configuration, a quadrant does not have enough points sampled if there are less than {} points in the quadrant chosen.".format(minSamples),
-            "Warning: {} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples),
+            "{} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples),
             "If 1 or more quadrants have insufficient points sampled at this stage,",
-            "consider raising your extinction threshold in your start settings configuration and trying again!"]
+            "consider raising your extinction threshold in your start settings configuration and trying again!",
+            "The lines which divide the cloud into quadrants have been saved to {}.".format(QuadDivDataFile)]
 logging.info(loggingDivider)
 for message in messages:
     logging.info(message)

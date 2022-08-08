@@ -8,8 +8,6 @@ from .BoxBounds import getBoxBound
 import copy
 
 # -------- FUNCTION DEFINITION --------
-
-
 def findWeightedCenter(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax = np.nan, maskWeight = 4):
     """
     Given a 2d numpy array and some bounds, finds the weighted center of the bounded region.

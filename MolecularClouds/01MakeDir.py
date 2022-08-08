@@ -34,6 +34,8 @@ if cloudName.lower() not in InFileOutput:
     os.mkdir(config.dir_logs)
     os.mkdir(config.dir_densitySensitivity)
     os.mkdir(config.dir_temperatureSensitivity)
+    os.mkdir(config.dir_intermediateData)
+    os.mkdir(config.dir_finalData)
 
 # ---- CONFIGURE LOGGING
 scriptLogFile = config.Script01File
@@ -41,14 +43,17 @@ logging.basicConfig(filename=scriptLogFile, filemode='w', format=config.logForma
 # ---- CONFIGURE LOGGING
 
 # ---- LOG RESULTS
-message = 'Folder \'' + cloudName + '\' with sub-folders: \'' \
-          + config.dir_plots + '\', \'' \
-          + config.dir_logs + '\', \'' \
-          + config.dir_densitySensitivity + '\', and \'' \
-          + config.dir_temperatureSensitivity + '\'' \
-          + ' created in {}'.format(os.path.join(config.dir_root, config.dir_fileOutput))
-logging.info(message)
-print(message)
+messages = ['Folder {} with sub-folders:'.format(cloudName),
+            '\t' + config.dir_plots,
+            '\t' + config.dir_logs,
+            '\t' + config.dir_densitySensitivity,
+            '\t' + config.dir_temperatureSensitivity,
+            '\t' + config.dir_intermediateData,
+            '\t' + config.dir_finalData,
+            'Created in {}'.format(os.path.join(config.dir_root, config.dir_fileOutput))]
+for message in messages:
+    logging.info(message)
+    print(message)
 # ---- LOG RESULTS
 
 # -------- MAKE DIRECTORIES FOR THE REGION OF INTEREST. --------

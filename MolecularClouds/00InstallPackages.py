@@ -12,7 +12,7 @@ packages = ['numpy',
             'matplotlib',
             'adjusttext',
             'requests']
-commands = [[sys.executable, '-m', 'pip', 'install', package] for package in packages]
+commands = [[sys.executable, '-m', 'pip', 'install', '--upgrade', package] for package in packages]
 subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=True)
 #Install all the packages.
 for command in commands:

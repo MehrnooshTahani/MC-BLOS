@@ -1,3 +1,5 @@
+import math
+import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
@@ -11,12 +13,11 @@ import LocalLibraries.PlotUtils as putil
 
 import logging
 
-def plotRefPoints(refPoints, hdu, regionOfInterest, title, fontsize=12, titley=1.08, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50, textFix=True):
+def plotRefPoints(refPoints, regionOfInterest, title, fontsize=12, titley=1.08, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50, textFix=True):
     '''
     Given a list of reference points and the data of the region in question,
     generates a basic plot of the region with the locations of the reference points.
     :param refPoints: A pandas datatable containing the reference point information.
-    :param hdu: HDU entity corresponding to the region
     :param regionOfInterest: RegionOfInterest class corresponding to a given region of interest.
     :param title: Title of the plot.
     :return: fig, ax - the figure and plot axes of the plot.
@@ -32,7 +33,7 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title, fontsize=12, titley=1
     # -------- PREPARE TO PLOT REFERENCE POINTS. --------
 
     # -------- CREATE A FIGURE - ALL REF POINTS MAP --------
-    fig, ax = pt.extinctionPlot(hdu, regionOfInterest)
+    fig, ax = pt.extinctionPlot(regionOfInterest)
 
     plt.title(title, fontsize=fontsize, y=titley)
     plt.scatter(x, y, marker=marker, facecolor=facecolor, linewidth=linewidth, edgecolors=edgecolors, s=s)
@@ -42,7 +43,7 @@ def plotRefPoints(refPoints, hdu, regionOfInterest, title, fontsize=12, titley=1
     # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
     return fig, ax
 
-def plotRefPointScript(title, saveFigurePath, refPoints, hdu, regionOfInterest, textFix=True):
+def plotRefPointScript(title, saveFigurePath, refPoints, regionOfInterest, contourThreshold = math.nan, textFix=True):
     '''
     Wrapper function for commonly duplicated code in creating a reference point plot.
     :param titleFragment: Part of the title. String.
@@ -54,11 +55,17 @@ def plotRefPointScript(title, saveFigurePath, refPoints, hdu, regionOfInterest, 
     :return: Nothing.
     '''
     # -------- PREPARE TO PLOT REFERENCE POINTS --------
-    plotRefPoints(refPoints, hdu, regionOfInterest, title, textFix=textFix)
+
+    fig, ax = plotRefPoints(refPoints, regionOfInterest, title, textFix=textFix)
+    if np.isfinite(contourThreshold):
+        mask = regionOfInterest.hdu.data > contourThreshold
+        ax.contour(mask, levels=1, colors='black', linewidths=0.5)
+        ax.contourf(mask, levels=1, alpha = 0.25, cmap = 'Greys')
     # ---- Display or save the figure
     plt.savefig(saveFigurePath)
     plt.close()
     # ---- Display or save the figure.
+
     # ---- Log info
     message = 'Saving the map: {} to {}'.format(title, saveFigurePath)
     logging.info(loggingDivider)
@@ -76,6 +83,9 @@ regionOfInterest = Region(cloudName)
 # ---- Input Files
 AllPotRefPointsFile = config.AllPotRefPointFile
 ChosenRefPointFile = config.ChosenRefPointFile
+
+QuadDivDataFile = config.QuadDivDataFile
+extinctionCoordinateDataFile = config.ExtinctionCoordDataFile
 
 NearRejectedRefPointsPath = config.NearExtinctRefPointFile
 FarRejectedRefPointsPath = config.FarExtinctRefPointFile
@@ -96,7 +106,8 @@ AllRemainPlotFile = config.AllRemainPlotFile
 AllChosenPlotFile = config.AllChosenPlotFile
 AllRefAndRejPlotFile = config.AllRefAndRejPlotFile
 
-saveQuadrantFigurePath = config.QuadrantDivisionPlotFile #Todo?
+ExtinctionPlotFile = config.ExtinctionPlotFile
+QuadrantFigureFile = config.QuadrantDivisionPlotFile
 BLOSvsNRef_AllPlotFile = config.BLOSvsNRef_AllPlotFile
 BLOSvsNRef_ChosenPlotFile = config.BLOSvsNRef_ChosenPlotFile
 # ---- Output Files
@@ -111,6 +122,10 @@ loggingDivider = config.logSectionDivider
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 AllPotentialRefPoints = pd.read_csv(AllPotRefPointsFile, sep=config.dataSeparator)
 
+extinctionCoordinateData = pd.read_csv(extinctionCoordinateDataFile, sep=config.dataSeparator)
+
+QuadDivData = pd.read_csv(QuadDivDataFile, sep=config.dataSeparator)
+
 NearRejectedRefPoints = pd.read_csv(NearRejectedRefPointsPath, sep=config.dataSeparator)
 FarRejectedRefPoints = pd.read_csv(FarRejectedRefPointsPath, sep=config.dataSeparator)
 AnomalousRejectedRefPoints = pd.read_csv(AnomalousRejectedRefPointsPath, sep=config.dataSeparator)
@@ -119,15 +134,95 @@ RemainingRefPoints = pd.read_csv(RemainingRefPointsPath, sep=config.dataSeparato
 
 chosenRefPoints = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
+
 #======================================================================================================================
-plotRefPointScript(config.plotName_AllPotRefPtsPlot, AllPotRefPtsPlotFile, AllPotentialRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
-plotRefPointScript(config.plotName_NearHighExtRejPlot, NearHighExtRejPlotFile, NearRejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
-plotRefPointScript(config.plotName_FarHighExtRejPlot, FarHighExtRejPlotFile, FarRejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
-plotRefPointScript(config.plotName_AnomRMPlot, AnomRMPlotFile, AnomalousRejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
-plotRefPointScript(config.plotName_AllRejPlot, AllRejPlotFile, RejectedRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
-plotRefPointScript(config.plotName_AllRemainPlot, AllRemainPlotFile, RemainingRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
-plotRefPointScript(config.plotName_AllChosenPlot, AllChosenPlotFile, chosenRefPoints, regionOfInterest.hdu, regionOfInterest, textFix=config.textFix)
+# -------- PLOT FILTERED REFERENCE POINTS --------
+plotRefPointScript(config.plotName_AllPotRefPtsPlot, AllPotRefPtsPlotFile, AllPotentialRefPoints, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_NearHighExtRejPlot, NearHighExtRejPlotFile, NearRejectedRefPoints, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_FarHighExtRejPlot, FarHighExtRejPlotFile, FarRejectedRefPoints, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AnomRMPlot, AnomRMPlotFile, AnomalousRejectedRefPoints, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AllRejPlot, AllRejPlotFile, RejectedRefPoints, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AllRemainPlot, AllRemainPlotFile, RemainingRefPoints, regionOfInterest, textFix=config.textFix)
+plotRefPointScript(config.plotName_AllChosenPlot, AllChosenPlotFile, chosenRefPoints, regionOfInterest, textFix=config.textFix)
+# -------- PLOT FILTERED REFERENCE POINTS --------
 #======================================================================================================================
+# -------- PLOT EXTINCTION THRESHOLD --------
+# ---- Set up data
+refPoints = AllPotentialRefPoints
+title = config.plotName_ExtinctionThresholdPlot
+textFix = config.textFix
+saveFigurePath = ExtinctionPlotFile
+
+extinctionThresh = extinctionCoordinateData['Extinction Threshold'][0]
+# ---- Set up data
+
+# ---- Plot basic plot
+fig, ax = plotRefPoints(refPoints, regionOfInterest, title, textFix=textFix)
+# ---- Plot basic plot
+
+# ---- Draw contours
+if np.isfinite(extinctionThresh):
+    mask = regionOfInterest.hdu.data > extinctionThresh
+    ct = ax.contour(mask, levels=1, colors='black', linewidths=0.5)
+    ctf = ax.contourf(mask, levels=1, alpha=0.25, cmap='Greys')
+    labels = ['Extinction Threshold: {}'.format(extinctionThresh)]
+    ct.collections[0].set_label(labels[0])
+# ---- Draw contours
+
+# ---- Legend
+plt.legend()
+# ---- Legend
+
+# ---- Display or save the figure
+plt.savefig(saveFigurePath)
+plt.close()
+# ---- Display or save the figure.
+# ---- Log info
+message = 'Saving the map: {} to {}'.format(title, saveFigurePath)
+logging.info(loggingDivider)
+logging.info(message)
+print(message)
+# ---- Log info
+# -------- PLOT EXTINCTION THRESHOLD --------
+
+# -------- PLOT QUADRANT DIVISION --------
+# ---- Set up data
+refPoints = AllPotentialRefPoints
+title = config.plotName_QuadDivPlot
+textFix = config.textFix
+saveFigurePath = QuadrantFigureFile
+
+cloudX, cloudY = QuadDivData['Cloud Center X'][0], QuadDivData['Cloud Center Y'][0]
+m, b = QuadDivData['Slope of Line Through Cloud'][0], QuadDivData['Vertical Offset of Line Through Cloud'][0]
+mPerp, bPerp = QuadDivData['Slope of Perpendicular Line'][0], QuadDivData['Vertical Offset of Perpendicular Line'][0]
+x = np.array(range(int(regionOfInterest.xmin), int(regionOfInterest.xmax)))
+y = m * x + b
+y2 = mPerp * x + bPerp
+# ---- Set up data
+
+# ---- Plot basic plot
+fig, ax = plotRefPoints(refPoints, regionOfInterest, title, textFix=textFix)
+# ---- Plot basic plot
+
+# ---- Draw lines
+plt.plot(x, y)
+plt.plot(x, y2)
+ax.set_xlim(int(regionOfInterest.xmin), int(regionOfInterest.xmax))
+ax.set_ylim(int(regionOfInterest.ymin), int(regionOfInterest.ymax))
+# ---- Draw lines
+
+# ---- Display or save the figure
+plt.savefig(saveFigurePath)
+plt.close()
+# ---- Display or save the figure.
+# ---- Log info
+message = 'Saving the map: {} to {}'.format(title, saveFigurePath)
+logging.info(loggingDivider)
+logging.info(message)
+print(message)
+# ---- Log info
+# -------- PLOT QUADRANT DIVISION --------
+
 # -------- PREPARE TO PLOT REMAINING AND REJECTED REFERENCE POINTS --------
 refPoints = RemainingRefPoints
 nearExtRefPoints = NearRejectedRefPoints
@@ -135,7 +230,7 @@ farExtRefPoints = FarRejectedRefPoints
 anomRefPoints = AnomalousRejectedRefPoints
 RejectedRefPoints = RejectedRefPoints
 
-fig, ax = pt.extinctionPlot(regionOfInterest.hdu, regionOfInterest)
+fig, ax = pt.extinctionPlot(regionOfInterest)
 title = config.plotName_AllRefAndRejPlot
 plt.title(title, fontsize=12, y=1.08)
 

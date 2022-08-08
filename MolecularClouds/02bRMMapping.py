@@ -55,7 +55,7 @@ color, size = putil.p2RGB(RMData.targetRotationMeasures)
 # ---- Generate a basic
 
 #Basic extinction plot given the region of interest and image.
-fig, ax = pt.extinctionPlot(regionOfInterest.hdu, regionOfInterest)
+fig, ax = pt.extinctionPlot(regionOfInterest)
 
 #Plot title
 plotTitle = 'Rotation Measure Data' + ' in the ' + cloudName + ' region\n'
