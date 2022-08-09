@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 import math
 
+from matplotlib import pyplot as plt
+
 import LocalLibraries.BoxBounds as bb
 import LocalLibraries.InterpLibrary as IL
 from LocalLibraries.RMCatalog import RMCatalog
@@ -58,7 +60,7 @@ if config.useFillExtinct:
 # ---- Deal with non-physical data
 # Identify and remove bad data, defined as non-physical negative extinction values.
 baddata = data < 0
-data[ymin:ymax, xmin:xmax][baddata[ymin:ymax, xmin:xmax]] = math.nan
+data[baddata] = math.nan
 # ---- Deal with non-physical data
 
 # Handle bad data (negative/no values) by full fits-file interpolation, if turned on.
