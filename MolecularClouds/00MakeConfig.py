@@ -32,6 +32,8 @@ configStartSettings['Judgement - Extinction Map'] = {
 }
 configStartSettings['Judgement - Off Points Av Threshold'] = {
     'Off-Disk Latitude': 15.,
+    '# = Multiply with Average Extinction: Whether the following thresholds should be seen as absolute, or as multiples of the average extinction in the fits file. True or False.': '',
+    'Multiply with Average Extinction': False,
     'On-Disk Galactic Extinction Threshold': 2.,
     'On-Disk Anti-Galactic Extinction Threshold': 1.5,
     'Off-Disk Extinction Threshold': 1.,

@@ -18,6 +18,7 @@ interpRegion = configStartSettings['Judgement - Extinction Map'].get('Interpolat
 interpMethod = configStartSettings['Judgement - Extinction Map'].get('Interpolation Method')
 
 offDiskLatitude = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Latitude')
+avgExtMultiplier  = configStartSettings['Judgement - Off Points Av Threshold'].getboolean('Multiply with Average Extinction')
 onDiskAvGalacticThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('On-Disk Galactic Extinction Threshold')
 onDiskAvAntiGalacticThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('On-Disk Anti-Galactic Extinction Threshold')
 offDiskAvThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Extinction Threshold')

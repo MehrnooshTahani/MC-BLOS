@@ -94,6 +94,9 @@ elif abs(GalLatDeg) < config.offDiskLatitude:
     Av_threshold = config.onDiskAvAntiGalacticThresh
 else:
     Av_threshold = config.offDiskAvThresh
+
+if config.avgExtMultiplier:
+    Av_threshold = Av_threshold * avgExt
 # ---- Load the threshold.
 
 # ---- Save the info
