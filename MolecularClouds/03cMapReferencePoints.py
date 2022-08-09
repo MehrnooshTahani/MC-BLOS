@@ -154,6 +154,7 @@ textFix = config.textFix
 saveFigurePath = ExtinctionPlotFile
 
 extinctionThresh = extinctionCoordinateData['Extinction Threshold'][0]
+highExtinctionThresh = extinctionCoordinateData['High Extinction Threshold'][0]
 # ---- Set up data
 
 # ---- Plot basic plot
@@ -161,17 +162,23 @@ fig, ax = plotRefPoints(refPoints, regionOfInterest, title, textFix=textFix)
 # ---- Plot basic plot
 
 # ---- Draw contours
+canvas = np.zeros(regionOfInterest.hdu.data.shape)
 if np.isfinite(extinctionThresh):
     mask = regionOfInterest.hdu.data > extinctionThresh
-    ct = ax.contour(mask, levels=1, colors='black', linewidths=0.5)
-    ctf = ax.contourf(mask, levels=1, alpha=0.25, cmap='Greys')
-    labels = ['Extinction Threshold: {}'.format(extinctionThresh)]
-    ct.collections[0].set_label(labels[0])
+    canvas[mask] = 1
+    mask = regionOfInterest.hdu.data > highExtinctionThresh
+    canvas[mask] = 2
+    ct = ax.contour(canvas, levels=1, linewidths=0.5)
+    ctf = ax.contourf(canvas, levels=1, alpha=0.25, cmap='Greys')
+    labels = ['Extinction Threshold: {}'.format(extinctionThresh),
+              'High Extinction Threshold: {}'.format(highExtinctionThresh)]
+    for index, label in enumerate(labels):
+        ct.collections[index].set_label(label)
+    # ---- Legend
+    elements, _ = ct.legend_elements()
+    ax.legend(elements, labels)
+    # ---- Legend
 # ---- Draw contours
-
-# ---- Legend
-plt.legend()
-# ---- Legend
 
 # ---- Display or save the figure
 plt.savefig(saveFigurePath)

@@ -97,15 +97,19 @@ else:
 
 if config.avgExtMultiplier:
     Av_threshold = Av_threshold * avgExt
+
+highExtinctionThreshold = config.highExtinctionThreshMultiplier * Av_threshold
 # ---- Load the threshold.
 
 # ---- Save the info
 columns = ['Extinction Threshold', 'Average Extinction',
+           'High Extinction Threshold',
            'Region Right Ascension', 'Region Declination',
            'Region Galactic Longitude', 'Region Galactic Latitude']
 extinctionCoordData = pd.DataFrame(columns=columns)
 extinctionCoordData['Extinction Threshold'] = [Av_threshold]
 extinctionCoordData['Average Extinction'] = [avgExt]
+extinctionCoordData['High Extinction Threshold'] = [highExtinctionThreshold]
 extinctionCoordData['Region Right Ascension'] = [regionRaAvg]
 extinctionCoordData['Region Declination'] = [regionDecAvg]
 extinctionCoordData['Region Galactic Longitude'] = [GalLongDeg]
