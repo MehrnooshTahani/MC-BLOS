@@ -3,6 +3,7 @@ Runs all the steps of the analysis utilizing the clouds as specified in the comm
 '''
 import os
 import sys
+import shutil
 import subprocess
 from configparser import ConfigParser
 
@@ -38,8 +39,10 @@ for i in range(2, len(sys.argv)):
 #Rename the output folder with the changed config name.
 configFolderSettings = ConfigParser()
 configFolderSettings.read('configDirectoryAndNames.ini')
-outputFolder = os.path.join(configFolderSettings['Output File Locations']['root'], configFolderSettings['Output File Locations']['file output'])
-outputFolderRenamed = os.path.join(configFolderSettings['Output File Locations']['root'], configFolderSettings['Output File Locations']['file output'] + configName)
+outputFolder = os.path.join(configFolderSettings['Output Directories']['root'], configFolderSettings['Output Directories']['file output'])
+renamedFolder = configFolderSettings['Output Directories']['file output'] + os.path.basename(configName)
+shutil.rmtree(renamedFolder)
+outputFolderRenamed = os.path.join(configFolderSettings['Output Directories']['root'], renamedFolder)
 os.rename(outputFolder, outputFolderRenamed)
 #Restore original settings.
 with open('configStartSettings.ini', 'w') as output_file:
