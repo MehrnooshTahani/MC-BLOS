@@ -123,7 +123,7 @@ configDirectoryAndNames['Output Files - Point Filtering'] = {
 configDirectoryAndNames['Output Files - Reference Points'] = {
     'All Potential Reference Points': 'AllPotentialRefPoints.csv',
     'Selected Reference Points': 'SelectedRefPoints.csv',
-    'Quadrant Division Data': 'QuadrantDvisionData.csv',
+    'Quadrant Division Data': 'QuadrantDivisionData.csv',
     'Stability Trend Reference Points': 'TrendDataTable.csv',
     'Optimal Reference Points Stability Plot': 'BLOS_vs_NRef_AllPotentialRefPoints.png',
     'Chosen Reference Points Stability Plot': 'BLOS_vs_NRef_ChosenRefPoints.png',
