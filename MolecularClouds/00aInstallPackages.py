@@ -11,7 +11,8 @@ packages = ['numpy',
             'pandas',
             'matplotlib',
             'adjusttext',
-            'requests']
+            'requests',
+            'sklearn']
 commands = [[sys.executable, '-m', 'pip', 'install', '--upgrade', package] for package in packages]
 subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=True)
 #Install all the packages.
