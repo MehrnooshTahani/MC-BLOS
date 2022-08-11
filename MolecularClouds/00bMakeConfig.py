@@ -143,7 +143,7 @@ configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
     'Extinction Threshold Plot': 'Extinction Threshold Plot'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
-    'All Potential Reference Points': 'RemainingAndRejectedRefPoints.png',
+    'All Potential Reference Points': 'AllPotRefPts.png',
     'Near-High Extinction Rejected Points': 'Filter_NearHighExt.png',
     'Far from High Extinction Rejected Points': 'Filter_FarHighExt.png',
     'Anomalous RM Rejected Points': 'Filter_AnomRM.png',
