@@ -8,4 +8,4 @@ scripts = ["00aInstallPackages.py",
 for script in scripts:
     print("===========================================================")
     print("Script: {}".format(script))
-    subprocess.run(["python", script], shell=True)
+    subprocess.run(["python", script], shell=False)

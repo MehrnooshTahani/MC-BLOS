@@ -12,4 +12,4 @@ scripts = ["01MakeDir.py",
 for script in scripts:
     print("===========================================================")
     print("Script: {}".format(script))
-    subprocess.run(["python", script], shell=True)
+    subprocess.run(["python", script], shell=False)

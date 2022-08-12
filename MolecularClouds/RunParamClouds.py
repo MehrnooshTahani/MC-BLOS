@@ -34,7 +34,7 @@ for i in range(2, len(sys.argv)):
         configStartSettings.write(output_file)
     #Run the analysis.
     script = "Run.py"
-    subprocess.run(["python", script], shell=True)
+    subprocess.run(["python", script], shell=False)
 
 #Rename the output folder with the changed config name.
 configFolderSettings = ConfigParser()

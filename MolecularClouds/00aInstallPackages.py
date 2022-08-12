@@ -14,8 +14,8 @@ packages = ['numpy',
             'requests',
             'sklearn']
 commands = [[sys.executable, '-m', 'pip', 'install', '--upgrade', package] for package in packages]
-subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=True)
+subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=False)
 #Install all the packages.
 for command in commands:
-    subprocess.run(command, shell=True)
+    subprocess.run(command, shell=False)
 
