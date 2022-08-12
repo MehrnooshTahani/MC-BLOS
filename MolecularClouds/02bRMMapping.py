@@ -59,7 +59,7 @@ fig, ax = pt.extinctionPlot(regionOfInterest)
 
 #Plot title
 plotTitle = 'Rotation Measure Data' + ' in the ' + cloudName + ' region\n'
-plt.title(plotTitle, fontsize=12, y=1.08)
+plt.title(plotTitle, fontsize=12, pad=50)
 
 #Plot the RM points on the image.
 plt.scatter(x, y, marker='o', s=size, facecolor=color, linewidth=.5, edgecolors='black')

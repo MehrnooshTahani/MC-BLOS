@@ -13,7 +13,7 @@ import LocalLibraries.PlotUtils as putil
 
 import logging
 
-def plotRefPoints(refPoints, regionOfInterest, title, fontsize=12, titley=1.08, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50, textFix=True):
+def plotRefPoints(refPoints, regionOfInterest, title, fontsize=12, pad=50, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50, textFix=True):
     '''
     Given a list of reference points and the data of the region in question,
     generates a basic plot of the region with the locations of the reference points.
@@ -34,9 +34,8 @@ def plotRefPoints(refPoints, regionOfInterest, title, fontsize=12, titley=1.08, 
 
     # -------- CREATE A FIGURE - ALL REF POINTS MAP --------
     fig, ax = pt.extinctionPlot(regionOfInterest)
-
-    plt.title(title, fontsize=fontsize, y=titley)
-    plt.scatter(x, y, marker=marker, facecolor=facecolor, linewidth=linewidth, edgecolors=edgecolors, s=s)
+    plt.title(title, fontsize=fontsize, pad=pad)
+    ax.scatter(x, y, marker=marker, facecolor=facecolor, linewidth=linewidth, edgecolors=edgecolors, s=s)
     # ---- Annotate the chosen reference points
     pt.labelPoints(ax, labels, x, y, textFix=textFix)
     # ---- Annotate the chosen reference points
@@ -239,7 +238,7 @@ RejectedRefPoints = RejectedRefPoints
 
 fig, ax = pt.extinctionPlot(regionOfInterest)
 title = config.plotName_AllRefAndRejPlot
-plt.title(title, fontsize=12, y=1.08)
+plt.title(title, fontsize=12, pad=50)
 
 # -------- PREPARE TO PLOT REFERENCE POINTS --------
 labels = list(refPoints['ID#'])

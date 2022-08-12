@@ -16,10 +16,10 @@ def extinctionPlot(regionOfInterest):
     '''
     hdu = regionOfInterest.hdu
     fig, ax, im = heatPlot(hdu)
-    equatorialCoords(ax)
-    overlayCoords(ax)
-    colourbar(regionOfInterest, im)
-    setBoundsIfValid(ax, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
+    ax = equatorialCoords(ax)
+    ax = overlayCoords(ax)
+    cb = colourbar(regionOfInterest, im)
+    ax = setBoundsIfValid(ax, regionOfInterest.xmin, regionOfInterest.xmax, regionOfInterest.ymin, regionOfInterest.ymax)
 
     return fig, ax
 
@@ -34,7 +34,7 @@ def heatPlot(hdu):
 
     fig = plt.figure(figsize=(8, 8), dpi=120, facecolor='w', edgecolor='k')
     ax = fig.add_subplot(111, projection=wcs)
-    im = plt.imshow(hdu.data, origin='lower', cmap='BrBG', interpolation='nearest')
+    im = ax.imshow(hdu.data, origin='lower', cmap='BrBG', interpolation='nearest')
 
     return fig, ax, im
 
@@ -61,6 +61,7 @@ def equatorialCoords(ax):
     ra.grid(color='black', alpha=0.5, linestyle='solid')
     dec.grid(color='black', alpha=0.5, linestyle='solid')
     # ---- Style the main axes and their grid.
+    return ax
 
 def overlayCoords(ax):
     '''
@@ -79,6 +80,7 @@ def overlayCoords(ax):
 
     overlay.grid(color='grey', linestyle='solid', alpha=0.7)
     # ---- Style the overlay and its grid.
+    return ax
 
 
 def colourbar(regionOfInterest, im):
@@ -113,6 +115,7 @@ def setBoundsIfValid(ax, xmin, xmax, ymin, ymax):
         ax.set_xlim(xmin, xmax)
     if not math.isnan(ymax) and not math.isnan(ymin):
         ax.set_ylim(ymin, ymax)
+    return ax
 
 def labelPoints(ax, labels, xCoords, yCoords, size = 9, color = 'w', textFix = True):
     '''
