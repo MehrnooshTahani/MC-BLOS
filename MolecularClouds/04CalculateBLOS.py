@@ -69,7 +69,7 @@ BLOS = list(BLOSData['Magnetic_Field(uG)'])
 fig = plt.figure(figsize=(12, 10), dpi=120, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(111, projection=regionOfInterest.wcs)
 
-plt.title(r'$\rm{B}_{LOS}$' + ' in the {} region\n\n\n'.format(cloudName), fontsize=12, linespacing=1, pad=50)
+plt.title(r'$\rm{B}_{LOS}$' + ' in the {} region\n\n\n'.format(cloudName), fontsize=12, linespacing=1, pad=20)
 im = plt.imshow(regionOfInterest.hdu.data, origin='lower', cmap='BrBG', interpolation='nearest')
 
 # ---- Convert Ra and Dec of points into pixel values of the fits file
