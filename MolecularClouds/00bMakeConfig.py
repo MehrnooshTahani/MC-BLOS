@@ -187,6 +187,7 @@ configDirectoryAndNames['Input Directories'] = {
 }
 configDirectoryAndNames['Input Files'] = {
     #'RM Catalogue Resolution (Degrees)': 0.0125,
+    '# = RM Catalogue: The name of the rotation measure catalog, formatted in TAYLOR style currently. Valid default catalogs: catalog.dat, Cameron.dat. Cameron catalog is converted to Taylor and is not rigorously tested, please verify before using.': '',
     'RM Catalogue': 'catalog.dat',
     'AvAbundance Template': 'Av_T{}_n{}.out'
 }
