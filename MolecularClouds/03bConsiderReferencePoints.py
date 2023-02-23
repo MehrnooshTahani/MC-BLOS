@@ -102,7 +102,7 @@ messages = ["The filtered reference points, sorted by quadrant, are:",
             "Q3: {}".format(Q3),
             "Q4: {}".format(Q4),
             "As defined in the starting configuration, a quadrant does not have enough points sampled if there are less than {} points in the quadrant chosen.".format(minSamples),
-            "{} quadrants have less than {} points sampled!".format(quadrantsUndersampled, minSamples),
+            "{} quadrants have less than {} reference points after filtering!".format(quadrantsUndersampled, minSamples),
             "If 1 or more quadrants have insufficient points sampled at this stage,",
             "consider raising your extinction threshold in your start settings configuration and trying again!",
             "The lines which divide the cloud into quadrants have been saved to {}.".format(QuadDivDataFile)]
@@ -164,26 +164,30 @@ Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoi
 # ---- Sort chosen ref points into quadrants
 
 # ---- Check to see which quadrants are undersampled as a result of the optimal selection of points
-# A region is undersampled if it no longer makes the minimum samples criteria but previously could.
-Q1Undersampled = len(Q1c) < minSamples and not Q1Less
-Q2Undersampled = len(Q2c) < minSamples and not Q2Less
-Q3Undersampled = len(Q3c) < minSamples and not Q3Less
-Q4Undersampled = len(Q4c) < minSamples and not Q4Less
+# A region is undersampled if it no longer makes the minimum samples criteria ## but previously could.
+Q1Undersampled = len(Q1c) < minSamples #and not Q1Less #Change in behavior: We want it to take as many points as it can from that quadrant anyways. If the minimum is 5, there's only 4 points in the quadrant, then it should take all 4.
+Q2Undersampled = len(Q2c) < minSamples #and not Q2Less
+Q3Undersampled = len(Q3c) < minSamples #and not Q3Less
+Q4Undersampled = len(Q4c) < minSamples #and not Q4Less
 # ---- Check to see which quadrants are undersampled as a result of the optimal selection of points
 
 # ---- Fix the undersampled quadrants by sampling more points until the quadrant has enough points
 minSamplesList = []
 if Q1Undersampled:
-    for i in range(min(len(Q1)-len(Q1c), config.minPointsPerQuadrant-len(Q1c))):
+    numMorePoints = min(len(Q1), config.minPointsPerQuadrant) #min(len(Q1)-len(Q1c), config.minPointsPerQuadrant-len(Q1c))
+    for i in range(numMorePoints):
         minSamplesList.append(Q1[i])
 if Q2Undersampled:
-    for i in range(min(len(Q2) - len(Q2c), config.minPointsPerQuadrant - len(Q2c))):
+    numMorePoints = min(len(Q2), config.minPointsPerQuadrant) #min(len(Q2) - len(Q2c), config.minPointsPerQuadrant - len(Q2c))
+    for i in range(numMorePoints):
         minSamplesList.append(Q2[i])
 if Q3Undersampled:
-    for i in range(min(len(Q3) - len(Q2c), config.minPointsPerQuadrant - len(Q3c))):
+    numMorePoints = min(len(Q3), config.minPointsPerQuadrant) #min(len(Q3) - len(Q3c), config.minPointsPerQuadrant - len(Q3c))
+    for i in range(numMorePoints):
         minSamplesList.append(Q3[i])
 if Q4Undersampled:
-    for i in range(min(len(Q4) - len(Q4c), config.minPointsPerQuadrant - len(Q4c))):
+    numMorePoints = min(len(Q4), config.minPointsPerQuadrant) #min(len(Q4) - len(Q4c), config.minPointsPerQuadrant - len(Q4c))
+    for i in range(numMorePoints):
         minSamplesList.append(Q4[i])
 minSamples = max(minSamplesList) if len(minSamplesList) > 0 else max(chosenRefPoints_Num)
 minSamples = minSamples+1 #Account for the index shift.
@@ -205,7 +209,6 @@ messages = ['By analyzing the stability of calculated BLOS values as a function 
             "Q3: {}".format(Q3c),
             "Q4: {}".format(Q4c),
             "Additional points are taken until quadrants which could meet the minimum sampling criteria set in the configuration start settings,",
-            "but do not from the stability-recommended points, meet the minimum sampling criteria.",
             "Given this information, the recommended reference points are {}.".format([i + 1 for i in chosenRefPoints_After_Quadrants_Num]),
             "Given this information, the remaining table is \n {}.".format(chosenRefPoints),
             'Please review the BLOS trend stability plot at {}.'.format(BLOSvsNRef_AllPotRefPointsPlot)]
