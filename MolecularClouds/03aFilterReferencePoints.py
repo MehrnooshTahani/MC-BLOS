@@ -1,5 +1,7 @@
 """
-This is the third stage of the BLOSMapping method where the reference points are determined
+This is the third stage of the BLOSMapping method where the reference points are determined.
+In this file (03a), the potential reference points are found and sorted based on lowest extinction (or column density).
+The anomalous points (that are too close to the cloud or with an odd RM value) are then excluded.
 """
 import pandas as pd
 import numpy as np
@@ -64,6 +66,7 @@ AllPotentialRefPoints = None
 
 # -------- LOAD THE THRESHOLD EXTINCTION --------
 # ---- Find the center of the cloud in equatorial coordinates
+# Determining the center locations to properly identify Av threshold value
 regionRaMin = cl.ra_hms2deg(regionOfInterest.raHoursMax, regionOfInterest.raMinsMax, regionOfInterest.raSecMax)
 regionRaMax = cl.ra_hms2deg(regionOfInterest.raHoursMin, regionOfInterest.raMinsMin, regionOfInterest.raSecMin)
 regionRaAvg = (regionRaMin + regionRaMax) / 2.0
@@ -144,7 +147,7 @@ reference points
 # All potential reference points are all reference points with extinction less than the threshold
 dataframe = MatchedRMExtinctionData.copy()
 columnName = 'Extinction_Value'
-threshold = Av_threshold
+threshold = Av_threshold #TODO: Why multiplying the user defined A_v by the average Av of the region?
 # Indices where the threshold is met in the given column
 ind = np.where(dataframe[columnName] <= threshold)[0]
 # All rows which exceed the threshold value in the given column
