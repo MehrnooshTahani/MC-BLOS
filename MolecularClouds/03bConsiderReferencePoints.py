@@ -24,7 +24,7 @@ regionOfInterest = Region(cloudName)
 # Matched rm and extinction data
 MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 # Filtered rm and extinction data
-FilteredRMExtinctFile = config.FilteredRMExtinctionFile
+FilteredRefFile = config.FilteredRefPointsFile
 # ---- Input Files
 
 # ---- Output Files
@@ -52,7 +52,7 @@ MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSepar
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
-FilteredRefPoints = pd.read_csv(FilteredRMExtinctFile, sep=config.dataSeparator)
+FilteredRefPoints = pd.read_csv(FilteredRefFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
 
 #============================================================================================================
@@ -268,7 +268,7 @@ if config.weightingScheme == "Quadrant":
     chosenPoints = []
     weightPoints = []
     for quadrant in [Q1c, Q2c, Q3c, Q4c]:
-        chosenPoints += quadrant
+        chosenPoints += quadrant #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
         weightPoints += [perQuadrantWeight/len(quadrant) for _ in range(len(quadrant))]
     refRM += np.average(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], weights = weightPoints)
     refExtinc += np.average(chosenRefPoints.loc[chosenPoints]['Extinction_Value'], weights = weightPoints)

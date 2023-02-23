@@ -117,7 +117,6 @@ configDirectoryAndNames['Output Files - Point Filtering'] = {
     'Rejected Far High-Extinction RM-Extinction': 'FarHighExtRej.csv',
     'Rejected Anomalous RM-Extinction': 'AnomRej.csv',
     'Rejected RM-Extinction': 'Rejected.csv',
-    'Remaining RM-Extinction': 'Remaining.csv',
     'Filtered RM-Extinction': 'FilteredPotRefPoints.csv',
 }
 configDirectoryAndNames['Output Files - Reference Points'] = {

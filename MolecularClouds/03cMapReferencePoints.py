@@ -90,7 +90,7 @@ NearRejectedRefPointsPath = config.NearExtinctRefPointFile
 FarRejectedRefPointsPath = config.FarExtinctRefPointFile
 AnomalousRejectedRefPointsPath = config.AnomRefPointFile
 RejectedRefPointsPath = config.RejRefPointFile
-RemainingRefPointsPath = config.RemainingRefPointFile
+RemainingRefPointsPath = config.FilteredRefPointsFile
 # ---- Input Files
 
 # ---- Output Files
@@ -193,7 +193,7 @@ print(message)
 
 # -------- PLOT QUADRANT DIVISION --------
 # ---- Set up data
-refPoints = AllPotentialRefPoints
+refPoints = RemainingRefPoints
 title = config.plotName_QuadDivPlot
 textFix = config.textFix
 saveFigurePath = QuadrantFigureFile
@@ -263,7 +263,7 @@ idsAnom = [str(i) for i in list(anomRefPoints['ID#'])]
 
 labelsRej = [str(i) for i in list(RejectedRefPoints['ID#'])]
 labelsRejAdditions = dict.fromkeys(labelsRej, "")
-for i in idsNear: labelsRejAdditions[i] += ",n"
+for i in idsNear: labelsRejAdditions[i] += ",n" #Notes on +=: When both inputs are strings, the result is string concatenation. Ex. A = "1", B = "23", then A += B = "123". Here, both objects are strings.
 for i in idsFar: labelsRejAdditions[i] += ",f"
 for i in idsAnom: labelsRejAdditions[i] += ",a"
 labelsRej = [label + labelsRejAdditions[label] for label in labelsRej]

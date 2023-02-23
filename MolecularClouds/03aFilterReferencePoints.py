@@ -38,9 +38,8 @@ NearRejectedRefPointsFile = config.NearExtinctRefPointFile
 FarRejectedRefPointsFile = config.FarExtinctRefPointFile
 AnomRejRefPointFile = config.AnomRefPointFile
 RejRefPointFile = config.RejRefPointFile
-RemainingRefPointsFile = config.RemainingRefPointFile
 
-FilteredRMExtincPath = config.FilteredRMExtinctionFile
+FilteredRefPointsPath = config.FilteredRefPointsFile
 # ---- Output Files
 
 # -------- DEFINE FILES AND PATHS. --------
@@ -161,7 +160,7 @@ if AllPotRefPointsPath is not None:
 # -------- FIND ALL POTENTIAL REFERENCE POINTS. --------
 
 # ---- Add those reference points to the data we're keeping track of
-PotRefPoints += listIndRefPoints
+PotRefPoints += listIndRefPoints #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
 RejectedReferencePoints += []
 # ---- Add those reference points to the data we're keeping track of
 
@@ -210,7 +209,7 @@ for i in list(AllPotentialRefPoints.index):
 nearHighExtinctReject = [item for item in PotRefPoints if item in nearHighExtinctionRegion and config.useNearExtinctionRemove]
 farHighExtinctReject = [item for item in PotRefPoints if item in farHighExtinctionRegion and config.useFarExtinctionRemove]
 
-RejectedReferencePoints += nearHighExtinctReject
+RejectedReferencePoints += nearHighExtinctReject #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
 RejectedReferencePoints += farHighExtinctReject
 
 PotRefPoints = [item for item in PotRefPoints if item not in nearHighExtinctReject]
@@ -266,7 +265,7 @@ for i in list(AllPotentialRefPoints.index):
 # ---- Record the points rejected for what reason, and what points remain as potential reference points.
 anomalousReject = [item for item in PotRefPoints if item in anomalousRMIndex and config.useAnomalousSTDNumRemove]
 
-RejectedReferencePoints += anomalousReject
+RejectedReferencePoints += anomalousReject #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
 PotRefPoints = [item for item in PotRefPoints if item not in anomalousReject]
 
 AnomalousRejectedRefPoints = AllPotentialRefPoints.loc[anomalousReject].sort_values('Extinction_Value')
@@ -288,16 +287,13 @@ for message in messages:
 
 #======================================================================================================================
 
-# -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
+# -------- SAVE REJECTED REFERENCE POINT INFO. --------
 RejectedRefPoints = AllPotentialRefPoints.loc[RejectedReferencePoints].sort_values('Extinction_Value')
-RemainingRefPoints = AllPotentialRefPoints.loc[PotRefPoints].sort_values('Extinction_Value')
 RejectedRefPoints.to_csv(RejRefPointFile, sep=config.dataSeparator)
-RemainingRefPoints.to_csv(RemainingRefPointsFile, sep=config.dataSeparator)
-messages = ['Rejected Reference Points data was saved to {}'.format(RejRefPointFile),
-            'Remaining Reference Points data was saved to {}'.format(RemainingRefPointsFile)]
+messages = ['Rejected Reference Points data was saved to {}'.format(RejRefPointFile)]
 for message in messages:
     logging.info(message)
-# -------- SAVE REJECTED AND REMAINING REFERENCE POINT INFO. --------
+# -------- SAVE REJECTED REFERENCE POINT INFO. --------
 
 #======================================================================================================================
 
@@ -309,7 +305,7 @@ maxRefPoints = int(round(len(MatchedRMExtinctionData.index) * config.maxFracPoin
 if len(RemainingPotRefPoints) > maxRefPoints: RemainingPotRefPoints = RemainingPotRefPoints[:maxRefPoints]
 
 #Get the data of the points by selecting them from the data table, and save them.
-FilteredRMExtinctPoints = AllPotentialRefPoints.loc[RemainingPotRefPoints].sort_values('Extinction_Value').reset_index()
+FilteredRefPoints = AllPotentialRefPoints.loc[RemainingPotRefPoints].sort_values('Extinction_Value').reset_index()
 '''
 #Important comment: Originally points were identified by the 'Id#' column. 
 However, they are not in order from lowest to highest extinction. 
@@ -317,10 +313,10 @@ We reset the index after sorting to get an index of the points from lowest to hi
 However, if you ever need to cross-reference with the points prior to this reset, 
 you need to compare with the 'Id#' column, not the new index column!
 '''
-FilteredRMExtinctPoints.to_csv(FilteredRMExtincPath, sep=config.dataSeparator)
+FilteredRefPoints.to_csv(FilteredRefPointsPath, sep=config.dataSeparator)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
-if len(FilteredRMExtinctPoints.index) < 1:
+if len(FilteredRefPoints.index) < 1:
     messages = ["Less than one potential reference points are left after filtering!",
                 "No further analysis can be done, and all future scripts will error.",
                 "Consider adjusting your judgement criteria in the config.",
@@ -330,7 +326,7 @@ if len(FilteredRMExtinctPoints.index) < 1:
         logging.critical(message)
         print(message)
 
-elif len(FilteredRMExtinctPoints.index) == len(MatchedRMExtinctionData.index):
+elif len(FilteredRefPoints.index) == len(MatchedRMExtinctionData.index):
     messages = ["All matched RM-Extinction points remain after filtering!",
                 "This will cause issues with stability trend analysis.",
                 "Consider limiting how many points can be taken as off positions.",
@@ -346,8 +342,8 @@ elif len(FilteredRMExtinctPoints.index) == len(MatchedRMExtinctionData.index):
 messages = ["The Remaining Reference Points will be:",
             RemainingPotRefPoints,
             "The Remaining data is thus:",
-            FilteredRMExtinctPoints,
-            'Remaining data was saved to {}'.format(FilteredRMExtincPath)]
+            FilteredRefPoints,
+            'Remaining data was saved to {}'.format(FilteredRefPointsPath)]
 logging.info(loggingDivider)
 for message in messages:
     logging.info(message)

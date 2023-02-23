@@ -87,7 +87,6 @@ file_RMExtinctionNearRej = configDirectoryAndNames['Output Files - Point Filteri
 file_RMExtinctionFarRej = configDirectoryAndNames['Output Files - Point Filtering'].get('Rejected Far High-Extinction RM-Extinction')
 file_RMExtinctionAnomRej = configDirectoryAndNames['Output Files - Point Filtering'].get('Rejected Anomalous RM-Extinction')
 file_RMExtinctionRej = configDirectoryAndNames['Output Files - Point Filtering'].get('Rejected RM-Extinction')
-file_RMExtinctionRemaining = configDirectoryAndNames['Output Files - Point Filtering'].get('Remaining RM-Extinction')
 file_RMExtinctionFiltered = configDirectoryAndNames['Output Files - Point Filtering'].get('Filtered RM-Extinction')
 
 file_allPotRefPoints = configDirectoryAndNames['Output Files - Reference Points'].get('All Potential Reference Points')
@@ -176,14 +175,13 @@ CloudFinalDataDir = os.path.join(CloudOutputDir, dir_finalData)
 MatchedRMExtinctionFile = os.path.join(CloudFinalDataDir, file_RMExtinctionMatch)
 AllPotRefPointFile = os.path.join(CloudFinalDataDir, file_allPotRefPoints)
 
-FilteredRMExtinctionFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionFiltered)
+FilteredRefPointsFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionFiltered)
 ExtinctionCoordDataFile = os.path.join(CloudIntermediateDataDir, file_RegionThreshData)
 
 NearExtinctRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionNearRej)
 FarExtinctRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionFarRej)
 AnomRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionAnomRej)
 RejRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionRej)
-RemainingRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionRemaining)
 
 ChosenRefPointFile = os.path.join(CloudFinalDataDir, file_selRefPoints)
 ChosenRefDataFile = os.path.join(CloudFinalDataDir, file_refData)

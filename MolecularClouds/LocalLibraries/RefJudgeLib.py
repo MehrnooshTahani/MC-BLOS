@@ -104,7 +104,7 @@ def getDividingLine(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax = np
     yOutput = predictor.predict(xOutput).astype(float)
 
     #Adjust for offsets
-    xOutput += xOffset
+    xOutput += xOffset #Notes on +=: In numpy, let A be a numpy array, and B be a number. Then A += B adds b to every value in the array A.
     yOutput += yOffset
 
     m = (yOutput[1]-yOutput[0])/(xOutput[1]-xOutput[0])
