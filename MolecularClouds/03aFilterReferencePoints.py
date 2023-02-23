@@ -307,8 +307,16 @@ RemainingPotRefPoints = [int(np.round(i)) for i in PotRefPoints]
 #Make sure the number of points taken is no more than the accepted maximum number of points.
 maxRefPoints = int(round(len(MatchedRMExtinctionData.index) * config.maxFracPointNum))
 if len(RemainingPotRefPoints) > maxRefPoints: RemainingPotRefPoints = RemainingPotRefPoints[:maxRefPoints]
+
 #Get the data of the points by selecting them from the data table, and save them.
 FilteredRMExtinctPoints = AllPotentialRefPoints.loc[RemainingPotRefPoints].sort_values('Extinction_Value').reset_index()
+'''
+#Important comment: Originally points were identified by the 'Id#' column. 
+However, they are not in order from lowest to highest extinction. 
+We reset the index after sorting to get an index of the points from lowest to highest extinction. 
+However, if you ever need to cross-reference with the points prior to this reset, 
+you need to compare with the 'Id#' column, not the new index column!
+'''
 FilteredRMExtinctPoints.to_csv(FilteredRMExtincPath, sep=config.dataSeparator)
 
 # ---- Check if the number of points left after filtering is good for further analysis.
@@ -336,7 +344,7 @@ elif len(FilteredRMExtinctPoints.index) == len(MatchedRMExtinctionData.index):
 
 # ---- Log info
 messages = ["The Remaining Reference Points will be:",
-            PotRefPoints,
+            RemainingPotRefPoints,
             "The Remaining data is thus:",
             FilteredRMExtinctPoints,
             'Remaining data was saved to {}'.format(FilteredRMExtincPath)]

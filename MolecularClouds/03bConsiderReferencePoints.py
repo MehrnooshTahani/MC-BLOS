@@ -172,20 +172,20 @@ Q4Undersampled = len(Q4c) < minSamples and not Q4Less
 # ---- Check to see which quadrants are undersampled as a result of the optimal selection of points
 
 # ---- Fix the undersampled quadrants by sampling more points until the quadrant has enough points
-minSamples = []
+minSamplesList = []
 if Q1Undersampled:
     for i in range(min(len(Q1)-len(Q1c), config.minPointsPerQuadrant-len(Q1c))):
-        minSamples.append(Q1[i])
+        minSamplesList.append(Q1[i])
 if Q2Undersampled:
     for i in range(min(len(Q2) - len(Q2c), config.minPointsPerQuadrant - len(Q2c))):
-        minSamples.append(Q2[i])
+        minSamplesList.append(Q2[i])
 if Q3Undersampled:
     for i in range(min(len(Q3) - len(Q2c), config.minPointsPerQuadrant - len(Q3c))):
-        minSamples.append(Q3[i])
+        minSamplesList.append(Q3[i])
 if Q4Undersampled:
     for i in range(min(len(Q4) - len(Q4c), config.minPointsPerQuadrant - len(Q4c))):
-        minSamples.append(Q4[i])
-minSamples = max(minSamples) if len(minSamples) > 0 else max(chosenRefPoints_Num)
+        minSamplesList.append(Q4[i])
+minSamples = max(minSamplesList) if len(minSamplesList) > 0 else max(chosenRefPoints_Num)
 minSamples = minSamples+1 #Account for the index shift.
 # ---- Fix the undersampled quadrants by sampling more points until the quadrant has enough points
 

@@ -52,7 +52,7 @@ configStartSettings['Judgement - Anomalous Off RM Values'] = {
 configStartSettings['Judgement - Optimal Reference Points'] = {
     'Find Optimal Reference Points': True,
     'Minimum Reference Points to be Selected': 3,
-    'Max Fraction Reference Points': 0.5,
+    'Max Fraction Reference Points': 1,
 }
 configStartSettings['Judgement - Cloud Quadrant Sampling'] = {
     'Use Minimum Quadrant Sampling': True,
@@ -118,7 +118,7 @@ configDirectoryAndNames['Output Files - Point Filtering'] = {
     'Rejected Anomalous RM-Extinction': 'AnomRej.csv',
     'Rejected RM-Extinction': 'Rejected.csv',
     'Remaining RM-Extinction': 'Remaining.csv',
-    'Filtered RM-Extinction': 'FilteredRMExtinction.csv',
+    'Filtered RM-Extinction': 'FilteredPotRefPoints.csv',
 }
 configDirectoryAndNames['Output Files - Reference Points'] = {
     'All Potential Reference Points': 'AllPotentialRefPoints.csv',
@@ -150,7 +150,7 @@ configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
     'All Rejected Points': 'Filter_AllRej.png',
     'All Remaining Points': 'Filter_AllRemaining.png',
     'All Chosen Points': 'ChosenRefPoints.png',
-    'All Remaining and Rejected Reference Points': 'AllRefPointSorted.png',
+    'All Remaining and Rejected Reference Points': 'AllPotRefPointCategorized.png',
     'Extinction-Reference Points Plot': 'ExtRefPts.png'
 }
 configDirectoryAndNames['Output Files - BLOS Uncertainties'] = {
