@@ -5,7 +5,7 @@ import sys
 import subprocess
 
 #Install packages:
-'''packages = ['numpy<=1.24.2',
+'''recommended packages = ['numpy<=1.24.2',
             'scipy<=1.10.1',
             'astropy<=5.2.1',
             'pandas<=1.5.3',
