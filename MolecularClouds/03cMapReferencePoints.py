@@ -1,3 +1,7 @@
+"""
+This file (03c) loads all different categories of reference points and plots them.
+"""
+
 import math
 import numpy as np
 import pandas as pd

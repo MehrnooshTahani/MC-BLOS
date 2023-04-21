@@ -1,5 +1,12 @@
 """
-This is the third stage of the BLOSMapping method where the reference points are determined
+This is the third stage of the BLOSMapping method where the reference points are determined.
+This file (03b) takes the following steps to determine the chosen reference points:
+A) loads the reference points from 3a that are sorted based on extinction after anomalous points are excluded
+B) Divides the clouds into 4 quadrants and finds the location and number of potential reference points per quadrant
+C) Runs the stability trend, finds the optimal number of ref points and selects them from the potential ref points.
+D) Sorts the chosen ref points into quadrants and assures that the minimum number of reference points in each quadrant is met
+E) reassesses the stability trend and provides the user with plots, but no further action is taken automatically based on that in this version
+F) The reference points are now selected and an OFF value is found by simply averaging them or applying a quadrant-based weighting scheme
 """
 import pandas as pd
 import numpy as np
@@ -133,7 +140,7 @@ number of candidate reference points.
  '''
 Optimal_NumRefPoints = orp.stabilityCheckAlg(TrendDataTable) #[orp.minRefRMOn(MatchedRMExtinctionData, FilteredRefPoints, 1.5)] #orp.stabilityCheckAlg(TrendDataTable) #[orp.minRefRMOff(FilteredRefPoints, 1)]
 # -------- Find the optimal number of reference points using the trend data
-# The number of reference points should be greater than 3 and less than half the total number of points
+# The number of reference points should be greater than 3 (minimum valu in config) and less than half the total number of points
 minStablePoints = config.minRefPoints
 maxFracPoints = config.maxFracPointNum
 Optimal_NumRefPoints_Selection = [value for value in Optimal_NumRefPoints if minStablePoints <= value <= maxFracPoints * TotalNumPoints]

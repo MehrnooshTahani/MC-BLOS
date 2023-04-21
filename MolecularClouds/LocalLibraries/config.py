@@ -7,10 +7,10 @@ from configparser import ConfigParser
 # -------- DEFINE STARTING VARIABLES. --------
 configStartSettings = ConfigParser()
 configStartSettings.read('configStartSettings.ini')
-#Cloud
+# Cloud
 cloud = configStartSettings['Cloud'].get('Cloud')
 
-#Judgement
+# Judgement
 fillMissingExtinct = configStartSettings['Judgement - Extinction Map'].get('Fill Initial Nan Data')
 useFillExtinct = configStartSettings['Judgement - Extinction Map'].getboolean('Use Filled Values in RM-Extinction Matching')
 doInterpExtinct = configStartSettings['Judgement - Extinction Map'].getboolean('Interpolate Negative Extinction Values')
@@ -18,7 +18,7 @@ interpRegion = configStartSettings['Judgement - Extinction Map'].get('Interpolat
 interpMethod = configStartSettings['Judgement - Extinction Map'].get('Interpolation Method')
 
 offDiskLatitude = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Latitude')
-avgExtMultiplier  = configStartSettings['Judgement - Off Points Av Threshold'].getboolean('Multiply with Average Extinction')
+avgExtMultiplier = configStartSettings['Judgement - Off Points Av Threshold'].getboolean('Multiply with Average Extinction')
 onDiskAvGalacticThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('On-Disk Galactic Extinction Threshold')
 onDiskAvAntiGalacticThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('On-Disk Anti-Galactic Extinction Threshold')
 offDiskAvThresh = configStartSettings['Judgement - Off Points Av Threshold'].getfloat('Off-Disk Extinction Threshold')
@@ -44,7 +44,7 @@ negScaledExtOption = configStartSettings['Judgement - Magnetic Field Calculation
 
 useUncertaintyNans = configStartSettings['Judgement - Uncertainty Calculations'].getboolean("Use Nans in Uncertainty Calculations")
 
-#Plotting Options
+# Plotting Options
 textFix = configStartSettings['Plotting Options'].getboolean('Adjust Text Positions')
 
 densityPlotNumPoints = configStartSettings['Plotting Options'].getint('Density Plot Number of Points')
@@ -55,12 +55,12 @@ tempPlotNumPoints = configStartSettings['Plotting Options'].getint('Temperature 
 tempPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Minimum Extinction')
 tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Maximum Extinction')
 
-#Data Presentation
+# Data Presentation
 dataSeparator = configStartSettings['Data Presentation'].get('Separator')
 dataSeparator = bytes(dataSeparator, "utf-8").decode("unicode_escape")
 missingDataRep = configStartSettings['Data Presentation'].get('Missing Data')
 
-#Logging Options
+# Logging Options
 logFormat = configStartSettings['Logging'].get('Format')
 logSectionDivider = configStartSettings['Logging'].get('Section Divider')
 # -------- DEFINE STARTING VARIABLES. --------
@@ -69,7 +69,7 @@ logSectionDivider = configStartSettings['Logging'].get('Section Divider')
 configDirectoryAndNames = ConfigParser()
 configDirectoryAndNames.read('configDirectoryAndNames.ini')
 
-#Output Directories
+# Output Directories
 dir_root = configDirectoryAndNames['Output Directories'].get('Root')
 dir_fileOutput = configDirectoryAndNames['Output Directories'].get('File Output')
 dir_plots = configDirectoryAndNames['Output Directories'].get('Plots')
@@ -78,7 +78,7 @@ dir_densitySensitivity = configDirectoryAndNames['Output Directories'].get('Dens
 dir_temperatureSensitivity = configDirectoryAndNames['Output Directories'].get('Temperature Sensitivity')
 dir_intermediateData = configDirectoryAndNames['Output Directories'].get('Intermediate Data')
 dir_finalData = configDirectoryAndNames['Output Directories'].get('Final Data')
-#Output Files
+# Output Files
 file_rmMapping = configDirectoryAndNames['Output Files - Point Matching'].get('RM Map')
 file_RMExtinctionMatch = configDirectoryAndNames['Output Files - Point Matching'].get('Matched RM-Extinction')
 
@@ -141,29 +141,29 @@ file_logscript06a = configDirectoryAndNames['Output Files - Logs'].get('06a')
 file_logscript06b = configDirectoryAndNames['Output Files - Logs'].get('06b')
 file_logscript07 = configDirectoryAndNames['Output Files - Logs'].get('07')
 
-#Input Directories
+# Input Directories
 dir_data = configDirectoryAndNames['Input Directories'].get('Input Data')
 dir_cloudParameters = configDirectoryAndNames['Input Directories'].get('Cloud Parameter Data')
 dir_chemAbundance = configDirectoryAndNames['Input Directories'].get('Chemical Abundance Data')
 dir_RMCatalog = configDirectoryAndNames['Input Directories'].get('RM Catalogue Data')
 
-#Input Files
+# Input Files
 file_RMCatalogue = configDirectoryAndNames['Input Files'].get('RM Catalogue')
 template_AvAbundanceData = configDirectoryAndNames['Input Files'].get('AvAbundance Template')
 # -------- DEFINE DIRECTORIES AND NAMES. --------
 
 # -------- DEFINE DIRECTORIES/FILE STRUCTURE ALIASES. --------
-#Base Folders
+# Base Folders
 DataDir = os.path.join(dir_root, dir_data)
 FileOutputDir = os.path.join(dir_root, dir_fileOutput)
 
-#Input
+# Input
 DataChemAbundanceDir = os.path.join(DataDir, dir_chemAbundance)
 DataCloudParamsDir = os.path.join(DataDir, dir_cloudParameters)
 DataRMCatalogDir = os.path.join(DataDir, dir_RMCatalog)
 DataRMCatalogFile = os.path.join(DataRMCatalogDir, file_RMCatalogue)
 
-#Output
+# Output
 CloudOutputDir = os.path.join(FileOutputDir, cloud)
 CloudDensSensDir = os.path.join(CloudOutputDir, dir_densitySensitivity)
 CloudLogsDir = os.path.join(CloudOutputDir, dir_logs)
