@@ -23,11 +23,7 @@ packages = ['numpy',
             'sklearn==0.0']
 commands = [[sys.executable, '-m', 'pip', 'install', '--force-reinstall', package] for package in packages]
 subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=False)
-#subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'setuptools'], shell=False)
-#subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'wheel'], shell=False)
-#subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'cython'], shell=False)
 #Install all the packages.
 for command in commands:
     subprocess.run(command, shell=False)
-
 
