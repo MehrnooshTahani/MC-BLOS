@@ -60,6 +60,9 @@ configStartSettings['Judgement - Cloud Quadrant Sampling'] = {
     '# = Weighting Scheme: How the RMoff values should be weighted. Valid values include None, Quadrant': '',
     'Weighting Scheme': 'None'
     }
+configStartSettings['Judgement - On Point Extinction Multiple of Off Point Average Multiplier'] = {
+    'On Point Extinction Multiple of Off Point Average Multiplier': 1.0
+}
 configStartSettings['Judgement - Magnetic Field Calculations'] = {
     '# = Negative Scaled Extinction Data: What to do with non-physical negative scaled extinction points in calculating magnetic fields. Valid values include Delete, Zero, None': 'Delete',
     'Negative Scaled Extinction Data': 'Delete'

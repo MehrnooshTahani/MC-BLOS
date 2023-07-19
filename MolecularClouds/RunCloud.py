@@ -21,7 +21,7 @@ for i in range(1, len(sys.argv)):
         configStartSettings.write(output_file)
 
     script = "Run.py"
-    subprocess.run(["python", script], shell=False)
+    subprocess.run([sys.executable, script], shell=False)
 
 #Restore to original settings.
 configStartSettings['Cloud']['Cloud'] = origCloud

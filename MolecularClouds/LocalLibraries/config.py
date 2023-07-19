@@ -40,6 +40,8 @@ useQuadrantEnforce = configStartSettings['Judgement - Cloud Quadrant Sampling'].
 minPointsPerQuadrant = configStartSettings['Judgement - Cloud Quadrant Sampling'].getint('Minimum Points Per Quadrant')
 weightingScheme = configStartSettings['Judgement - Cloud Quadrant Sampling'].get('Weighting Scheme')
 
+onPtsExtMultipleThreshold = configStartSettings['Judgement - On Point Extinction Multiple of Off Point Average Multiplier'].getfloat('On Point Extinction Multiple of Off Point Average Multiplier')
+
 negScaledExtOption = configStartSettings['Judgement - Magnetic Field Calculations'].get("Negative Scaled Extinction Data")
 
 useUncertaintyNans = configStartSettings['Judgement - Uncertainty Calculations'].getboolean("Use Nans in Uncertainty Calculations")

@@ -40,11 +40,15 @@ logging.basicConfig(filename=LogFile, filemode='w', format=config.logFormat, lev
 # -------- READ REFERENCE POINT TABLE --------
 MatchedRMExtinctTable = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 RefPointTable = pd.read_csv(ChosenRefPointFile, sep=config.dataSeparator)
-RemainingPointTable = MREF.rmMatchingPts(MatchedRMExtinctTable, RefPointTable)
 RefData = pd.read_csv(ChosenRefDataFile, sep=config.dataSeparator)
-fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.unpackRefData(RefData)
 # -------- READ REFERENCE POINT TABLE. --------
 
+# -------- DETERMINE REMAINING POINTS AFTER FILTERING --------
+fiducialRM, fiducialRMAvgErr, fiducialRMStd, fiducialExtinction = MREF.unpackRefData(RefData)
+RemainingPointTable = MREF.rmMatchingPts(MatchedRMExtinctTable, RefPointTable)
+ExtLimit = config.onPtsExtMultipleThreshold * fiducialExtinction
+RemainingPointTable = MREF.rmLowExtPts(RemainingPointTable, ExtLimit)
+# -------- DETERMINE REMAINING POINTS AFTER FILTERING --------
 # =====================================================================================================================
 
 # -------- CALCULATE BLOS --------

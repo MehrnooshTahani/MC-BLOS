@@ -48,3 +48,18 @@ def rmMatchingPts(ExtincRMTable, refRMTable):
     ind = refRMTable['ID#']  # Indices of the reference points
     RMExtinctionData = AllMatchedRMExtinctionData.drop(ind).reset_index(drop=True)
     return RMExtinctionData
+
+def rmLowExtPts(ExtincRMTable, extRef):
+    '''
+    Given a RM extinction table and an extinction value, returns a new table with only points with higher than the specified extinction value.
+    :param ExtincRMTable: The first table, to have elements removed from.
+    :param extRef: A value indicating the
+    :return: RMExtinctionData: A table with the entries of the first and none of the second.
+    '''
+    # -------- LOAD MATCHED RM AND EXTINCTION DATA
+    AllMatchedRMExtinctionData = ExtincRMTable.copy()
+    # -------- LOAD MATCHED RM AND EXTINCTION DATA.
+
+    # -------- REMOVE REFERENCE POINTS FROM THE MATCHED RM AND EXTINCTION DATA --------
+    AllMatchedRMExtinctionData = AllMatchedRMExtinctionData.drop(AllMatchedRMExtinctionData[AllMatchedRMExtinctionData['Extinction_Value'] < extRef].index)
+    return AllMatchedRMExtinctionData

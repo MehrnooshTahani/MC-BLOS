@@ -22,6 +22,9 @@ packages = ['numpy',
             'requests',
             'sklearn==0.0']
 commands = [[sys.executable, '-m', 'pip', 'install', '--force-reinstall', package] for package in packages]
+#Report python version
+print("Current Python Version:", sys.version)
+#Update PIP
 subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], shell=False)
 #Install all the packages.
 for command in commands:
