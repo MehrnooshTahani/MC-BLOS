@@ -46,6 +46,8 @@ negScaledExtOption = configStartSettings['Judgement - Magnetic Field Calculation
 
 useUncertaintyNans = configStartSettings['Judgement - Uncertainty Calculations'].getboolean("Use Nans in Uncertainty Calculations")
 
+useUserRefPtsJudgement = configStartSettings['Judgement - User Judgement'].getboolean('Use Manual User Selection of Reference Points')
+
 # Plotting Options
 textFix = configStartSettings['Plotting Options'].getboolean('Adjust Text Positions')
 
@@ -100,6 +102,7 @@ file_QuadRefPlot = configDirectoryAndNames['Output Files - Reference Points'].ge
 file_selRefPoints = configDirectoryAndNames['Output Files - Reference Points'].get('Selected Reference Points')
 file_refData = configDirectoryAndNames['Output Files - Reference Points'].get('Reference Data')
 
+plotName_AllMatchedRMPtsPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Matched RM-Extinction Points')
 plotName_AllPotRefPtsPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('All Potential Reference Points')
 plotName_NearHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Near-High Extinction Rejected Points')
 plotName_FarHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Far from High Extinction Rejected Points')
@@ -111,6 +114,7 @@ plotName_AllRefAndRejPlot = configDirectoryAndNames['Output Files - Reference Po
 plotName_QuadDivPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Quadrant Division Plot')
 plotName_ExtinctionThresholdPlot = configDirectoryAndNames['Output Files - Reference Point Plot Titles'].get('Extinction Threshold Plot')
 
+file_AllMatchedRMPtsPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Matched RM-Extinction Points')
 file_AllPotRefPtsPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('All Potential Reference Points')
 file_NearHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('Near-High Extinction Rejected Points')
 file_FarHighExtRejPlot = configDirectoryAndNames['Output Files - Reference Point Plot File Names'].get('Far from High Extinction Rejected Points')
@@ -204,7 +208,7 @@ QuadDivDataFile = os.path.join(CloudIntermediateDataDir, file_QuadDivData)
 BLOSPointsFile = os.path.join(CloudFinalDataDir, file_BLOSPointData)
 BLOSUncertaintyFile = os.path.join(CloudFinalDataDir, file_BLOSUncertainty)
 
-MatchedRMExtinctionPlotFile = os.path.join(CloudPlotsDir, file_rmMapping)
+MatchedRMExtinctionPlotFile = os.path.join(CloudPlotsDir, file_AllMatchedRMPtsPlot)
 QuadrantDivisionPlotFile = os.path.join(CloudPlotsDir, file_QuadRefPlot)
 BLOSvsNRef_AllPlotFile = os.path.join(CloudPlotsDir, file_OptRefStabPlot)
 BLOSvsNRef_ChosenPlotFile = os.path.join(CloudPlotsDir, file_SelRefStabPlot)

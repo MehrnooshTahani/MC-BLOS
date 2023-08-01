@@ -70,6 +70,11 @@ configStartSettings['Judgement - Magnetic Field Calculations'] = {
 configStartSettings['Judgement - Uncertainty Calculations'] = {
     'Use Nans in Uncertainty Calculations': False
 }
+
+configStartSettings['Judgement - User Judgement'] = {
+    'Use Manual User Selection of Reference Points': False
+}
+
 configStartSettings['Plotting Options'] = {
     'Adjust Text Positions': True,
 
@@ -133,6 +138,7 @@ configDirectoryAndNames['Output Files - Reference Points'] = {
     'Reference Data': 'ReferenceData.csv'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
+    'All Matched RM-Extinction Points': 'All Matched RM-Extinction Points',
     'All Potential Reference Points': 'All Potential Reference Points',
     'Near-High Extinction Rejected Points': 'Near-High Extinction Rejected Points',
     'Far from High Extinction Rejected Points': 'Far from High Extinction Rejected Points',
@@ -145,6 +151,7 @@ configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
     'Extinction Threshold Plot': 'Extinction Threshold Plot'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
+    'All Matched RM-Extinction Points': 'AllMatchedRmExtPts.png',
     'All Potential Reference Points': 'AllPotRefPts.png',
     'Near-High Extinction Rejected Points': 'Filter_NearHighExt.png',
     'Far from High Extinction Rejected Points': 'Filter_FarHighExt.png',

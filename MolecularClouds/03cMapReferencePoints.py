@@ -2,7 +2,6 @@
 This file (03c) loads all different categories of reference points and plots them.
 """
 
-import math
 import numpy as np
 import pandas as pd
 
@@ -17,65 +16,7 @@ import LocalLibraries.PlotUtils as putil
 
 import logging
 
-def plotRefPoints(refPoints, regionOfInterest, title, fontsize=12, pad=50, marker='o', facecolor='green', linewidth=.5, edgecolors='black', s=50, textFix=True):
-    '''
-    Given a list of reference points and the data of the region in question,
-    generates a basic plot of the region with the locations of the reference points.
-    :param refPoints: A pandas datatable containing the reference point information.
-    :param regionOfInterest: RegionOfInterest class corresponding to a given region of interest.
-    :param title: Title of the plot.
-    :return: fig, ax - the figure and plot axes of the plot.
-    '''
-    # -------- PREPARE TO PLOT REFERENCE POINTS --------
-    labels = list(refPoints['ID#'])
-    Ra = list(refPoints['Ra(deg)'])
-    Dec = list(refPoints['Dec(deg)'])
-
-    # ---- Convert Ra and Dec of reference points into pixel values of the fits file
-    x, y = cl.RADec2xy(Ra, Dec, regionOfInterest.wcs)
-    # ---- Convert Ra and Dec of reference points into pixel values of the fits file.
-    # -------- PREPARE TO PLOT REFERENCE POINTS. --------
-
-    # -------- CREATE A FIGURE - ALL REF POINTS MAP --------
-    fig, ax = pt.extinctionPlot(regionOfInterest)
-    plt.title(title, fontsize=fontsize, pad=pad)
-    ax.scatter(x, y, marker=marker, facecolor=facecolor, linewidth=linewidth, edgecolors=edgecolors, s=s)
-    # ---- Annotate the chosen reference points
-    pt.labelPoints(ax, labels, x, y, textFix=textFix)
-    # ---- Annotate the chosen reference points
-    # -------- CREATE A FIGURE - ALL REF POINTS MAP. --------
-    return fig, ax
-
-def plotRefPointScript(title, saveFigurePath, refPoints, regionOfInterest, contourThreshold = math.nan, textFix=True):
-    '''
-    Wrapper function for commonly duplicated code in creating a reference point plot.
-    :param titleFragment: Part of the title. String.
-    :param saveFragment: Part of the save file name. String.
-    :param cloudName: Part of the title. String.
-    :param refPoints: Input reference point data to be mapped on the image.
-    :param hdu: HDU image file of the region.
-    :param regionOfInterest: Region information in a RegionOfInterest class.
-    :return: Nothing.
-    '''
-    # -------- PREPARE TO PLOT REFERENCE POINTS --------
-
-    fig, ax = plotRefPoints(refPoints, regionOfInterest, title, textFix=textFix)
-    if np.isfinite(contourThreshold):
-        mask = regionOfInterest.hdu.data > contourThreshold
-        ax.contour(mask, levels=1, colors='black', linewidths=0.5)
-        ax.contourf(mask, levels=1, alpha = 0.25, cmap = 'Greys')
-    # ---- Display or save the figure
-    plt.savefig(saveFigurePath)
-    plt.close()
-    # ---- Display or save the figure.
-
-    # ---- Log info
-    message = 'Saving the map: {} to {}'.format(title, saveFigurePath)
-    logging.info(loggingDivider)
-    logging.info(message)
-    print(message)
-    # ---- Log info
-    # -------- CREATE A FIGURE - REF POINTS MAP. --------
+from PlotTemplates import plotRefPoints, plotRefPointScript
 
 # -------- LOAD THE REGION OF INTEREST --------
 cloudName = config.cloud
