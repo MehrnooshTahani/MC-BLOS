@@ -138,7 +138,7 @@ configDirectoryAndNames['Output Files - Reference Points'] = {
     'Reference Data': 'ReferenceData.csv'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
-    'All Matched RM-Extinction Points': 'All Matched RM-Extinction Points',
+    'All Matched RM-Extinction Points': 'All RM Points in the Region with ID',
     'All Potential Reference Points': 'All Potential Reference Points',
     'Near-High Extinction Rejected Points': 'Near-High Extinction Rejected Points',
     'Far from High Extinction Rejected Points': 'Far from High Extinction Rejected Points',
@@ -151,7 +151,7 @@ configDirectoryAndNames['Output Files - Reference Point Plot Titles'] = {
     'Extinction Threshold Plot': 'Extinction Threshold Plot'
 }
 configDirectoryAndNames['Output Files - Reference Point Plot File Names'] = {
-    'All Matched RM-Extinction Points': 'AllMatchedRmExtPts.png',
+    'All Matched RM-Extinction Points': 'AllRMPtsInRegion.png',
     'All Potential Reference Points': 'AllPotRefPts.png',
     'Near-High Extinction Rejected Points': 'Filter_NearHighExt.png',
     'Far from High Extinction Rejected Points': 'Filter_FarHighExt.png',

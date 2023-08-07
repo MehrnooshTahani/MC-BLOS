@@ -32,6 +32,8 @@ regionOfInterest = Region(cloudName)
 MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 # Filtered rm and extinction data
 FilteredRefFile = config.FilteredRefPointsFile
+# All Potential Reference Points Data
+AllPotRefPointsPath = config.AllPotRefPointFile
 # ---- Input Files
 
 # ---- Output Files
@@ -57,6 +59,10 @@ loggingDivider = config.logSectionDivider
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
 MatchedRMExtinctionData = pd.read_csv(MatchedRMExtinctFile, sep=config.dataSeparator)
 # ---- LOAD AND UNPACK MATCHED RM AND EXTINCTION DATA
+
+# ---- LOAD AND UNPACK POTENTIAL REFERENCE POINTS DATA
+AllPotentialRefPoints = pd.read_csv(AllPotRefPointsPath, sep=config.dataSeparator)
+# ---- LOAD AND UNPACK POTENTIAL REFERENCE POINTS DATA
 
 # ---- LOAD AND UNPACK FILTERED RM AND EXTINCTION DATA
 FilteredRefPoints = pd.read_csv(FilteredRefFile, sep=config.dataSeparator)
@@ -268,18 +274,19 @@ if config.useUserRefPtsJudgement:
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     print("The software-recommended reference points are as follows:")
-    print(RefPoints)
-    print("All matched RM-extinction data available for the region is as follows.")
+    print(chosenRefPoints[["ID#", "Rotation_Measure(rad/m2)", "Extinction_Value"]])
+    print(f"All potential reference points (Av < Av Threshold) available for the region is as follows.")
     print(f"Refer to the plot generated in step 2b which indicates every point together with their ID#s, as in {config.MatchedRMExtinctionPlotFile} for the positioning of each point.")
-    print(MatchedRMExtinctionData)
+    print(AllPotentialRefPoints[["ID#", "Rotation_Measure(rad/m2)", "Extinction_Value"]])
     print("================================ Input User Judgement ================================")
     user_chosen_ref_pts = [int(item) for item in input('Please enter the Id# numbers of the points you wish to take as reference points. \n'
                                                         'Use Id#, do not use index! \n Separate the values with a comma. Ex: 1, 3, 5, 8. \n '
                                                        'If you have quadrant sampling turned on, you should select at least one point from each quadrant, else there may be errors.\n '
-                                                       'Enter nothing if you do not wish to change anything. \n').split(',') if item.isdigit()]
+                                                       'Enter nothing if you do not wish to change anything. \n'
+                                                       'Points that do not exist will not be chosen. \n').split(',') if item.strip().isdigit()]
     if len(user_chosen_ref_pts) > 0:
-        print("The following points were chosen: ", user_chosen_ref_pts)
-        chosenRefPoints = MatchedRMExtinctionData.copy()[MatchedRMExtinctionData['ID#'].isin(user_chosen_ref_pts)]
+        print(f"The following points were chosen: {user_chosen_ref_pts}")
+        chosenRefPoints = AllPotentialRefPoints.copy()[AllPotentialRefPoints['ID#'].isin(user_chosen_ref_pts)]
     else:
         print("No points were chosen. The default program-suggested reference points will be used.")
 # -------- INPUT USER JUDGEMENT, IF TURNED ON --------

@@ -173,8 +173,12 @@ for index in range(len(BData)):
     BUpperUncertainty = round(((TotalRMErrStDevinB[index]) ** 2 + upperDeltaBExt ** 2 + upperDeltaBChemDens ** 2 + upperDeltaBChemTemp ** 2) ** (1 / 2), 0)
     BLowerUncertainty = round(((TotalRMErrStDevinB[index]) ** 2 + lowerDeltaBExt ** 2 + lowerDeltaBChemDens ** 2 + lowerDeltaBChemTemp ** 2) ** (1 / 2), 0)
     #Avoid overestimating the uncertainty. The propagated uncertainty should not cause the uncertainty to be able to flip the sign, if it cannot already do that.
-    BUpperUncertainty = abs(BData['Magnetic_Field(uG)'][index]+1) if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] < 0 else BUpperUncertainty #TotalRMErrStDevinB[index] if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] < 0 else BUpperUncertainty
-    BLowerUncertainty = abs(BData['Magnetic_Field(uG)'][index]-1) if abs(BLowerUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] > 0 else BLowerUncertainty #TotalRMErrStDevinB[index] if abs(BLowerUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] > 0 else BLowerUncertainty
+    BUpperUncertainty = abs(BData['Magnetic_Field(uG)'][index]+1) if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) \
+                                                                     and abs(TotalRMErrStDevinB[index]) < abs(BData['Magnetic_Field(uG)'][index]) \
+                                                                     and BData['Scaled_RM'][index] < 0 else BUpperUncertainty #TotalRMErrStDevinB[index] if abs(BUpperUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] < 0 else BUpperUncertainty
+    BLowerUncertainty = abs(BData['Magnetic_Field(uG)'][index]-1) if abs(BLowerUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) \
+                                                                     and abs(TotalRMErrStDevinB[index]) < abs(BData['Magnetic_Field(uG)'][index]) \
+                                                                     and BData['Scaled_RM'][index] > 0 else BLowerUncertainty #TotalRMErrStDevinB[index] if abs(BLowerUncertainty) > abs(BData['Magnetic_Field(uG)'][index]) and BData['Scaled_RM'][index] > 0 else BLowerUncertainty
     #Append the uncertainty to the list.
     BTotalUpperUncertainty.append("{0:.0f}".format(BUpperUncertainty))
     BTotalLowerUncertainty.append("{0:.0f}".format(BLowerUncertainty))
