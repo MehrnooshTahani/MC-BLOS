@@ -71,7 +71,7 @@ FinalBLOSResults['Extinction'] = BData['Extinction']
 FinalBLOSResults['Magnetic_Field(uG)'] = BData['Magnetic_Field(uG)']
 # -------- COPY OVER B DATA. --------
 
-TotalRMErrStDevinB = (BData['Magnetic_Field(uG)']) * (BData['TotalRMScaledErrWithStDev'] /BData['Scaled_RM'])
+TotalRMErrStDevinB = (BData['Magnetic_Field(uG)']) * (BData['TotalRMScaledErrWithStDev']/BData['Scaled_RM'])
 
 # -------- CALCULATE UNCERTAINTIES --------
 # ---- Establish values and parameters

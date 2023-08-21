@@ -23,8 +23,8 @@ regionOfInterest = Region(cloudName)
 
 # -------- DEFINE FILES AND PATHS --------
 #Input Files
-ChosenRefPointFile = config.ChosenRefPointFile
-ChosenRefDataFile = config.ChosenRefDataFile
+ChosenRefPointFile = config.ChosenRefPointFile #Matched RM-Extinction points chosen as reference points - point data
+ChosenRefDataFile = config.ChosenRefDataFile #Matched RM-Extinction points chosen as reference points - summary statistics such as average extinction, RM, etc.
 MatchedRMExtinctFile = config.MatchedRMExtinctionFile
 
 #Output Files

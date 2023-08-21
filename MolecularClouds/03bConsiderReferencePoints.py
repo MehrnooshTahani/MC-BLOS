@@ -271,14 +271,21 @@ logging.info('Saving the BLOS stability reassessment figure to ' + BLOSvsNRef_Ch
 # -------- INPUT USER JUDGEMENT, IF TURNED ON --------
 if config.useUserRefPtsJudgement:
     print("================================ User Judgement Active ================================")
+    logging.info("================================ User Judgement Active ================================")
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
     print("The software-recommended reference points are as follows:")
+    logging.info("The software-recommended reference points are as follows:")
     print(chosenRefPoints[["ID#", "Rotation_Measure(rad/m2)", "Extinction_Value"]])
+    logging.info(chosenRefPoints[["ID#", "Rotation_Measure(rad/m2)", "Extinction_Value"]])
     print(f"All potential reference points (Av < Av Threshold) available for the region is as follows.")
+    logging.info(f"All potential reference points (Av < Av Threshold) available for the region is as follows.")
     print(f"Refer to the plot generated in step 2b which indicates every point together with their ID#s, as in {config.MatchedRMExtinctionPlotFile} for the positioning of each point.")
+    logging.info(f"Refer to the plot generated in step 2b which indicates every point together with their ID#s, as in {config.MatchedRMExtinctionPlotFile} for the positioning of each point.")
     print(AllPotentialRefPoints[["ID#", "Rotation_Measure(rad/m2)", "Extinction_Value"]])
+    logging.info(AllPotentialRefPoints[["ID#", "Rotation_Measure(rad/m2)", "Extinction_Value"]])
     print("================================ Input User Judgement ================================")
+    logging.info("================================ Input User Judgement ================================")
     user_chosen_ref_pts = [int(item) for item in input('Please enter the Id# numbers of the points you wish to take as reference points. \n'
                                                         'Use Id#, do not use index! \n Separate the values with a comma. Ex: 1, 3, 5, 8. \n '
                                                        'If you have quadrant sampling turned on, you should select at least one point from each quadrant, else there may be errors.\n '
@@ -286,9 +293,11 @@ if config.useUserRefPtsJudgement:
                                                        'Points that do not exist will not be chosen. \n').split(',') if item.strip().isdigit()]
     if len(user_chosen_ref_pts) > 0:
         print(f"The following points were chosen: {user_chosen_ref_pts}")
+        logging.info(f"The following points were chosen: {user_chosen_ref_pts}")
         chosenRefPoints = AllPotentialRefPoints.copy()[AllPotentialRefPoints['ID#'].isin(user_chosen_ref_pts)]
     else:
         print("No points were chosen. The default program-suggested reference points will be used.")
+        logging.info("No points were chosen. The default program-suggested reference points will be used.")
 # -------- INPUT USER JUDGEMENT, IF TURNED ON --------
 
 #======================================================================================================================
@@ -303,12 +312,12 @@ if config.weightingScheme == "Quadrant":
     Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'],
                                            chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
     # -------- Sort ref points into quadrants
-    perQuadrantWeight = 1000000000 #Arbitrarily large number for weighting.
+    perQuadrantWeight = 1000000000.0 #Arbitrarily large number for weighting; large to avoid roundoff issues, but I dislike this method.
     chosenPoints = []
     weightPoints = []
     for quadrant in [Q1c, Q2c, Q3c, Q4c]:
         chosenPoints += quadrant #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
-        weightPoints += [perQuadrantWeight/len(quadrant) for _ in range(len(quadrant))] #Notes: The good news is that if the length of the quadrant was 0, then the for wouldn't even run.
+        weightPoints += [perQuadrantWeight/(1.0*len(quadrant)) for _ in range(len(quadrant))] #Notes: The good news is that if the length of the quadrant was 0, then the for wouldn't even run.
     refRM += np.average(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], weights = weightPoints)
     refExtinc += np.average(chosenRefPoints.loc[chosenPoints]['Extinction_Value'], weights = weightPoints)
     refAvgErr += np.average(chosenRefPoints.loc[chosenPoints]['RM_Err(rad/m2)'], weights = weightPoints)

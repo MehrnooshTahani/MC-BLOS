@@ -98,7 +98,6 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
     # -------- CREATE BLOS TABLE --------
     cols = ['ID#', 'Ra(deg)', 'Dec(deg)', 'RM_Raw_Value', 'RM_Raw_Err', 'Scaled_RM', 'TotalRMScaledErrWithStDev',
             'TotalRMScaledErrWithAvgErr', 'Extinction', 'Scaled_Extinction', 'eAbundance',
-            'BScaled_RM_ERR_with_0.05Uncty&StDev', 'BScaled_RM_ERR_with_0.05Uncty',
             'Raw_Magnetic_FieldMagnetic_Field(uG)', 'Magnetic_Field(uG)',
             'Reference_BField_RMErr(\u00B1)', 'BField_of_Min_Extinction', 'BField_of_Max_Extinction']
     BLOSData = pd.DataFrame(columns=cols)
@@ -167,12 +166,6 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
     BLOSData['BField_of_Min_Extinction'] = BLOSData['Scaled_RM'] / (0.812 * np.array(LayerNeMinExt) * pcTocm * 2)
     BLOSData['BField_of_Max_Extinction'] = BLOSData['Scaled_RM'] / (0.812 * np.array(LayerNeMaxExt) * pcTocm * 2)
 
-    BLOSData['BScaled_RM_ERR_with_0.05Uncty&StDev'] = ((0.05 + fiducialRMStd)
-                                                       * BLOSData['Magnetic_Field(uG)']) / \
-                                                      BLOSData['Scaled_RM']
-
-    BLOSData['BScaled_RM_ERR_with_0.05Uncty'] = (0.1 * BLOSData['Magnetic_Field(uG)']) \
-                                                / BLOSData['Scaled_RM']
     # -------- CALCULATE THE MAGNETIC FIELD. --------
 
     # -------- CORRECT NEGATIVE SCALED EXTINCTION VALUES. --------
@@ -183,8 +176,6 @@ def CalculateB(AvAbundancePath, ExtincRMPoints, fiducialRM, fiducialRMAvgErr, fi
         BLOSData.loc[negativeScaledExtinctionIndex, 'Reference_BField_RMErr(\u00B1)'] = 0
         BLOSData.loc[negativeScaledExtinctionIndex, 'BField_of_Min_Extinction'] = 0
         BLOSData.loc[negativeScaledExtinctionIndex, 'BField_of_Max_Extinction'] = 0
-        BLOSData.loc[negativeScaledExtinctionIndex, 'BScaled_RM_ERR_with_0.05Uncty&StDev'] = 0
-        BLOSData.loc[negativeScaledExtinctionIndex, 'BScaled_RM_ERR_with_0.05Uncty'] = 0
 
     elif NegativeExtinctionEntriesChange == "Delete":
         negativeScaledExtinctionIndex = BLOSData[BLOSData['Scaled_Extinction'] < 0].index.tolist()

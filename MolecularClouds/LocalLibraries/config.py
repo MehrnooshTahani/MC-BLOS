@@ -189,8 +189,8 @@ FarExtinctRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctio
 AnomRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionAnomRej)
 RejRefPointFile = os.path.join(CloudIntermediateDataDir, file_RMExtinctionRej)
 
-ChosenRefPointFile = os.path.join(CloudFinalDataDir, file_selRefPoints)
-ChosenRefDataFile = os.path.join(CloudFinalDataDir, file_refData)
+ChosenRefPointFile = os.path.join(CloudFinalDataDir, file_selRefPoints) #Matched RM-Extinction points chosen as reference points - point data
+ChosenRefDataFile = os.path.join(CloudFinalDataDir, file_refData) #Matched RM-Extinction points chosen as reference points - summary statistics such as average extinction, RM, etc.
 
 AllPotRefPtsPlotFile = os.path.join(CloudPlotsDir, file_AllPotRefPtsPlot)
 NearHighExtRejPlotFile = os.path.join(CloudPlotsDir, file_NearHighExtRejPlot)
