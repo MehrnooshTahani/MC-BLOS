@@ -147,7 +147,7 @@ reference points
 # All potential reference points are all reference points with extinction less than the threshold
 dataframe = MatchedRMExtinctionData.copy()
 columnName = 'Extinction_Value'
-threshold = Av_threshold #TODO: Why multiplying the user defined A_v by the average Av of the region?
+threshold = Av_threshold
 # Indices where the threshold is met in the given column
 ind = np.where(dataframe[columnName] <= threshold)[0]
 # All rows which exceed the threshold value in the given column
@@ -248,8 +248,8 @@ for message in messages:
 # -------- Define "anomalous"
 
 # Choose a rotation measure corresponding to anomalous
-rmAvg = np.mean(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
-rmStd = np.std(MatchedRMExtinctionData['Rotation_Measure(rad/m2)'])
+rmAvg = np.mean(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
+rmStd = np.std(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
 
 coeffSTD = config.anomalousSTDNum
 rmUpperLimit = rmAvg + coeffSTD * rmStd
