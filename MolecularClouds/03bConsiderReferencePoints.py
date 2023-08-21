@@ -303,16 +303,16 @@ if config.weightingScheme == "Quadrant":
     Q1c, Q2c, Q3c, Q4c = rjl.sortQuadrants(list(chosenRefPoints.index), chosenRefPoints['Extinction_Index_x'],
                                            chosenRefPoints['Extinction_Index_y'], m, b, mPerp, bPerp)
     # -------- Sort ref points into quadrants
-    perQuadrantWeight = 100000000 #Arbitrarily large number for weighting.
+    perQuadrantWeight = 1000000000 #Arbitrarily large number for weighting.
     chosenPoints = []
     weightPoints = []
     for quadrant in [Q1c, Q2c, Q3c, Q4c]:
         chosenPoints += quadrant #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
-        weightPoints += [perQuadrantWeight/len(quadrant) for _ in range(len(quadrant))]
+        weightPoints += [perQuadrantWeight/len(quadrant) for _ in range(len(quadrant))] #Notes: The good news is that if the length of the quadrant was 0, then the for wouldn't even run.
     refRM += np.average(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], weights = weightPoints)
     refExtinc += np.average(chosenRefPoints.loc[chosenPoints]['Extinction_Value'], weights = weightPoints)
     refAvgErr += np.average(chosenRefPoints.loc[chosenPoints]['RM_Err(rad/m2)'], weights = weightPoints)
-    refRMStd += (np.sqrt(np.cov(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], aweights=weightPoints)) / np.sqrt(len(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'])))
+    refRMStd += (np.sqrt(np.cov(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)'], aweights=weightPoints)) / np.sqrt(len(chosenRefPoints.loc[chosenPoints]['Rotation_Measure(rad/m2)']))) #This is why we needed the weighted points method. Standard deviation.
 
 else:
     refRM = np.mean(chosenRefPoints['Rotation_Measure(rad/m2)'])
