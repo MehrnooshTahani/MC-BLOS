@@ -4,6 +4,7 @@ catalogue
 
 -  Use of the SkyCoord package to convert coordinates may increase runtime. Conversions may be attempted with the
     SkyCoord package if desired.  Code to accomplish this is left in comments throughout the file
+- Should be edited in future versions to allow for compatibility with Van Eck et al. (2023) catalogue
 """
 import numpy as np
 import pandas as pd
