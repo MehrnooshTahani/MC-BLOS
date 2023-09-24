@@ -144,7 +144,7 @@ def getPerpendicularLine(x, y, m):
 # -------- FUNCTION DEFINITION --------
 
 # -------- FUNCTION DEFINITION --------
-def IsNeatHighExt(px, py, data, NDelt, highExtinctionThreshold):
+def IsNearHighExt(px, py, data, NDelt, highExtinctionThreshold):
     """
     Checks to see if a point is near a point of high extinction.
     :param px: x location of the point

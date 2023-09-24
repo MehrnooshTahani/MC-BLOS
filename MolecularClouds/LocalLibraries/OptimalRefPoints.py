@@ -121,7 +121,7 @@ def plotStabilityTrend(TrendDataTable):
 
 def findTrendData(potentialRefPoints, ExtincRMTable, regionOfInterest):
     '''
-    Finds the stability trend data
+    Finds the stability trend data; the calculated BLOS values as a function of the number of reference points (added one by one).
     :param potentialRefPoints: The potential reference points. PANDAS table.
     :param ExtincRMTable: All matched RM-Extinction points. PANDAS table.
     :param regionOfInterest: A RegionOfInterest object that contains all the data for the region of analysis.
