@@ -87,18 +87,22 @@ else:
 # -------- CHOOSE INDICES OF BLOS POINTS TO PLOT. -------
 
 # -------- CREATE A FIGURE -------
-fig = plt.figure(figsize=(12, 12), dpi=120, facecolor='w', edgecolor='k')
+fig, ax = plt.subplots(figsize=(12, 12), dpi=120, facecolor='w', edgecolor='k') #plt.figure(figsize=(12, 12), dpi=120, facecolor='w', edgecolor='k')
 
 plt.ylabel('Magnetic Field Difference (' + r'$ \mu G$)', fontsize=16)
-plt.xlabel(r'$\frac{\Delta T}{T_0} (\%)$', fontsize=16, labelpad=20)
-plt.title('B$_{LOS}$ Variation, ' + cloudName + ', n = n$_0$', fontsize=16, pad=50)
+plt.xlabel(r'$\frac{\Delta n}{n_0} (\%)$', fontsize=16, labelpad=20)
+plt.title('B$_{LOS}$ Variation, ' + cloudName + ', T = T$_0$', fontsize=16, pad=50)
 
 x = np.arange(0, len(percent))
 plt.xticks(x, percent)
 
+numInds = len(indToPlot)
+
+maxBarDisplacement = config.barPlotMaxOccupancyWidth
+widthScaleFactor = config.barPlotIndividualBarWidthMultiplier * maxBarDisplacement
 for i, ind in enumerate(indToPlot):
-    barloc = [item + 0.15 * int(i) for item in x]
-    plt.bar(barloc, B[ind] - AllBScaled[ind], width=0.25, edgecolor='k', label=indToPlot[i])
+    barloc = [item + maxBarDisplacement/numInds * int(i) for item in x]
+    plt.bar(barloc, B[ind] - AllBScaled[ind], width=widthScaleFactor/numInds, edgecolor='k', label=indToPlot[i])
 
 # ---- Style the legend
 plt.legend(loc='upper center', ncol=2)

@@ -16,11 +16,12 @@ import subprocess
 packages = ['numpy',
             'scipy',
             'astropy',
-            'pandas<=1.1.5',
             'matplotlib',
-            'adjusttext==0.7.3',
             'requests',
-            'sklearn==0.0']
+            'sklearn==0.0',
+            'pandas<=1.1.5',
+            'adjusttext==0.7.3',
+            ]
 commands = [[sys.executable, '-m', 'pip', 'install', '--force-reinstall', package] for package in packages]
 #Report python version
 print("Current Python Version:", sys.version)

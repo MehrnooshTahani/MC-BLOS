@@ -85,6 +85,11 @@ configStartSettings['Plotting Options'] = {
     'Temperature Plot Number of Points': 100,
     'Temperature Plot Minimum Extinction': 0.5,
     'Temperature Plot Maximum Extinction': 1.5,
+
+    '# = Bar plot options - adjust to maintain clarity on the graphs depending on your data.': '',
+    'Bar Plot Max All Bars Occupancy Width (1.0 stops at the next tick)': 1.0,
+    'Bar Plot Single Bar Width Multiplier (>1.0 allows bars to overlap)': 4.0,
+
 }
 configStartSettings['Data Presentation'] = {
     '# = What to separate data with. In a csv this is usually \',\'.': '',

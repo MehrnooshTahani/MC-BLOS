@@ -59,6 +59,9 @@ tempPlotNumPoints = configStartSettings['Plotting Options'].getint('Temperature 
 tempPlotMinExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Minimum Extinction')
 tempPlotMaxExtinct = configStartSettings['Plotting Options'].getfloat('Temperature Plot Maximum Extinction')
 
+barPlotMaxOccupancyWidth = configStartSettings['Plotting Options'].getfloat('Bar Plot Max All Bars Occupancy Width (1.0 stops at the next tick)')
+barPlotIndividualBarWidthMultiplier = configStartSettings['Plotting Options'].getfloat('Bar Plot Single Bar Width Multiplier (>1.0 allows bars to overlap)')
+
 # Data Presentation
 dataSeparator = configStartSettings['Data Presentation'].get('Separator')
 dataSeparator = bytes(dataSeparator, "utf-8").decode("unicode_escape")
