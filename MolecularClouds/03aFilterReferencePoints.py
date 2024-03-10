@@ -181,7 +181,7 @@ for message in messages:
 # -------- Define the range
 # The distance the point can be from a region of high extinction and still be thought to sample the background
 cloudDistance = regionOfInterest.distance  # [pc]
-cloudJeansLength = regionOfInterest.jeanslength  # [pc]
+cloudJeansLength = regionOfInterest.jeanslength  # [pc] #Note: can skip these steps and just define NDeltNear and NDeltFar as a function of the extinction (hydrogen column density) fits file pixel size or telescope resolution.
 minDiff = np.degrees(np.arctan(cloudJeansLength / cloudDistance))  # [deg]
 
 degPerPix = abs(regionOfInterest.hdu.header['CDELT1'])
