@@ -8,7 +8,7 @@ from .BoxBounds import getBoxBound
 import copy
 
 # -------- FUNCTION DEFINITION --------
-def findWeightedCenter(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax = np.nan, maskWeight = 4):
+def findWeightedCenter(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax = np.nan, maskWeight = 2):
     """
     Given a 2d numpy array and some bounds, finds the weighted center of the bounded region.
     :param data: 2d numpy array, such as a greyscale image file (Numerical array)
@@ -54,7 +54,7 @@ def findWeightedCenter(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax =
 # -------- FUNCTION DEFINITION --------
 
 # -------- FUNCTION DEFINITION --------
-def getDividingLine(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax = np.nan, maskWeight = 4):
+def getDividingLine(data, xmin = np.nan, xmax = np.nan, ymin = np.nan, ymax = np.nan, maskWeight = 2):
     """
     Given a bound region with data, finds a line which divides it into two equally-weighted regions.
     :param data: 2d numpy array, such as a greyscale image file (Numerical array)

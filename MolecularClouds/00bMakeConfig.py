@@ -46,16 +46,16 @@ configStartSettings['Judgement - Off Points too Near/Far Cloud'] = {
     'Use Far High Extinction Exclusion': False,
 }
 configStartSettings['Judgement - Anomalous Off RM Values'] = {
-    'Anomalous Values Standard Deviation (Greater Than or Equal To)': 3.,
+    'Anomalous Values Standard Deviation (Greater Than or Equal To)': 5,
     'Use Anomalous Value Removal': True,
 }
 configStartSettings['Judgement - Optimal Reference Points'] = {
     'Find Optimal Reference Points': True,
-    'Minimum Reference Points to be Selected': 3,
+    'Minimum Reference Points to be Selected': 5,
     'Max Fraction Reference Points': 1,
 }
 configStartSettings['Judgement - Cloud Quadrant Sampling'] = {
-    'Use Minimum Quadrant Sampling': True,
+    'Use Minimum Quadrant Sampling': False,
     'Minimum Points Per Quadrant': 1,
     '# = Weighting Scheme: How the RMoff values should be weighted. Valid values include None, Quadrant': '',
     'Weighting Scheme': 'None'
