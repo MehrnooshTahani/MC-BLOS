@@ -1,0 +1,41 @@
+INPUT FILE FOR CHEM.C DO NOT ADD LINES OR CHANGE ORDER OF LINES  
+/* Name of the log file */ 
+chem.small.log 
+/* Name of the UMIST Rates file */ 
+../../ratefiles/rates.lowt.txt 
+/* root name of the output file */ 
+chem.small.out 
+/* Name of the file containing species to include in reaction network */ 
+../../species.list.small 
+/* List of the molecules to track (space-delimeted).  End line with an END  */ 
+e- C+ C CO H2O O O2 END 
+/* Fix the value of the Visual Extinction (Av)?  YES or NO */ 
+NO 
+/* If YES set the value for Av in mags. If NO calc Av from cloud thickness and number of layers */ 
+20.0 
+/* Thickness of the cloud in pc */ 
+2.01 
+/* Number of layers in the cloud */ 
+100 
+/* End of simulation in years */ 
+1.0e10 
+/* Gas Temperature in Kelvin */ 
+52.5
+/* Dust Temperature in Kelvin */ 
+52.5
+/* H2 density */ 
+10000.0
+/* FUV dust grain albedo for cosmic ray induced photo-reactions */ 
+0.6 
+/* Strength of the UV field in Habings */ 
+10000.0
+/* Include gas-grain interactions (i.e. depletion and desorption)?  YES or NO */ 
+YES 
+/* If YES provide name of the Gas-grain rates file */ 
+../../ratefiles/grain.rates.txt 
+/* Allow for Cosmic Ray desorption off dust grain?  YES or NO */ 
+YES 
+/* Include grain surface reactions ?  YES or NO */ 
+NO 
+/* If YES provide name of the Grain Surface rates file */ 
+../../ratefiles/grainsurf.rates.txt 
