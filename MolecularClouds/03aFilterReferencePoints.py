@@ -249,11 +249,23 @@ for message in messages:
 
 # Choose a rotation measure corresponding to anomalous
 rmAvg = np.mean(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
+rmMedian = np.median(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
+#print(rmMedian)
+
 rmStd = np.std(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
 
-coeffSTD = config.anomalousSTDNum
-rmUpperLimit = rmAvg + coeffSTD * rmStd
-rmLowerLimit = rmAvg - coeffSTD * rmStd
+rmQ1 = np.percentile(AllPotentialRefPoints['Rotation_Measure(rad/m2)'], 25)
+rmQ3 = np.percentile(AllPotentialRefPoints['Rotation_Measure(rad/m2)'], 75)
+rmIQR = rmQ3-rmQ1
+#print(rmIQR)
+
+coeffIQR = config.anomalousIQRNum
+rmUpperLimit = rmMedian + coeffIQR * rmIQR
+rmLowerLimit = rmMedian - coeffIQR * rmIQR
+#print(rmUpperLimit)
+#print(rmLowerLimit)
+
+#print(rmStd, rmUpperLimit, rmLowerLimit)
 # -------- Define "anomalous".
 
 # -------- For each potential reference point
@@ -266,7 +278,7 @@ for i in list(AllPotentialRefPoints.index):
 # -------- For each potential reference point.
 
 # ---- Record the points rejected for what reason, and what points remain as potential reference points.
-anomalousReject = [item for item in PotRefPoints if item in anomalousRMIndex and config.useAnomalousSTDNumRemove]
+anomalousReject = [item for item in PotRefPoints if item in anomalousRMIndex and config.useanomalousIQRNumRemove]
 
 RejectedReferencePoints += anomalousReject #Notes on +=: When both inputs are lists, the result is list concatenation. Ex. A = [1], B = [2, 3], then A += B = [1, 2, 3]. Here, both objects are lists.
 PotRefPoints = [item for item in PotRefPoints if item not in anomalousReject]
@@ -277,8 +289,8 @@ AnomalousRejectedRefPoints.to_csv(AnomRejRefPointFile, sep=config.dataSeparator)
 
 # ---- Log info
 messages = ['We will now check if any of the potential reference points have anomalous rotation measure values.',
-            "\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or rm > {:.2f}rad/m^2)".format(coeffSTD, rmLowerLimit, rmUpperLimit),
-            'As per configuration settings, anomalous points will be removed: {}'.format(config.useAnomalousSTDNumRemove),
+            "\t-Anomalous rotation measure values have been defined in the starting configuration to be greater or less than {} standard deviations from the mean (rm < {:.2f}rad/m^2 or rm > {:.2f}rad/m^2)".format(coeffIQR, rmLowerLimit, rmUpperLimit),
+            'As per configuration settings, anomalous points will be removed: {}'.format(config.useanomalousIQRNumRemove),
             'The potential reference point(s) {} have anomalous rotation measure values'.format(anomalousRMIndex),
             'As such, the remaining points by their IDs are: \n {}'.format(PotRefPoints),
             'Anomalous Rejected Points data was saved to {}'.format(AnomRejRefPointFile)]

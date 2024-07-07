@@ -13,6 +13,7 @@ from itertools import zip_longest
 
 import numpy as np
 import pandas as pd
+from astropy.coordinates import Angle
 
 import LocalLibraries.ConversionLibrary as cl
 import LocalLibraries.config as config
@@ -92,27 +93,34 @@ def addHeader(headerless_file, headerfile):
     headerless.set_axis(header.columns, axis=1, inplace=True)
     headerless.to_csv(headerless_file, index=False, sep=config.dataSeparator)
 
-def CameronToTaylorFormat(Cameron_Data_File):
-    Cameron_Data = pd.read_csv(Cameron_Data_File, sep='\t', error_bad_lines=False, engine="python")
+def Van_EckToTaylorFormat(Van_Eck_Data_File):
+    Van_Eck_Data = pd.read_csv(Van_Eck_Data_File, sep='\t', error_bad_lines=False, engine="python")
 
-    ra = Cameron_Data['ra']
-    dec = Cameron_Data['dec']
+    ra = Van_Eck_Data['ra']
+    dec = Van_Eck_Data['dec']
 
-    raHours, raMins, raSecs = cl.ra_deg2hms(np.array(ra))
-    decDegs, decArcmins, decArcsecs = cl.dec_deg2dms(np.array(dec))
-    errHr, errMin, errSec = cl.ra_deg2hms(np.array(Cameron_Data['pos_err']))
+    raHMS = Angle(ra, unit='deg').hms
+    raHours, raMins, raSecs = raHMS.h, raHMS.m, raHMS.s #cl.ra_deg2hms(np.array(ra))
+
+    decDMS = Angle(dec, unit='deg').dms
+    decDegs, decArcmins, decArcsecs = decDMS.d, decDMS.m, decDMS.s #cl.dec_deg2dms(np.array(dec))
+
+    errHMS = Angle(Van_Eck_Data['pos_err'], unit='deg')
+    errHr, errMin, errSec = errHMS.h, errHMS.m, errHMS.s #cl.ra_deg2hms(np.array(Van_Eck_Data['pos_err']))
+
     raErrSecs = decErrArcsecs = errSec + 60 * errMin + 60 * 60 * errHr
-    longitudeDegs = Cameron_Data['l'] #Note: Cameron's galactic longitudes aren't shifted/are right
-    latitudeDegs = Cameron_Data['b']
-    nvssStokesIs = Cameron_Data['stokesI']
-    stokesIErrs = Cameron_Data['stokesI_err']
-    AvePeakPIs = Cameron_Data['polint']
-    PIErrs = Cameron_Data['polint_err']
-    polarizationPercents = Cameron_Data['fracpol']
-    mErrPercents = Cameron_Data['fracpol_err']
-    rotationMeasures = Cameron_Data['rm']
-    RMErrs = Cameron_Data['rm_err']
-    colsCameron = ['ra', 'dec', 'l', 'b', 'pos_err',
+
+    longitudeDegs = Van_Eck_Data['l'] #Note: Van_Eck's galactic longitudes aren't shifted/are right
+    latitudeDegs = Van_Eck_Data['b']
+    nvssStokesIs = Van_Eck_Data['stokesI']
+    stokesIErrs = Van_Eck_Data['stokesI_err']
+    AvePeakPIs = Van_Eck_Data['polint']
+    PIErrs = Van_Eck_Data['polint_err']
+    polarizationPercents = Van_Eck_Data['fracpol']
+    mErrPercents = Van_Eck_Data['fracpol_err']
+    rotationMeasures = Van_Eck_Data['rm']
+    RMErrs = Van_Eck_Data['rm_err']
+    colsVan_Eck = ['ra', 'dec', 'l', 'b', 'pos_err',
                    'rm', 'rm_err', 'rm_width', 'rm_width_err',
                    'complex_flag', 'complex_test', 'rm_method', 'ionosphere', 'Ncomp',
                    'stokesI', 'stokesI_err', 'spectral_index', 'spectral_index_err',
@@ -129,8 +137,8 @@ def CameronToTaylorFormat(Cameron_Data_File):
                'longitudeDegs','latitudeDegs','nvssStokesIs','stokesIErrs','AvePeakPIs','PIErrs',
                'polarizationPercents','mErrPercents','rotationMeasures','RMErrs']
     Taylor_data = list(zip_longest(raHours,raMins,raSecs,raErrSecs,decDegs,decArcmins,decArcsecs,decErrArcsecs,longitudeDegs,latitudeDegs,nvssStokesIs,stokesIErrs,AvePeakPIs,PIErrs,polarizationPercents,mErrPercents,rotationMeasures,RMErrs,fillvalue=''))
-    Cameron_to_Taylor_frame = pd.DataFrame(Taylor_data, columns=Taylor_columns)
-    Cameron_to_Taylor_frame.to_csv('Data\\RMCatalog\\Cameron(Taylor_Format).dat', sep='\t',  na_rep = 'nan', index=False)
+    Van_Eck_to_Taylor_frame = pd.DataFrame(Taylor_data, columns=Taylor_columns)
+    Van_Eck_to_Taylor_frame.to_csv('Data\\RMCatalog\\van_eck_(taylor_format).dat', sep='\t',  na_rep = 'nan', index=False)
 
 density_fits_file_urls = ['http://www.herschel.fr/Phocea/file.php?class=astimg&file=66/HGBS_aquilaM2_column_density_map.fits.gz',
                           'http://www.herschel.fr/cea/gouldbelt/en/Phocea/file.php?class=astimg&file=66/HGBS_cep1157_column_density_map.fits',
@@ -153,14 +161,14 @@ density_fits_file_urls = ['http://www.herschel.fr/Phocea/file.php?class=astimg&f
                           'http://www.herschel.fr/cea/gouldbelt/en/Phocea/file.php?class=astimg&file=66/HGBS_serpens_column_density_map.fits.gz']
 
 rmcatalogue_urls = ['https://cdsarc.cds.unistra.fr/ftp/J/ApJ/702/1230/catalog.dat.gz',
-                    'https://github.com/CIRADA-Tools/RMTable/raw/master/consolidated_catalog_ver1.0.1.tsv.zip']
+                    'https://github.com/CIRADA-Tools/RMTable/raw/master/consolidated_catalog_ver1.2.0.tsv.zip']
 #Get the column density maps.
 columndensities = download_files(density_fits_file_urls, config.dir_data)
 columndensities = unzip_gzs(columndensities)
 #Get the rotation catalogue (Taylor 2009)
 rmcatalogues = download_files(rmcatalogue_urls, config.DataRMCatalogDir)
 unzip(rmcatalogues)
-CameronToTaylorFormat(os.path.join(config.DataRMCatalogDir, 'consolidated_catalog_ver1.0.1.tsv'))
+Van_EckToTaylorFormat(os.path.join(config.DataRMCatalogDir, 'consolidated_catalog_ver1.2.0.tsv.zip'))
 rmcatalogues = unzip_gzs(rmcatalogues)
 #Append the appropriate header to the rotation measure catalogue (Taylor 2009)
 addHeader(rmcatalogues[0], os.path.join(config.DataRMCatalogDir, 'RMCatalogueHeader.csv'))

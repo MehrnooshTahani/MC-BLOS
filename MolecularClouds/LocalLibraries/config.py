@@ -29,8 +29,8 @@ highExtinctionThreshMultiplier = configStartSettings['Judgement - Off Points too
 useNearExtinctionRemove = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getboolean('Use Near High Extinction Exclusion')
 useFarExtinctionRemove = configStartSettings['Judgement - Off Points too Near/Far Cloud'].getboolean('Use Far High Extinction Exclusion')
 
-anomalousSTDNum = configStartSettings['Judgement - Anomalous Off RM Values'].getfloat('Anomalous Values Standard Deviation (Greater Than or Equal To)')
-useAnomalousSTDNumRemove = configStartSettings['Judgement - Anomalous Off RM Values'].getboolean('Use Anomalous Value Removal')
+anomalousIQRNum = configStartSettings['Judgement - Anomalous Off RM Values'].getfloat('anomalous values IQR multiple (greater than or equal to)')
+useanomalousIQRNumRemove = configStartSettings['Judgement - Anomalous Off RM Values'].getboolean('Use Anomalous Value Removal')
 
 UseOptRefPoints = configStartSettings['Judgement - Optimal Reference Points'].getboolean('Find Optimal Reference Points')
 minRefPoints = configStartSettings['Judgement - Optimal Reference Points'].getint('Minimum Reference Points to be Selected')

@@ -46,7 +46,7 @@ configStartSettings['Judgement - Off Points too Near/Far Cloud'] = {
     'Use Far High Extinction Exclusion': False,
 }
 configStartSettings['Judgement - Anomalous Off RM Values'] = {
-    'Anomalous Values Standard Deviation (Greater Than or Equal To)': 5,
+    'anomalous values IQR multiple (greater than or equal to)': 5,
     'Use Anomalous Value Removal': True,
 }
 configStartSettings['Judgement - Optimal Reference Points'] = {
@@ -201,7 +201,7 @@ configDirectoryAndNames['Input Directories'] = {
 }
 configDirectoryAndNames['Input Files'] = {
     #'RM Catalogue Resolution (Degrees)': 0.0125,
-    '# = RM Catalogue: The name of the rotation measure catalog, formatted in TAYLOR style currently. Valid default catalogs: catalog.dat, Cameron.dat. Cameron catalog is converted to Taylor and is not rigorously tested, please verify before using.': '',
+    '# = RM Catalogue: The name of the rotation measure catalog, formatted in TAYLOR style currently. Valid default catalogs: catalog.dat, Van_Eck_(Taylor_Format).dat. Van_Eck catalog is converted to Taylor and is not rigorously tested, please verify before using.': '',
     'RM Catalogue': 'catalog.dat',
     'AvAbundance Template': 'Av_T{}_n{}.out'
 }
