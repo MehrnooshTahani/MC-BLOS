@@ -250,22 +250,16 @@ for message in messages:
 # Choose a rotation measure corresponding to anomalous
 rmAvg = np.mean(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
 rmMedian = np.median(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
-#print(rmMedian)
 
 rmStd = np.std(AllPotentialRefPoints['Rotation_Measure(rad/m2)'])
 
 rmQ1 = np.percentile(AllPotentialRefPoints['Rotation_Measure(rad/m2)'], 25)
 rmQ3 = np.percentile(AllPotentialRefPoints['Rotation_Measure(rad/m2)'], 75)
 rmIQR = rmQ3-rmQ1
-#print(rmIQR)
 
 coeffIQR = config.anomalousIQRNum
 rmUpperLimit = rmMedian + coeffIQR * rmIQR
 rmLowerLimit = rmMedian - coeffIQR * rmIQR
-#print(rmUpperLimit)
-#print(rmLowerLimit)
-
-#print(rmStd, rmUpperLimit, rmLowerLimit)
 # -------- Define "anomalous".
 
 # -------- For each potential reference point
