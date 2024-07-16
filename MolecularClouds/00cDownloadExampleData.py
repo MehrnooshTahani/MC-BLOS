@@ -10,6 +10,7 @@ import zipfile
 import requests
 
 from itertools import zip_longest
+import astropy.units as u
 
 import numpy as np
 import pandas as pd
@@ -103,12 +104,12 @@ def Van_EckToTaylorFormat(Van_Eck_Data_File):
     raHours, raMins, raSecs = raHMS.h, raHMS.m, raHMS.s #cl.ra_deg2hms(np.array(ra))
 
     decDMS = Angle(dec, unit='deg').dms
-    decDegs, decArcmins, decArcsecs = decDMS.d, decDMS.m, decDMS.s #cl.dec_deg2dms(np.array(dec))
+    decDegs, decArcmins, decArcsecs = decDMS.d, np.abs(decDMS.m), np.abs(decDMS.s) #cl.dec_deg2dms(np.array(dec))
 
-    errHMS = Angle(Van_Eck_Data['pos_err'], unit='deg')
-    errHr, errMin, errSec = errHMS.h, errHMS.m, errHMS.s #cl.ra_deg2hms(np.array(Van_Eck_Data['pos_err']))
+    errAng = Angle(Van_Eck_Data['pos_err'], unit='deg')
+    raErrSecs = errAng.to(u.arcsec).value
+    decErrArcsecs = errAng.to(u.arcsec).value
 
-    raErrSecs = decErrArcsecs = errSec + 60 * errMin + 60 * 60 * errHr
 
     longitudeDegs = Van_Eck_Data['l'] #Note: Van_Eck's galactic longitudes aren't shifted/are right
     latitudeDegs = Van_Eck_Data['b']
@@ -138,7 +139,7 @@ def Van_EckToTaylorFormat(Van_Eck_Data_File):
                'polarizationPercents','mErrPercents','rotationMeasures','RMErrs']
     Taylor_data = list(zip_longest(raHours,raMins,raSecs,raErrSecs,decDegs,decArcmins,decArcsecs,decErrArcsecs,longitudeDegs,latitudeDegs,nvssStokesIs,stokesIErrs,AvePeakPIs,PIErrs,polarizationPercents,mErrPercents,rotationMeasures,RMErrs,fillvalue=''))
     Van_Eck_to_Taylor_frame = pd.DataFrame(Taylor_data, columns=Taylor_columns)
-    Van_Eck_to_Taylor_frame.to_csv('Data\\RMCatalog\\van_eck_(taylor_format).dat', sep='\t',  na_rep = 'nan', index=False)
+    Van_Eck_to_Taylor_frame.to_csv(os.path.join(config.DataRMCatalogDir, 'van_eck_(taylor_format).dat'), sep='\t',  na_rep = 'nan', index=False)
 
 density_fits_file_urls = ['http://www.herschel.fr/Phocea/file.php?class=astimg&file=66/HGBS_aquilaM2_column_density_map.fits.gz',
                           'http://www.herschel.fr/cea/gouldbelt/en/Phocea/file.php?class=astimg&file=66/HGBS_cep1157_column_density_map.fits',
@@ -162,12 +163,12 @@ density_fits_file_urls = ['http://www.herschel.fr/Phocea/file.php?class=astimg&f
 
 rmcatalogue_urls = ['https://cdsarc.cds.unistra.fr/ftp/J/ApJ/702/1230/catalog.dat.gz',
                     'https://github.com/CIRADA-Tools/RMTable/raw/master/consolidated_catalog_ver1.2.0.tsv.zip']
-#Get the column density maps.
+# Get the column density maps.
 columndensities = download_files(density_fits_file_urls, config.dir_data)
 columndensities = unzip_gzs(columndensities)
 #Get the rotation catalogue (Taylor 2009)
 rmcatalogues = download_files(rmcatalogue_urls, config.DataRMCatalogDir)
-unzip(rmcatalogues)
+# unzip(rmcatalogues)
 Van_EckToTaylorFormat(os.path.join(config.DataRMCatalogDir, 'consolidated_catalog_ver1.2.0.tsv.zip'))
 rmcatalogues = unzip_gzs(rmcatalogues)
 #Append the appropriate header to the rotation measure catalogue (Taylor 2009)
