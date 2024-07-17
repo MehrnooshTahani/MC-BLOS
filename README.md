@@ -1,4 +1,4 @@
-# BLosCode (v1.0)
+# MC-BLOS (v1.0)
 
 Recent surveys and telescopes have extensively observed the plane-of-sky component of magnetic fields in molecular clouds, but observations of their line-of-sight magnetic fields remain limited. To address this gap, we developed MC-BLOS (v1.0), an automated software implementation of the Faraday rotation-based technique introduced by Tahani et al. (2018).
 
