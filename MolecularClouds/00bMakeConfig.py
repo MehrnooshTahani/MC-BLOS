@@ -201,7 +201,8 @@ configDirectoryAndNames['Input Directories'] = {
 }
 configDirectoryAndNames['Input Files'] = {
     #'RM Catalogue Resolution (Degrees)': 0.0125,
-    '# = RM Catalogue: The name of the rotation measure catalog, formatted in TAYLOR style currently. Valid default catalogs: catalog.dat, Van_Eck_(Taylor_Format).dat. Van_Eck catalog is converted to Taylor and is not rigorously tested, please verify before using.': '',
+    '# RM catalogue: the name of the rotation measure catalog, formatted in taylor style currently. valid default catalogs: catalog.dat, van_eck_(taylor_format).dat.': '',
+    '# Due to the lack of cross-matching between the RM catalogs in the Van Eck Consolidated catalog, we do not recommend using it. (This results in repeated points having more weight in the determination of RM_ref': '',
     'RM Catalogue': 'catalog.dat',
     'AvAbundance Template': 'Av_T{}_n{}.out'
 }
