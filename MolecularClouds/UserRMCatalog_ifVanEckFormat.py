@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-van_eck_to_taylor_format.py
+UserRMCatalog_ifVanEckFormat.py
 
 A standalone script that converts a "Van Eck style" rotation measure catalogue
 into a "Taylor style" format, with an optional step to merge/average any
 overlapping data rows based on positional uncertainty.
 
 USAGE:
-    python3 van_eck_to_taylor_format.py [van_eck_file] [optional_output_file] [optional_output_directory] [merge_flag]
+    python3 UserRMCatalog_ifVanEckFormat.py [van_eck_file] [optional_output_file] [optional_output_directory] [merge_flag]
 
     1) van_eck_file (REQUIRED):
        Path to the input Van Eck style catalogue file.
@@ -33,16 +33,16 @@ USAGE:
        your original file, please back it up or adjust the function accordingly.
 
 EXAMPLE:
-    python3 van_eck_to_taylor_format.py my_van_eck_catalog.tsv
+    python3 UserRMCatalog_ifVanEckFormat.py my_van_eck_catalog.tsv
         - Produces my_van_eck_catalog_(taylor_format).dat in the same directory,
           no merging step performed.
 
-    python3 van_eck_to_taylor_format.py my_van_eck_catalog.tsv my_output.dat /my/output/dir True
+    python3 UserRMCatalog_ifVanEckFormat.py my_van_eck_catalog.tsv my_output.dat /my/output/dir True
         - Merges overlapping data in 'my_van_eck_catalog.tsv' (overwrites it),
           then converts to Taylor style, saving the final file as:
             /my/output/dir/my_output.dat
 
-    python3 van_eck_to_taylor_format.py my_van_eck_catalog.tsv some/subdir/output.csv
+    python3 UserRMCatalog_ifVanEckFormat.py my_van_eck_catalog.tsv some/subdir/output.csv
         - No merge. Places the file in "some/subdir/output.csv"
           relative to the current working directory.
 
@@ -255,15 +255,15 @@ def main():
     Main command-line entry point. Parses arguments and calls the conversion.
 
     Usage:
-      python3 van_eck_to_taylor_format.py [van_eck_file] [optional_output_file] [optional_output_directory] [merge_flag]
+      python3 UserRMCatalog_ifVanEckFormat.py [van_eck_file] [optional_output_file] [optional_output_directory] [merge_flag]
 
     See script docstring at the top for details.
     """
     args = sys.argv[1:]
 
     if len(args) < 1:
-        print("\nError: No Van Eck catalogue file provided.\n")
-        print("Usage:\n  python3 van_eck_to_taylor_format.py [van_eck_file] "
+        print("\nError: No Van Eck_type catalogue file provided.\n")
+        print("Usage:\n  python3 UserRMCatalog_ifVanEckFormat.py [van_eck_file] "
               "[optional_output_file] [optional_output_directory] [merge_flag]\n")
         sys.exit(1)
 
