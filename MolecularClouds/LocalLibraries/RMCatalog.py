@@ -69,12 +69,12 @@ class RMCatalog:
         decErrArcsecs = RMCatalogueData["decErrArcsecs"]
         longitudeDegs = RMCatalogueData["longitudeDegs"]
         latitudeDegs = RMCatalogueData["latitudeDegs"]
-        nvssStokesIs = RMCatalogueData["nvssStokesIs"]
-        stokesIErrs = RMCatalogueData["stokesIErrs"]
-        AvePeakPIs = RMCatalogueData["AvePeakPIs"]
-        PIErrs = RMCatalogueData["PIErrs"]
-        polarizationPercents = RMCatalogueData["polarizationPercents"]
-        mErrPercents = RMCatalogueData["mErrPercents"]
+        #nvssStokesIs = RMCatalogueData["nvssStokesIs"]
+        #stokesIErrs = RMCatalogueData["stokesIErrs"]
+        #AvePeakPIs = RMCatalogueData["AvePeakPIs"]
+        #PIErrs = RMCatalogueData["PIErrs"]
+        #polarizationPercents = RMCatalogueData["polarizationPercents"]
+        #mErrPercents = RMCatalogueData["mErrPercents"]
         rotationMeasures = RMCatalogueData["rotationMeasures"]
         RMErrs = RMCatalogueData["RMErrs"]
 
@@ -91,11 +91,11 @@ class RMCatalog:
         self.targetDecDegArcMinSecs = []
         self.targetLongitudeDegs = []
         self.targetLatitudeDegs = []
-        self.targetNvssStokesIs = []
-        self.targetStokesIErrs = []
-        self.targetAvePeakPIs = []
-        self.targetPIErrs = []
-        self.targetPolarizationPercets = []
+        #self.targetNvssStokesIs = []
+        #self.targetStokesIErrs = []
+        #self.targetAvePeakPIs = []
+        #self.targetPIErrs = []
+        #self.targetPolarizationPercets = []
         self.targetMErrPercents = []
         self.targetRotationMeasures = []
         self.targetRMErrs = []
@@ -145,12 +145,12 @@ class RMCatalog:
                 self.targetDecErrArcSecs.append(decErrArcsecs[index])
                 self.targetLongitudeDegs.append(longitudeDegs[index])
                 self.targetLatitudeDegs.append(latitudeDegs[index])
-                self.targetNvssStokesIs.append(nvssStokesIs[index])
-                self.targetStokesIErrs.append(stokesIErrs[index])
-                self.targetAvePeakPIs.append(AvePeakPIs[index])
-                self.targetPIErrs.append(PIErrs[index])
-                self.targetPolarizationPercets.append(polarizationPercents[index])
-                self.targetMErrPercents.append(mErrPercents[index])
+                #self.targetNvssStokesIs.append(nvssStokesIs[index])
+                #self.targetStokesIErrs.append(stokesIErrs[index])
+                #self.targetAvePeakPIs.append(AvePeakPIs[index])
+                #self.targetPIErrs.append(PIErrs[index])
+                #self.targetPolarizationPercets.append(polarizationPercents[index])
+                #self.targetMErrPercents.append(mErrPercents[index])
                 self.targetRotationMeasures.append(rotationMeasures[index])
                 self.targetRMErrs.append(RMErrs[index])
         # -------- EXTRACT INFORMATION FROM THE REGION OF INTEREST. --------
