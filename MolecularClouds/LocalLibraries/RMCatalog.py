@@ -118,7 +118,7 @@ class RMCatalog:
         for index in range(len(raHours)):
 
             # If converting manually:
-            radeg = cl.ra_hms2deg(raHours[index], raMins[index], raMins[index])  # <- If converting manually
+            radeg = cl.ra_hms2deg(raHours[index], raMins[index], raSecs[index])  # <- If converting manually
             decdeg = cl.dec_dms2deg(decDegs[index], decArcmins[index], decArcsecs[index])  # <- If converting manually
 
             # If using SkyCoord:
